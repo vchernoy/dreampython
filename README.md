@@ -308,3 +308,123 @@ Code: https://onlinegdb.com/26vDswZYs
 
 ---
 
+### Инициализируем многомерные массивы (lists) в Python правильно! (May 12)
+
+Заполняем двухмерные массивы (3х2), нулями, True и последовательными числами:
+```py
+print([[0] * 3 for _ in range(2)])
+print([[True] * 3 for _ in range(2)])
+print([list(range(3)) for _ in range(2)])
+```
+Output:
+```
+[[0, 0, 0], [0, 0, 0]]
+[[True, True, True], [True, True, True]]
+[[0, 1, 2], [0, 1, 2]]
+```
+Кортежи кортежей, списки кортежей, списки списков:
+```py
+print((tuple('#'*i for i in range(3)),)*2)
+print([tuple('#'*i for i in range(3))]*2)
+print([['#'*i for i in range(3)]]*2)
+```
+Output:
+```
+(('', '#', '##'), ('', '#', '##'))
+[('', '#', '##'), ('', '#', '##')]
+[['', '#', '##'], ['', '#', '##']]
+```
+В последней команде print, массив (list) содержит вложенных список. Двухмерный массив строится при помощи оператора повторения * (repetition). Это может создать непредсказуемые проблемы.
+
+Смотрим следующий пример:
+```py
+broken_grid = [list(range(3))] * 2
+print(broken_grid)
+broken_grid[0][0] = 100 
+print(broken_grid)
+```
+Output:
+```
+[[0, 1, 2], [0, 1, 2]]
+[[100, 1, 2], [100, 1, 2]]
+```
+Изменение в элементе (0,0) также изменило и значение в (1,0). В действительности broken_grid[0] и broken_grid[1] -- указывают на один и тот же список. Скорее всего это не то, что мы хотели получить.
+
+Правильно инициализировать сложные массивы так:
+```py
+grid = [list(range(3)) for _ in range(2)]
+print(grid)
+grid[0][0] = 100 
+print(grid)
+```
+Output:
+```
+[[0, 1, 2], [0, 1, 2]]
+[[100, 1, 2], [0, 1, 2]]
+```
+Code: https://onlinegdb.com/bBCb2LO_u
+
+---
+
+### Operator `star` for lists and tuples:
+
+#### List repetition:
+```py
+values = [2, 5, 13]
+repeated_values = values * 2
+print(repeated_values)
+```
+Output:
+```
+[2, 5, 13, 2, 5, 13]
+```
+#### Partial unpacking:
+```py
+x, y, z = values
+print(x, y, z)
+
+x, *yz = values
+print(x, yz)
+```
+Output:
+```
+2 5 13
+2 [5, 13]
+```
+#### Arguments unpacking:
+```py
+print(values)
+print(*values)
+```
+Output:
+```
+[2, 5, 13]
+2 5 13
+```
+#### Yet another argument unpacking:
+```py
+def impress(a, b, c):
+    print(a, b, c)
+
+impress(*values)
+```
+Output:
+```
+2 5 13
+```
+#### Functions with arbitrary number of positional argument:
+```py
+def impress_any(*args):
+    print(args)
+
+impress_any(x, y, z)
+impress_any(*values)
+```
+Output:
+```
+(2, 5, 13)
+(2, 5, 13)
+```
+https://onlinegdb.com/-8B_D1JMB
+
+---
