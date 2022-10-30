@@ -848,3 +848,237 @@ print_iterable_or_not((
 ))
 ```
 Code: https://onlinegdb.com/o6581Ooqw
+
+---
+
+### Iterable или не iterable: Part 3 (May 15)
+
+Настaло время показать примеры объектов, которые не являются итерируемыми. В первую очередь это числа (целые, вещественные), булевские значения (True, False), и конечно None.
+
+Никаких сюрпризов: по объектам типов int, float, bool, NoneType итерироваться в циле for не получится.
+```py
+print_iterable_or_not((
+    '5',
+    '5.5',
+    'True',
+    'None',
+))
+```
+Output:
+```
+object:   5
+type:     int
+iterable: False
+value(s): 5
+size:     1
+
+object:   5.5
+type:     float
+iterable: False
+value(s): 5.5
+size:     1
+
+object:   True
+type:     bool
+iterable: False
+value(s): True
+size:     1
+
+object:   None
+type:     NoneType
+iterable: False
+value(s): None
+size:     1
+```
+Функции, стандартные или определённые програмистом, а также типы, классы и модули тоже не являются iterable.
+```py
+print_iterable_or_not((
+    'len',
+    'gen_1_10_100',
+    'str',
+    'Gen_1_10_100',
+    'itertools',
+))
+```
+Output:
+```
+object:   len
+type:     builtin_function_or_method
+iterable: False
+value(s): <built-in function len>
+size:     1
+
+object:   gen_1_10_100
+type:     function
+iterable: False
+value(s): <function gen_1_10_100 at 0x10ae35a60>
+size:     1
+
+object:   str
+type:     type
+iterable: False
+value(s): <class 'str'>
+size:     1
+
+object:   Gen_1_10_100
+type:     type
+iterable: False
+value(s): <class '__main__.Gen_1_10_100'>
+size:     1
+
+object:   itertools
+type:     module
+iterable: False
+value(s): <module 'itertools' (built-in)>
+size:     1
+```
+
+Code: https://onlinegdb.com/wq9VInL3Z
+
+---
+
+
+### Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
+
+Возьмём учебный пример: подсчет процентов и выплат по fixed-rate mortage. Допустим цена дома $500,000, начальный взнос: 20%. Это можно выразить следующим кодом на Python:
+```py
+home_price = USD * 500000
+down_payment = home_price * 0.2
+mortgage = home_price - down_payment
+
+print(f'{home_price=}')
+print(f'{down_payment=}')
+print(f'{mortgage=}')
+
+loan_to_value = mortgage / home_price
+
+print(f'{loan_to_value=:.1%}')
+```
+Тут мы заодно посчитали LTV, который в данном примере составит: 80% (ну раз первый взнос: 20%).
+
+Мы тут пока не определили USD, но можно догадаться, речь про $1, а значит USD * 500000 означает: $500,000.
+Недостающий кусок кода разберём чуть позже, а пока посмотрим на вывод данного кода.
+
+Output:
+```
+home_price=$500,000.00
+down_payment=$100,000.00
+mortgage=$400,000.00
+
+loan_to_value=80.0%
+```
+Магическим образом числа форматируются как цены, хотя сама команда print этого вроде не делает.
+Определим, что ссуда берётся под 5% годовых на 30 лет. Пересчитываем в проценты за один месяц. Также вводим понятие amortization term которое означает срок ссуды в количестве месяцев:
+```py
+mortgage_rate = 0.05
+monthly_rate = (1 + mortgage_rate) ** (1 / 12) - 1
+
+print(f'{mortgage_rate=:.1%}')
+print(f'{monthly_rate=:.3%}')
+
+mortgage_term = 30
+amortization_term = mortgage_term * 12
+```
+Output:
+```
+mortgage_rate=5.0%
+monthly_rate=0.407%
+```
+Теперь считаем считаем выплаты как по процентам так и возврат по ссуде. Вычисления скрыты в функции, которую разберём чуть позже.
+```py
+monthly_interest, monthly_principle = payment(mortgage, amortization_term, monthly_rate)
+monthly_payment = monthly_interest + monthly_principle
+print(f'{monthly_interest=}')
+print(f'{monthly_principle=}')
+print(f'{monthly_payment=}')
+```
+Output:
+```py
+monthly_interest=$1,629.65
+monthly_principle=$490.57
+monthly_payment=$2,120.22
+```
+Опять магия: цены форматируются корректно!
+
+#### Функция `payment()`
+
+А вот и недостающая функция подсчёта выплат по ссуде:
+```py
+def payment(balance: Dollar, term: int, rate: float) -> Tuple[Dollar, Dollar]:
+    interest = balance * rate
+    principle = interest / ((1 + rate) ** term - 1)
+
+    return interest, principle
+```
+Считает по известным формулам и возвращает пару (tuple): оплата процентов и возврат ссуды. В сумме получим (месячный) платёж. На самом деле, этой функции всё равно, речь про месяцы или года. Используются абстрактные: balance, term, rate!
+Упрощая, допустим баланс по ссуде $400К, годовой процент: 5%, ссуда на 30 лет, то функция payment($400,000, 30, 5%) посчитает:
+```py
+interest = $400,000 * 5% = $20,000
+principle = $20,000 / (1.05^30 - 1) = $6,020
+```
+Общий платёж (за год): $5,000 + $1,505 = $26,020.
+
+В терминах целых годов, ответ будет не совсем верный. Более правильным будет сделать пересчёт по месяцам. Именно поэтому вы вызываем эту функцию как payment($400,000, 12*30, 0.407%).
+Заметим, что функция имеет аннотацию к типам и для balance указан тип Dollar, который мы пока нигде не определили.
+
+#### Тип `Dollar`
+
+Dollar ⏤ это класс, который наследует все поля и свойства другого типа collections.namedtuple. Можно и без наследования обойтись, но namedtuple является очень полезным типом, с которым следует познакомиться.
+
+Тип namedtuple позволяет определить наименованные кортежи. Как раз Dollar ⏤ это кортеж из всего одной но именованной компоненты: amount. Как и обычные tuple, namedtuple тоже является неизменяемым ⏤ ещё одно полезное свойство.
+
+Можно конечно же использовать namedtuple напрямую, например так:
+```py
+Dollar = namedtuple('Dollar', 'amount', defaults=(1,))
+```
+Тут мы определяем новый тип: неизменяемый именованный кортеж с полем amount (со значением по умолчанию: 1). Но этого недостаточно, если хотим производить арифметические операции с объектами типа Dollar.
+
+Поэтому Dollar наследует поле amount и свойства immutability, но определяет свои операторы. 
+Например:
+* __mul__() помогает переопределить оператор умножения значения типа Dollar на некое число. Результатом умножения будет значение типа Dollar.
+
+Это позволяет писать такой код: Dollar(500) * 10 ⏤ получим: Dollar(5000).
+
+* Метод __add__() позволяет писать такой код: Dollar(500) + Dollar(80) ⏤ получим: Dollar(580).
+
+* Метод __truediv__() позволяет считать:
+```py
+Dollar(500) / Dollar(10) = 50 или
+Dollar(500) / 50 = Dollar(10).
+```
+* Метод __str__() красиво форматирует объекты типа Dollar, тут и появляется: $5,000 вместо 5000.
+
+```py
+from collections import namedtuple
+```
+```py
+class Dollar(namedtuple('Dollar', 'amount', defaults=(1,))):
+    def __mul__(self, other: Union[int, float]) -> 'Dollar':
+        return Dollar(self.amount * other)
+
+    def __truediv__(self, other: Union[int, float, 'Dollar']) -> 'Dollar':
+        return self.amount / other.amount \
+        if type(other) == Dollar \
+        else Dollar(self.amount / other)
+
+    def __add__(self, other: 'Dollar') -> 'Dollar':
+        return Dollar(self.amount + other.amount)
+
+    def __sub__(self, other: 'Dollar') -> 'Dollar':
+        return Dollar(self.amount - other.amount)
+
+    def __str__(self) -> str:
+        return f'${self.amount:,.2f}' \
+        if self.amount >= 0 \
+        else f'-${-self.amount:,.2f}'
+
+    def __repr__(self) -> str:
+        return str(self)
+```
+Теперь можно ввести недостающий доллар:
+```py
+USD = Dollar(1)
+```
+Code: https://onlinegdb.com/EySDwsUIo
+
+---
