@@ -102,3 +102,42 @@ print(quote)
 The code to play: https://onlinegdb.com/tVtkO7Mcc
 
 ---
+
+### Знакомство с методами str.split() и str.join()
+
+Используем `split()`, чтобы поделить текст на слова.
+* Например: `text.split(' ')` делит строку text используя разделитель `' '` (space). Метод возвращает список строк (list of str). 
+
+А чтобы склеить слова, используем обратный метод: `join()`.
+* Например, `' '.join(words)` соединит все слова из списка words в одну строку, склеивая их символом `' '`:
+
+```py
+quote = 'Simplicity is prerequisite for reliability.'
+print(f"Dijkstra's quote: {quote}")
+
+words = quote.split(' ')
+print(f"Split using ' ':  {words}")
+
+text = ' '.join(words)
+print(f"Join using ' ':   {text}")
+print()
+```
+
+Можно использовать композицию вызовов (вызвать метод на результате предыдущего метода):
+```py
+print(' '.join(quote.split()))
+print(' '.join(words).split(' '))
+print()
+```
+А теперь сравниваем, что результат работы двух функций производит оригинал:
+```py
+print(f'the produced text equals original quote: {text == quote}')
+print()
+
+print(f'" ".join(quote.split(" ")) == quote: {" ".join(quote.split(" ")) == quote}')
+
+print(f'" ".join(words).split(" ") == words: {" ".join(words).split(" ") == words}')
+```
+Code to play: https://onlinegdb.com/l1GEcnq3s
+
+---
