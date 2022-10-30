@@ -612,3 +612,143 @@ Code in https://onlinegdb.com/uV9ygOawD
 
 ---
 
+### Iterable или не iterable? (May 15)
+
+Из итерируемых объектов можно создать итератор, который позволяет пробежать по компонентам объекта в цикле for.
+Лучше понять это на примерах. Берём список: [1, 10, 100]. Поскольку список являются iterable, из него можно создать итератор:
+```py
+it = iter([1, 10, 100])
+```
+Итератор неявно создаётся и используется в цикле for:
+```py
+for elem in [1, 10, 100]:
+    print(elem)
+```
+На самом деле, не часто приходится работать с итераторами напрямую. Понимать какой объект является iterable может быть полезно, поскольку с такими объектами хорошо работает цикл for ⏤ как оператор, так и короткая форма (list/tuple/generator comprehension).
+Один способ узнать, является ли объект iterable ⏤ это выяснить, есть ли у него метод __iter__. Этот метод используется итератором. Проверить наличие метода можно через hasattr:
+```py
+print(f"{hasattr([1, 10, 100], '__iter__')=}")
+```
+Output:
+```
+hasattr([1, 10, 100], '__iter__')=True
+```
+Иногда такой проверки будет недостаточно: метод вроде как есть, а его вызов завершается аварийно. Поэтому лучше создать итератор явно и ловить возможную аварийную ситуацию:
+```py
+some_obj = [1, 10, 100]
+try:
+    iter(some_obj)
+    print(f'{some_obj}: iterable')
+except TypeError:
+    print(f'{some_obj}: not iterable')
+```
+Output:
+```
+[1, 10, 100]: iterable
+```
+Теперь напишем вспомогательную функцию print_iterable_or_not, которая для каждого объекта из данной таблицы выведет на экран полезную информацию (тип объекта, если объект iterable, какие элементы находятся в объекте):
+```py
+def print_iterable_or_not(tab):
+    for obj in tab:
+        print(f'object:   {obj}')
+        print(f"type:     {type(eval(obj)).__name__}")
+
+        try:
+            iter(eval(obj))
+            iterable = True
+        except TypeError:
+            iterable = False
+
+        print(f"iterable: {iterable}")
+        values = list(eval(obj)) if iterable else [eval(obj)]
+        print(f'value(s): {", ".join(str(x).strip() for x in values)}')
+        print(f'size:     {len(values)}')
+        print()
+```
+Выглядит громоздко, посмотрим как её использовать. Создаём таблицу из разных значений: списка, кортежа, множества, range и генератора. Всё это примеры iterable объектов и их можно легко использовать в цикле for.
+Функция print_iterable_or_not должна определить их всех как iterable.
+```py
+print_iterable_or_not((
+    '[0, 1, 2]',
+    '(0, 1, 2)',
+    '{0, 1, 2}',
+    'range(3)',
+    '(x for x in range(3))',
+))
+```
+Output:
+```
+object:   [0, 1, 2]
+type:     list
+iterable: True
+value(s): 0, 1, 2
+size:     3
+
+object:   (0, 1, 2)
+type:     tuple
+iterable: True
+value(s): 0, 1, 2
+size:     3
+
+object:   {0, 1, 2}
+type:     set
+iterable: True
+value(s): 0, 1, 2
+size:     3
+
+object:   range(3)
+type:     range
+iterable: True
+value(s): 0, 1, 2
+size:     3
+
+object:   (x for x in range(3))
+type:     generator
+iterable: True
+value(s): 0, 1, 2
+size:     3
+```
+Для каждого объекта из таблицы, функция вывела информацию о типе (list, tuple, set, range, generator), подтвердила, что все они iterable (True), вывела на печать элементы этих объектов (0, 1, 2) и размер (3 элемента).
+Генераторы можно создавать комбинацией из функции и yield. Другой способ ⏤ это использовать generator comprehension. Проверим, если любые генераторы являются iterable.
+```py
+def gen_1_10_100():
+    yield 1
+    yield 10
+    yield 100
+
+print_iterable_or_not((
+    'gen_1_10_100()',
+    '(x for x in [1, 10, 100])',
+    '(x for x in gen_1_10_100())',
+    '(10**i for i in range(3))',
+))
+```
+Output:
+```
+object:   gen_1_10_100()
+type:     generator
+iterable: True
+value(s): 1, 10, 100
+size:     3
+
+object:   (x for x in [1, 10, 100])
+type:     generator
+iterable: True
+value(s): 1, 10, 100
+size:     3
+
+object:   (x for x in gen_1_10_100())
+type:     generator
+iterable: True
+value(s): 1, 10, 100
+size:     3
+
+object:   (10**i for i in range(3))
+type:     generator
+iterable: True
+value(s): 1, 10, 100
+size:     3
+```
+Так и вышло: все генераторы являются итерируемыми объектами (они кстати ещё являются и итераторами!).
+
+Code: https://onlinegdb.com/hoEB0NXUG
