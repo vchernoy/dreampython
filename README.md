@@ -428,3 +428,187 @@ Output:
 https://onlinegdb.com/-8B_D1JMB
 
 ---
+
+### The Art of Print (May 15)
+
+#### Print string and list of its letters:
+```py
+s = 'hello world'
+print(s)
+print(list(s))
+print(*list(s))
+```
+Output:
+```
+hello world
+['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
+h e l l o   w o r l d
+```
+#### Print list with sep:
+```py
+print(*list(s), sep='')
+print(*list(s), sep=',')
+print(*list(s), sep=' ')
+```
+Output:
+```
+hello world
+h,e,l,l,o, ,w,o,r,l,d
+h e l l o   w o r l d
+```
+#### Apply str.join to list:
+```py
+print(''.join(list(s)))
+print(','.join(list(s)))
+print(' '.join(list(s)))
+```
+Output:
+```
+hello world
+h,e,l,l,o, ,w,o,r,l,d
+h e l l o   w o r l d
+```
+#### Apply str.join to str:
+```py
+print(''.join(s))
+print(','.join(s))
+print(' '.join(s))
+```
+Output:
+```
+hello world
+h,e,l,l,o, ,w,o,r,l,d
+h e l l o   w o r l d
+```
+#### Print f-strings:
+```py
+print(f'{s=}')
+print(f'{list(s)=}')
+print(f"{' '.join(s)=}")
+```
+Output:
+```
+s='hello world'
+list(s)=['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
+' '.join(s)='h e l l o   w o r l d'
+```
+Code in https://onlinegdb.com/nSMCNF6w1
+
+---
+
+### The Art of Generators (May 15)
+
+Синтаксически генераторы похожи как на функции, так и на списки и на кортежи. Создать генератор можно через определение функции, которая использует оператор yield. Следующая функция определяет генератор, который выдаёт три числа: 1, 10, 100.
+```py
+def gen_1_10_100():
+    yield 1
+    yield 10 
+    yield 100 
+```
+Создаём генератор через вызов функции. Генерировать все значения можно через конвертацию генератора в list.
+```py
+g = gen_1_10_100()
+print(f'{type(g)=}')
+print(f'{g=}')
+print(f'{list(g)=}')
+print(f'{list(g)=}')
+```
+Output:
+```
+type(g)=<class 'generator'>
+g=<generator object gen_1_10_100 at 0x7f460e476ac0>
+list(g)=[1, 10, 100]
+list(g)=[]
+```
+Тип объекта g ⏤ это generator. Конвертация в список даёт [1, 10, 100]. Может быть несколько неожиданно, но повторная конвертация выдаёт пустой список [].
+
+Почему?
+
+Ну, генератор выдал все, что было: 1, 10, 100. А дальше более нечего генерировать! Нужно создавать новый генератор!
+```py
+g = gen_1_10_100()
+print(f'{list(g)=}')
+print(f'{list(g)=}')
+```
+Output:
+```
+list(g)=[1, 10, 100]
+list(g)=[]
+```
+Генератор можно передавать как параметр в функции, где ожидается получить последовательность значений. Проще, где работает список, может (но не обязательно!) сработать и генератор.
+```py
+g = gen_1_10_100()
+print(f'{sum(g)=}')
+
+g = gen_1_10_100()
+print(f'{sum(1.01**x for x in g)=}')
+```
+Output:
+```
+sum(g)=111
+sum(1.01**x for x in g)=4.819435954832733
+```
+Генератор можно создать и через generator comprehension. Похоже на list comprehension, но в круглых скобках (...).
+```py
+g = (x for x in [1, 10, 100])
+print(f'{type(g)=}')
+print(f'{g=}')
+print(f'{list(g)=}')
+```
+Output:
+```
+type(g)=<class 'generator'>
+g=<generator object <genexpr> at 0x7f7033d93ac0>
+list(g)=[1, 10, 100]
+```
+И такой генератор можно передать (не всегда!) в функции, где ожидается список:
+```py
+g = (x for x in [1, 10, 100])
+print(f'{sum(g)=}')
+print(f'{type(x for x in [1, 10, 100])=}')
+print(f'{sum(x for x in [1, 10, 100])=}')
+```
+Output:
+```
+sum(g)=111
+type(x for x in [1, 10, 100])=<class 'generator'>
+sum(x for x in [1, 10, 100])=111
+```
+Ещё больше generator comprehension:
+```
+g = (x for x in [1, 10, 100])
+exp_g = (1.01**x for x in g)
+print(f'{type(exp_g)=}')
+print(f'{sum(exp_g)=}')
+```
+Output:
+```
+type(exp_g)=<class 'generator'>
+sum(exp_g)=4.819435954832733
+```
+И ещё:
+```py
+exp_g = (1.01**x for x in gen_1_10_100())
+print(f'{sum(exp_g)=}')
+
+exp_g = (1.01**x for x in (10**i for i in range(3)))
+print(f'{sum(exp_g)=}')
+```
+Output:
+```
+sum(exp_g)=4.819435954832733
+sum(exp_g)=4.819435954832733
+```
+Кстати, объект range(3) похож на генератор, но не является им. Списки, кортежи, генератор и range ⏤ это iterable объекты. Поэтому и похожи!
+```py
+print(f'{type(range(3))=}')
+```
+Output:
+```
+type(range(3))=<class 'range'>
+```
+
+Code in https://onlinegdb.com/uV9ygOawD
+
+---
+
