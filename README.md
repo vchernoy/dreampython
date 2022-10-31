@@ -2530,3 +2530,56 @@ ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), k
 
 Code in https://onlinegdb.com/eMH7atQTP
 
+---
+
+### Пять задач (LeetCode/easy) с решением в одну строчку (June 24)
+
+#### 242. Valid Anagram
+Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+
+An Anagram is a word formed by rearranging the letters of a different word, using all the original letters exactly once.
+```py
+def is_аnagram(s: str, t: str) -> bool:
+    return sorted(list(s)) == sorted(list(t))
+```
+https://leetcode.com/problems/valid-anagram/
+
+#### 169. Majority Element
+Given an array nums of size n, return the majority element.
+
+The majority element is the element that appears more than ⌊n / 2⌋ times.
+```py
+def majority_еlement(nums: List[int]) -> int:
+    return next(v for v,c in Counter(nums).items() if c > len(nums) // 2, None)
+```
+https://leetcode.com/problems/majority-element/
+
+#### 229. Majority Element II
+Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
+```py
+def majority_elements(nums: List[int]) -> List[int]:
+    return [v for v,c in Counter(nums).items() if c > len(nums) // 3]
+```
+https://leetcode.com/problems/majority-element-ii/
+
+#### 217. Contains Duplicate
+Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
+```py
+def contains_dup(nums: List[int]) -> bool:
+    return any(c >= 2 for c in Counter(nums).values())
+```
+```py
+def contains_dup(nums: List[int]) -> bool:
+    return max(Counter(nums).values()) >= 2
+```
+https://leetcode.com/problems/contains-duplicate/
+
+#### 350. Intersection of Two Arrays II
+Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
+```py
+def intersect(nums1: List[int], nums2: List[int]) -> List[int]:
+    return (Counter(nums1) & Counter(nums2)).elements()
+```
+https://leetcode.com/problems/intersection-of-two-arrays-ii/
+
+---
