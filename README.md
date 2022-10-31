@@ -2185,5 +2185,143 @@ Code: https://onlinegdb.com/N6qx5p-Da
 
 ---
 
+### `filter` vs. list/generator comprehension (June 3))
+
+Начинаем с импорта:
+```py
+from functools import partial
+import operator
+```
+* `partial` ⏤ фиксирует аргументы у данной функции. Например: `partial(int.__and__, 1)` создаёт новую функцию, которая принимает один аргумент, скажем x, и вычисляет `1 & x`. Это аналог: `lambda x: int.__and__,(1, х)`, ну или ещё проще: `lambda x: 1 & х`.
+
+* Напомним, что в данном случае речь идёт об двоичном, побитовом AND (Bitwise AND). Фактически оставляем самый младший бит в x, а остальные обнуляются. Это более хитрый способ посчитать: `x % 2`.
+
+* `int.__and__` ⏤ это оператор Bitwise AND, определённый в классе int.
+
+Допустим дан список целых чисел values. Цель ⏤ найти все нечётные числа и поместить их в новый список: odd_values.
+
+Начнём с простого цикла:
+```py
+values = [10, 2, 7, 5, 4, 9, 1, 8]
+
+odd_values = []
+for v in values:
+    if v % 2 == 1:
+        odd_values.append(v)
+
+print(odd_values)
+```
+Output:
+```
+[7, 5, 9, 1]
+```
+Как и ранее накидаем как можно больше различных вариантов сделать тоже самое. Например, используем короткую форму if и команду ...:
+```py
+odd_values = []
+for v in values:
+    odd_values.append(v) if v % 2 == 1 else ...
+
+print(odd_values)
+```
+Интересный момент, команда ... является аналогом pass, но последняя, в данном случае, не работает. Есть идеи почему?
+
+#### Generator
+
+Следующий способ решить задачу: создать generator. Это можно сделать легко: определяем функцию, и вместо append + return, используем yield:
+```py
+def odd_only(values):
+    for v in values:
+        if v % 2 == 1:
+            yield v
+
+odd_values = odd_only(values)
+print(list(odd_values))
+```
+Если в предыдущих примерах odd_values ⏤ это уже был готовый список, то в последнем ⏤ odd_values содержит генератор. Чтобы получить реальные значения, нужно заставить генератор вычислить все значения. Именно поэтому в print мы используем list(odd_values).
+
+Теперь используем генератор вместе с короткой формой команды if:
+```py
+def odd_only(values):
+    for v in values:
+        (yield v) if v % 2 == 1 else ...
+
+odd_values = odd_only(values)
+print(list(odd_values))
+```
+Заметили, что yield v взят в скобки? Почему?
+Далее уже не будем повторять `print(list(odd_values))`.
+
+#### Generator Expression
+
+Generator expressions очень похожи на list comprehension:
+```py
+odd_values = (v for v in values if v % 2 == 1)
+```
+```py
+odd_values = (v for v in values if v & 1 == 1)
+```
+```py
+odd_values = (v for v in values if v % 2)
+```
+```py
+odd_values = (v for v in values if v & 1)
+```
+Все эти варианты эквиваленты:
+* `v % 2` и `v & 1` одно и тоже;
+* также как и `v % 2 == 1` и `v & 1 == 1`. 
+* Заметим, что if v % 2 эквивалентно `if v % 2 != 0`. А в данном случае, это тоже самое, что `if v % 2 == 1`.
+
+Если заменить круглые скобки (v for v ...) на квадратные [v for v ...], получим list comprehenstion.
+Помним разницу между lazy evaluation и eager evaluation?
+
+#### filter(func, iterable)
+
+`filter` является аналогом generator comprehension:
+* `filter(func, iterable)` примерно равен:
+* `(func(v) for v in iterable)`.
+
+Предыдущие четыре варианта generator expressions можно переписать используя filter + lambda:
+```py
+odd_values = filter(lambda x: x % 2 == 1, values)
+```
+```py
+odd_values = filter(lambda x: x & 1 == 1, values)
+```
+```py
+odd_values = filter(lambda x: x % 2, values)
+```
+```py
+odd_values = filter(lambda x: x & 1, values)
+```
+
+#### filter и функция одного аргумента
+
+Иногда функция для фильтра уже доступна, то есть можно сэкономить на `lambda`'s.
+У каждого целого (int) есть методы `__rmod__` и `__and__`. Используем их:
+
+```py
+odd_values = filter(int(2).__rmod__, values)
+```
+```py
+odd_values = filter(int(1).__and__, values)
+```
+Первых вариант аналогичен:
+* `lambda x: x % 2`, а второй аналогичен:
+* `lambda x: 1^x`.
+
+#### filter+partial
+
+Воспользыемся двоичными операторами, у которых, с помощью partial, зафиксируем первый агрумент:
+```py
+odd_values = filter(partial(int.__rmod__, 2), values)
+```
+```py
+odd_values = filter(partial(int.__and__, 1), values)
+```
+```py
+odd_values = filter(partial(operator.and_, 1), values)
+```
+
+Code: https://onlinegdb.com/HZDjuLk45
 
 
