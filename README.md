@@ -1,6 +1,6 @@
 # Dream on Python
 
-## String & String Formatting
+## Strings & String Formatting
 
 ### Способы форматирования строк в Python (May 4)
 
@@ -1814,147 +1814,6 @@ callable(func)=True, func=power1_add, func(12, 5)=17
 ```
 The code is https://onlinegdb.com/TH9ry84dL
 
----
-
-## TBD
-
-### Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
-
-Problem: Given a nested dictionary, in which each value is either a word or another dictionary (of the same type).
-
-Write a function that finds all unique words in this dictionary.
-```py
-def find_unique(d: dict) -> set[str]
-```
-Examples:
-* Input: `{1: hello, 2: hi, 3: hi}` \
-Output: `{hello}`
-* Input: `{10: hello, 20: hi, 30: {2: hi, 7:you}}` \
-Output: `{hello, you}`
-
-Решение задачи состоит из двух частей:
-1. Найти все слова в данной структуре данных.
-2. Выбрать только уникальные из них.
-
-Пробегаем по всем значениям словаря (ключи нам не важны).
-
-Собираем, те которые являются простыми строками.
-
-Рекурсивно обрабатываем значения, которые являются словарями.
-
-Следующая функция реализует рекурсивную обработку:
-```py
-def get_words(d: dict) -> list[str]:
-    words = []
-    for value in d.values():
-        if isinstance(value, dict):
-            words.extend(get_words(value))
-        else:
-            words.append(value)
-
-    return words
-```
-В чём разница между `isinstance(value, dict)` и `type(value) == dict`?
-
-Считаем количество копий для каждого найденного слова.
-
-Оставляем только те, которые уникальны (количество копий == 1):
-```py
-from collections import Counter
-```
-```py
-def find_unique(d: dict) -> set[str]:
-    words = get_words(d)
-    c = Counter(words)
-    unique = set()
-    for word, n in c.items():
-        if n == 1:
-            unique.add(word)
-
-    return unique
-```
-Тесты:
-```py
-from collections import defaultdict
-```
-```py
-dicts = (
-    {10: 'hello', 20: 'hi'},
-    {10: 'hello', 20: 'hi', 30: 'hi'},
-    {10: 'hello', 20: 'hi', 30: {2: 'hi', 7: 'you'}},
-    {10: 'hello', 20: 'hi', 30: defaultdict(str, {2: 'hi', 7: 'you'})},
-)
-```
-```py
-for d in dicts:
-    print(find_unique(d))
-```
-Output:
-```
-{'hello', 'hi'}
-{'hello'}
-{'hello', 'you'}
-{'hello', 'you'}
-```
-Рассмотрим разные улучшения
-
-Используя set-comprehension, функцию find_unique можно реализовать в одну строчку:
-```py
-def find_unique(d: dict) -> set[str]:
-    return {word for word, n in Counter(get_words(d)).items() if n == 1}
-```
-Чтобы избежать многократного создания списков (из-за рекурсивных вызовов) и копирования слов из спика в списов, рекурсивная функция может просто добавлять все найденные слова в один и тот же список:
-```py
-def get_words(d: dict) -> list[str]:
-    words = []
-
-    def get_all(d: dict) -> None:
-        for value in d.values():
-            if isinstance(value, dict):
-                get_all(value)
-            else:
-                words.append(value)
-
-    get_all(d)
-
-    return words
-```
-Рекурсивная обработка производится внутренней функцией, а внешняя фактически является обёрткой, чтобы сохранить ту же самую сигнатуру (определение).
-
-В следующем варианте, вместо создания списка слов, который потенциально может быть очень длинным, используется ленивый поиск слов, через генератор.
-```py
-from typing import Iterator
-def get_words(d: dict) -> Iterator[str]:
-    for value in d.values():
-        if isinstance(value, dict):
-            for v in get_words(value):
-                yield v
-        else:
-            yield value
-```
-Следующее решение сразу создаёт Counter, в котором подсчитываются копии каждого слова.
-```py
-def get_words(d: dict) -> Counter:
-    c = Counter()
-
-    def get_all(d: dict) -> None:
-        for value in d.values():
-            if isinstance(value, dict):
-                get_all(value)
-            else:
-                c[value] += 1
-
-    get_all(d)
-
-    return c
-```
-```py
-def find_unique(d: dict) -> set[str]:
-    return {word for word, n in get_words(d).items() if n == 1}
-```
-Это наиболее оптимальное решение из всех рассмотренных
-
-https://onlinegdb.com/ohW2_B63i
 
 ---
 
@@ -2879,6 +2738,147 @@ ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), k
 На работе за такое "побьют"!!!
 
 Code in https://onlinegdb.com/eMH7atQTP
+
+---
+
+
+### Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
+
+Problem: Given a nested dictionary, in which each value is either a word or another dictionary (of the same type).
+
+Write a function that finds all unique words in this dictionary.
+```py
+def find_unique(d: dict) -> set[str]
+```
+Examples:
+* Input: `{1: hello, 2: hi, 3: hi}` \
+Output: `{hello}`
+* Input: `{10: hello, 20: hi, 30: {2: hi, 7:you}}` \
+Output: `{hello, you}`
+
+Решение задачи состоит из двух частей:
+1. Найти все слова в данной структуре данных.
+2. Выбрать только уникальные из них.
+
+Пробегаем по всем значениям словаря (ключи нам не важны).
+
+Собираем, те которые являются простыми строками.
+
+Рекурсивно обрабатываем значения, которые являются словарями.
+
+Следующая функция реализует рекурсивную обработку:
+```py
+def get_words(d: dict) -> list[str]:
+    words = []
+    for value in d.values():
+        if isinstance(value, dict):
+            words.extend(get_words(value))
+        else:
+            words.append(value)
+
+    return words
+```
+В чём разница между `isinstance(value, dict)` и `type(value) == dict`?
+
+Считаем количество копий для каждого найденного слова.
+
+Оставляем только те, которые уникальны (количество копий == 1):
+```py
+from collections import Counter
+```
+```py
+def find_unique(d: dict) -> set[str]:
+    words = get_words(d)
+    c = Counter(words)
+    unique = set()
+    for word, n in c.items():
+        if n == 1:
+            unique.add(word)
+
+    return unique
+```
+Тесты:
+```py
+from collections import defaultdict
+```
+```py
+dicts = (
+    {10: 'hello', 20: 'hi'},
+    {10: 'hello', 20: 'hi', 30: 'hi'},
+    {10: 'hello', 20: 'hi', 30: {2: 'hi', 7: 'you'}},
+    {10: 'hello', 20: 'hi', 30: defaultdict(str, {2: 'hi', 7: 'you'})},
+)
+```
+```py
+for d in dicts:
+    print(find_unique(d))
+```
+Output:
+```
+{'hello', 'hi'}
+{'hello'}
+{'hello', 'you'}
+{'hello', 'you'}
+```
+Рассмотрим разные улучшения
+
+Используя set-comprehension, функцию find_unique можно реализовать в одну строчку:
+```py
+def find_unique(d: dict) -> set[str]:
+    return {word for word, n in Counter(get_words(d)).items() if n == 1}
+```
+Чтобы избежать многократного создания списков (из-за рекурсивных вызовов) и копирования слов из спика в списов, рекурсивная функция может просто добавлять все найденные слова в один и тот же список:
+```py
+def get_words(d: dict) -> list[str]:
+    words = []
+
+    def get_all(d: dict) -> None:
+        for value in d.values():
+            if isinstance(value, dict):
+                get_all(value)
+            else:
+                words.append(value)
+
+    get_all(d)
+
+    return words
+```
+Рекурсивная обработка производится внутренней функцией, а внешняя фактически является обёрткой, чтобы сохранить ту же самую сигнатуру (определение).
+
+В следующем варианте, вместо создания списка слов, который потенциально может быть очень длинным, используется ленивый поиск слов, через генератор.
+```py
+from typing import Iterator
+def get_words(d: dict) -> Iterator[str]:
+    for value in d.values():
+        if isinstance(value, dict):
+            for v in get_words(value):
+                yield v
+        else:
+            yield value
+```
+Следующее решение сразу создаёт Counter, в котором подсчитываются копии каждого слова.
+```py
+def get_words(d: dict) -> Counter:
+    c = Counter()
+
+    def get_all(d: dict) -> None:
+        for value in d.values():
+            if isinstance(value, dict):
+                get_all(value)
+            else:
+                c[value] += 1
+
+    get_all(d)
+
+    return c
+```
+```py
+def find_unique(d: dict) -> set[str]:
+    return {word for word, n in get_words(d).items() if n == 1}
+```
+Это наиболее оптимальное решение из всех рассмотренных
+
+https://onlinegdb.com/ohW2_B63i
 
 ---
 
