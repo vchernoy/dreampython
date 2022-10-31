@@ -940,96 +940,6 @@ Code: https://onlinegdb.com/wq9VInL3Z
 
 ---
 
-### LeetCode Problem #9: Palindrome Number (May 17)
-
-> Given an integer x, return True if x is a palindrome integer.
->
-> An integer is a palindrome when it reads the same backward as forward.
->
-> For example, 121 is a palindrome while 123 is not.
-
-https://leetcode.com/problems/palindrome-number/
-
-Рассмотрим несколько решений этой задачи.
-
-Вы знали что s[::-1] ⏤ переворачивает строку (а также список и кортеж)? Сначала целое x конвертируем в строку s, а затем сравниваем строку с её перевертышем. Это самое простое решение:
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    return s == s[::-1]
-```
-Не обязательно сравнивать целую строку, можно сравнить префикс с перевернутым суффиксом:
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    return s[:len(s)//2] == s[:(len(s)-1)//2:-1]
-```
-Тоже самое, что и первое решение, но через итераторы. В данном случае, не создаём перевёртыш строки, а бежим по ней в обратном порядке (reversed). Функция zip умеет бегать одновременно по нескольким iterables. A функция all возвращает True, если не встречает ни одного False!
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    return all(a == b for a,b in zip(s, reversed(s)))
-```
-Похожее решение, но бегаем только по префиксу и суффиксу:
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    return all(s[i] == s[-i-1] for i in range(len(s)//2))
-```
-Простой цикл, без всяких comprehensions. Помним, что отрицательный индекс указывает на последние элементы?
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    for i in range(len(s)):
-        if s[i] != s[-i-1]:
-            return False
-    return True
-```
-Тоже самое, только бегаем по префиксу и суффиксу:
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    for i in range(0, len(s)//2):
-        if s[i] != s[-i-1]:
-            return False
-    return True
-```
-Тоже самое, только через цикл while:
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    i, j = 0, len(s)-1
-    while i < j:
-        if s[i] != s[j]:
-            return False
-        i += 1
-        j -= 1
-    return True
-```
-Тоже самое, только короче:
-```py
-def is_palindrome(x: int) -> bool:
-    s = str(x)
-    i = 0
-    while i < len(s)//2:
-        if s[i] != s[-i-1]:
-            return False
-        i += 1
-    return True
-```
-А тут мы не переводим целое в строку. Младшие цифры x перекидываем в старшие цифры y. То есть y ⏤ это перевернутое целое от x:
-```py
-def is_palindrome(x: int) -> bool:
-    y, z = 0, x
-    while z > 0:
-        y = 10*y + z % 10
-        z //= 10            
-    return y == x
-```
-Code: https://onlinegdb.com/ghcfGOncm
-
----
-
 ### Декораторы в Python -- Part 1 (May 17)
 
 Покажем, как к некой функции добавить дополнительные свойства без того, чтобы менять её код. Пусть, например, у нас есть функция:
@@ -1764,130 +1674,6 @@ http://127.0.0.1:8000/docs
 Full Code: https://onlinegdb.com/7FLyB8K7P
 
 See https://fastapi.tiangolo.com/
-
----
-
-### LeetCode #39: Combination Sum (Medium Level) (May 25)
-
-Дан массив различных целых чисел (candidates) и целевое целое число (target).
-
-Вернуть все уникальные комбинации кандидатов, такие что сумма кандидатов в комбинации была равна target.
-
-В комбинации кандидат может быть представлен любое количество раз.
-
-Пример 1:
-```
-candidates = [2,3,6,7]
-target = 7
-```
-Полученные комбинации: `[[2,2,3], [7]]`
-* 7 = 7
-* 7 = 2 + 2 + 3
-
-Пример 2:
-```
-candidates = [2,3,5]
-target = 8
-```
-Полученные комбинации: `[[2,2,2,2], [2,3,3], [3,5]]`
-* 8 = 2 + 2 + 2 + 2
-* 8 = 2 + 3 + 3
-* 8 = 3 + 5
-
-https://leetcode.com/problems/combination-sum/
-
-Рассмотрим несколько решений этой задачи.
-
-Функция combination_sum(candidates, target) будет использовать внутреннюю рекурсивную функцию: comb(k, target).
-
-`comb(k, target)` возвращает такие все комбинации, которые суммируются в target и состоят только из первых k кандидатов.
-
-Частные случаи:
-
-* comb(0, 0) должна вернуть всего одно решение, пустое, поэтому: [[]].
-* comb(0, target), если target -- не 0, то нет решений: [].
-
-Посмотрите на разницу: есть одно пустое решение [[]] и нет решений вообще [].
-
-Какие ещё частные случаи можно заметить?
-
-* comb(1, target), если target равен candidates[0], то возвращаем: `[[target]]`. \
-Действительно, если дан всего один кандидат, причём равный целевому числу, то получаем одну возможную комбинацию.
-
-* comb(1, target), если target не равен candidates[0], то нет решений: [].
-
-Общий случай:
-
-`comb(k, target)` можно разбить на два случая:
-
-1. если пропускаем кандидата под номером k-1 (не включаем его в комбинацию), то делаем рекурсивный вызов: `comb(k-1, target)` -- это часть решения.
-2. если кандидат не превышает целевое число, пытаемся включить его в комбинацию. \
-Делаем рекурсивный вызов: `comb(k, target-candidates[k-1])`. \
-Раз включили в комбинацию, то цель уменьшилась на величину кандидата (`target-candidates[k-1]`). \
-Мы не исключаем повторное использование кандидата, поэтому вызываем с параметром k, а не k-1.
-
-Но это ещё не всё: ко всем комбинациям, которые суммируются в значение `target-candidates[k-1]`, добавляем один элемент (кандидата). Только тогда такая комбинация будет суммироваться именно в target.
-
-К рекурсивной функции (`comb`), можно добавить кэширование вызовов: `@cache`.
-```py
-def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
-    def comb(k: int, target: int) -> List[List[int]]:
-        if k == 0:
-            if target == 0:
-                return [[]]
-            return []
-
-        res = list(comb(k-1, target))
-        if candidates[k-1] <= target:
-            res.extend(c + [candidates[k-1]] for c in comb(k, target-candidates[k-1]))
-        return res
-
-    return comb(len(candidates), target)
-```
-Следующее решение несколько отличается от предыдущего.
-
-Добавлен параметр tail, который собирает текущую комбинацию. Ещё одно отличие: рекурсивная функция добавляет полученную комбинацию в список, а не возвращает её. Ну и интенсивно используется tuple, а не list. Это даёт возможность кэшировать ответы.
-```py
-def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
-    res = []
-    def comb(k: int, target: int, tail: Tuple[int]):
-        if k == 0:
-            if target == 0:
-                res.append(tail)
-            return
-
-        comb(k-1, target, tail)
-        if candidates[k-1] <= target:
-            comb(k, target-candidates[k-1], tail + (candidates[k-1],))    
-
-    comb(len(candidates), target, tuple())
-    return res
-```
-А в следующем решении возвращаемся к спискам, также уменьшаем количество рекурсивных вызовов (заменяем циклом).
-
-Самый хитрый момент состоит в том, что параметр tail может меняться, но когда и если это происходит, то мы копируем список, чтобы избежать порчи данных.
-
-Тут уж кэширование не будет работать:
-```py
-def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
-    res = []
-    def comb(k: int, target: int, tail: List[int]):
-        if k == 0:
-            if target == 0:
-                res.append(tail)
-            return        
-
-        comb(k-1, target, tail)
-        tail = tail[:]
-        while candidates[k-1] <= target:
-            tail.append(candidates[k-1])
-            target -= candidates[k-1]
-            comb(k-1, target, tail)
-
-    comb(len(candidates), target, [])
-    return res
-```
-Остальные решения смотрите тут: https://onlinegdb.com/2S4gQRwbe
 
 ---
 
@@ -3747,6 +3533,223 @@ Code: https://onlinegdb.com/o_vdN5LO7
 ---
 
 ## Solving Coding Problems
+
+
+### LeetCode Problem #9: Palindrome Number (May 17)
+
+> Given an integer x, return True if x is a palindrome integer.
+>
+> An integer is a palindrome when it reads the same backward as forward.
+>
+> For example, 121 is a palindrome while 123 is not.
+
+https://leetcode.com/problems/palindrome-number/
+
+Рассмотрим несколько решений этой задачи.
+
+Вы знали что s[::-1] ⏤ переворачивает строку (а также список и кортеж)? Сначала целое x конвертируем в строку s, а затем сравниваем строку с её перевертышем. Это самое простое решение:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return s == s[::-1]
+```
+Не обязательно сравнивать целую строку, можно сравнить префикс с перевернутым суффиксом:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return s[:len(s)//2] == s[:(len(s)-1)//2:-1]
+```
+Тоже самое, что и первое решение, но через итераторы. В данном случае, не создаём перевёртыш строки, а бежим по ней в обратном порядке (reversed). Функция zip умеет бегать одновременно по нескольким iterables. A функция all возвращает True, если не встречает ни одного False!
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return all(a == b for a,b in zip(s, reversed(s)))
+```
+Похожее решение, но бегаем только по префиксу и суффиксу:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return all(s[i] == s[-i-1] for i in range(len(s)//2))
+```
+Простой цикл, без всяких comprehensions. Помним, что отрицательный индекс указывает на последние элементы?
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    for i in range(len(s)):
+        if s[i] != s[-i-1]:
+            return False
+    return True
+```
+Тоже самое, только бегаем по префиксу и суффиксу:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    for i in range(0, len(s)//2):
+        if s[i] != s[-i-1]:
+            return False
+    return True
+```
+Тоже самое, только через цикл while:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    i, j = 0, len(s)-1
+    while i < j:
+        if s[i] != s[j]:
+            return False
+        i += 1
+        j -= 1
+    return True
+```
+Тоже самое, только короче:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    i = 0
+    while i < len(s)//2:
+        if s[i] != s[-i-1]:
+            return False
+        i += 1
+    return True
+```
+А тут мы не переводим целое в строку. Младшие цифры x перекидываем в старшие цифры y. То есть y ⏤ это перевернутое целое от x:
+```py
+def is_palindrome(x: int) -> bool:
+    y, z = 0, x
+    while z > 0:
+        y = 10*y + z % 10
+        z //= 10            
+    return y == x
+```
+Code: https://onlinegdb.com/ghcfGOncm
+
+---
+
+
+### LeetCode #39: Combination Sum (Medium Level) (May 25)
+
+Дан массив различных целых чисел (candidates) и целевое целое число (target).
+
+Вернуть все уникальные комбинации кандидатов, такие что сумма кандидатов в комбинации была равна target.
+
+В комбинации кандидат может быть представлен любое количество раз.
+
+Пример 1:
+```
+candidates = [2,3,6,7]
+target = 7
+```
+Полученные комбинации: `[[2,2,3], [7]]`
+* 7 = 7
+* 7 = 2 + 2 + 3
+
+Пример 2:
+```
+candidates = [2,3,5]
+target = 8
+```
+Полученные комбинации: `[[2,2,2,2], [2,3,3], [3,5]]`
+* 8 = 2 + 2 + 2 + 2
+* 8 = 2 + 3 + 3
+* 8 = 3 + 5
+
+https://leetcode.com/problems/combination-sum/
+
+Рассмотрим несколько решений этой задачи.
+
+Функция combination_sum(candidates, target) будет использовать внутреннюю рекурсивную функцию: comb(k, target).
+
+`comb(k, target)` возвращает такие все комбинации, которые суммируются в target и состоят только из первых k кандидатов.
+
+Частные случаи:
+
+* comb(0, 0) должна вернуть всего одно решение, пустое, поэтому: [[]].
+* comb(0, target), если target -- не 0, то нет решений: [].
+
+Посмотрите на разницу: есть одно пустое решение [[]] и нет решений вообще [].
+
+Какие ещё частные случаи можно заметить?
+
+* comb(1, target), если target равен candidates[0], то возвращаем: `[[target]]`. \
+Действительно, если дан всего один кандидат, причём равный целевому числу, то получаем одну возможную комбинацию.
+
+* comb(1, target), если target не равен candidates[0], то нет решений: [].
+
+Общий случай:
+
+`comb(k, target)` можно разбить на два случая:
+
+1. если пропускаем кандидата под номером k-1 (не включаем его в комбинацию), то делаем рекурсивный вызов: `comb(k-1, target)` -- это часть решения.
+2. если кандидат не превышает целевое число, пытаемся включить его в комбинацию. \
+Делаем рекурсивный вызов: `comb(k, target-candidates[k-1])`. \
+Раз включили в комбинацию, то цель уменьшилась на величину кандидата (`target-candidates[k-1]`). \
+Мы не исключаем повторное использование кандидата, поэтому вызываем с параметром k, а не k-1.
+
+Но это ещё не всё: ко всем комбинациям, которые суммируются в значение `target-candidates[k-1]`, добавляем один элемент (кандидата). Только тогда такая комбинация будет суммироваться именно в target.
+
+К рекурсивной функции (`comb`), можно добавить кэширование вызовов: `@cache`.
+```py
+def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
+    def comb(k: int, target: int) -> List[List[int]]:
+        if k == 0:
+            if target == 0:
+                return [[]]
+            return []
+
+        res = list(comb(k-1, target))
+        if candidates[k-1] <= target:
+            res.extend(c + [candidates[k-1]] for c in comb(k, target-candidates[k-1]))
+        return res
+
+    return comb(len(candidates), target)
+```
+Следующее решение несколько отличается от предыдущего.
+
+Добавлен параметр tail, который собирает текущую комбинацию. Ещё одно отличие: рекурсивная функция добавляет полученную комбинацию в список, а не возвращает её. Ну и интенсивно используется tuple, а не list. Это даёт возможность кэшировать ответы.
+```py
+def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
+    res = []
+    def comb(k: int, target: int, tail: Tuple[int]):
+        if k == 0:
+            if target == 0:
+                res.append(tail)
+            return
+
+        comb(k-1, target, tail)
+        if candidates[k-1] <= target:
+            comb(k, target-candidates[k-1], tail + (candidates[k-1],))    
+
+    comb(len(candidates), target, tuple())
+    return res
+```
+А в следующем решении возвращаемся к спискам, также уменьшаем количество рекурсивных вызовов (заменяем циклом).
+
+Самый хитрый момент состоит в том, что параметр tail может меняться, но когда и если это происходит, то мы копируем список, чтобы избежать порчи данных.
+
+Тут уж кэширование не будет работать:
+```py
+def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
+    res = []
+    def comb(k: int, target: int, tail: List[int]):
+        if k == 0:
+            if target == 0:
+                res.append(tail)
+            return        
+
+        comb(k-1, target, tail)
+        tail = tail[:]
+        while candidates[k-1] <= target:
+            tail.append(candidates[k-1])
+            target -= candidates[k-1]
+            comb(k-1, target, tail)
+
+    comb(len(candidates), target, [])
+    return res
+```
+Остальные решения смотрите тут: https://onlinegdb.com/2S4gQRwbe
+
+---
+
 
 ### Pig It — в одну строчку (Oct 25)
 
