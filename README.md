@@ -1082,3 +1082,58 @@ USD = Dollar(1)
 Code: https://onlinegdb.com/EySDwsUIo
 
 ---
+
+### Декораторы в Python (May 17)
+
+Покажем, как к некой функции добавить дополнительные свойства без того, чтобы менять её код. Пусть, например, у нас есть функция:
+```py
+def test_func(x, y):
+    ...
+```
+Один из простых способов достичь этого ⏤ это написать декоратор. В качестве примера, можно создать decorator, который при вызове функции печатает входные параметры и возвращаемое значение.
+
+Чтобы применить декоратор, скажем log_call, к функции test_func, нужно декорировать последнюю специальным образом, добавив @log_call перед определением функции:
+```py
+@log_call
+def test_func(x, y):
+    print('I am doing some magic!')
+    print(f'I am using the parameters: {x=}, {y=}')
+    print('Biggest magic has done.')
+    return 'done'
+```
+Эффект от декоратора проявится при вызове функции test_func:
+```py
+print(test_func(10, 'hi'))
+```
+Output:
+```
+test_func(10,hi)
+I am doing some magic!
+I am using the parameters: x=10, y='hi'
+Biggest magic has done.
+test_func: done
+done
+```
+Первая и предпоследняя строки печатаются самим декоратором log_call, который реализован следующим образом:
+```py
+def log_call(some_func):
+    def call_it(*args):
+        print(f'{some_func.__name__}({",".join(str(arg) for arg in args)})')
+        ret = some_func(*args)
+        print(f'{some_func.__name__}: {ret}')
+        return ret
+
+    return call_it
+```
+Как видим, декоратор log_call ⏤ это функция, которая принимает на вход другую функцию (some_func). Декоратор оборачивает вызов some_func в другую функцию call_it, которая как раз и выводит на экран
+* имя вызванной (декодируемой) функции:some_func.__name__,
+* переданные параметры: ",".join(str(arg) for arg in args) и
+* результирующее значение: ret.
+
+Заметим, что call_it() запаковывает все полученные параметры в tuple: args. А далее, распаковывает кортеж при передаче параметров в функцию some_func().
+
+Code: https://onlinegdb.com/kML69mab7
+
+---
+
+
