@@ -612,6 +612,8 @@ Code in https://onlinegdb.com/uV9ygOawD
 
 ---
 
+## Iterable или не iterable
+
 ### Iterable или не iterable? -- Part 1 (May 15)
 
 Из итерируемых объектов можно создать итератор, который позволяет пробежать по компонентам объекта в цикле for.
@@ -939,6 +941,8 @@ size:     1
 Code: https://onlinegdb.com/wq9VInL3Z
 
 ---
+
+## Декораторы
 
 ### Декораторы в Python -- Part 1 (May 17)
 
@@ -1317,366 +1321,6 @@ Code: https://onlinegdb.com/Q9M1jLNIo
 
 ---
 
-## Project: Mortgage Calculator
-
-### Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
-
-Возьмём учебный пример: подсчет процентов и выплат по fixed-rate mortage. Допустим цена дома $500,000, начальный взнос: 20%. Это можно выразить следующим кодом на Python:
-```py
-home_price = USD * 500000
-down_payment = home_price * 0.2
-mortgage = home_price - down_payment
-
-print(f'{home_price=}')
-print(f'{down_payment=}')
-print(f'{mortgage=}')
-
-loan_to_value = mortgage / home_price
-
-print(f'{loan_to_value=:.1%}')
-```
-Тут мы заодно посчитали LTV, который в данном примере составит: 80% (ну раз первый взнос: 20%).
-
-Мы тут пока не определили USD, но можно догадаться, речь про $1, а значит USD * 500000 означает: $500,000.
-Недостающий кусок кода разберём чуть позже, а пока посмотрим на вывод данного кода.
-
-Output:
-```
-home_price=$500,000.00
-down_payment=$100,000.00
-mortgage=$400,000.00
-
-loan_to_value=80.0%
-```
-Магическим образом числа форматируются как цены, хотя сама команда print этого вроде не делает.
-Определим, что ссуда берётся под 5% годовых на 30 лет. Пересчитываем в проценты за один месяц. Также вводим понятие amortization term которое означает срок ссуды в количестве месяцев:
-```py
-mortgage_rate = 0.05
-monthly_rate = (1 + mortgage_rate) ** (1 / 12) - 1
-
-print(f'{mortgage_rate=:.1%}')
-print(f'{monthly_rate=:.3%}')
-
-mortgage_term = 30
-amortization_term = mortgage_term * 12
-```
-Output:
-```
-mortgage_rate=5.0%
-monthly_rate=0.407%
-```
-Теперь считаем считаем выплаты как по процентам так и возврат по ссуде. Вычисления скрыты в функции, которую разберём чуть позже.
-```py
-monthly_interest, monthly_principle = payment(mortgage, amortization_term, monthly_rate)
-monthly_payment = monthly_interest + monthly_principle
-print(f'{monthly_interest=}')
-print(f'{monthly_principle=}')
-print(f'{monthly_payment=}')
-```
-Output:
-```py
-monthly_interest=$1,629.65
-monthly_principle=$490.57
-monthly_payment=$2,120.22
-```
-Опять магия: цены форматируются корректно!
-
-#### Функция `payment()`
-
-А вот и недостающая функция подсчёта выплат по ссуде:
-```py
-def payment(balance: Dollar, term: int, rate: float) -> Tuple[Dollar, Dollar]:
-    interest = balance * rate
-    principle = interest / ((1 + rate) ** term - 1)
-
-    return interest, principle
-```
-Считает по известным формулам и возвращает пару (tuple): оплата процентов и возврат ссуды. В сумме получим (месячный) платёж. На самом деле, этой функции всё равно, речь про месяцы или года. Используются абстрактные: balance, term, rate!
-Упрощая, допустим баланс по ссуде $400К, годовой процент: 5%, ссуда на 30 лет, то функция payment($400,000, 30, 5%) посчитает:
-```py
-interest = $400,000 * 5% = $20,000
-principle = $20,000 / (1.05^30 - 1) = $6,020
-```
-Общий платёж (за год): $5,000 + $1,505 = $26,020.
-
-В терминах целых годов, ответ будет не совсем верный. Более правильным будет сделать пересчёт по месяцам. Именно поэтому вы вызываем эту функцию как payment($400,000, 12*30, 0.407%).
-Заметим, что функция имеет аннотацию к типам и для balance указан тип Dollar, который мы пока нигде не определили.
-
-#### Тип `Dollar`
-
-Dollar ⏤ это класс, который наследует все поля и свойства другого типа collections.namedtuple. Можно и без наследования обойтись, но namedtuple является очень полезным типом, с которым следует познакомиться.
-
-Тип namedtuple позволяет определить наименованные кортежи. Как раз Dollar ⏤ это кортеж из всего одной но именованной компоненты: amount. Как и обычные tuple, namedtuple тоже является неизменяемым ⏤ ещё одно полезное свойство.
-
-Можно конечно же использовать namedtuple напрямую, например так:
-```py
-Dollar = namedtuple('Dollar', 'amount', defaults=(1,))
-```
-Тут мы определяем новый тип: неизменяемый именованный кортеж с полем amount (со значением по умолчанию: 1). Но этого недостаточно, если хотим производить арифметические операции с объектами типа Dollar.
-
-Поэтому Dollar наследует поле amount и свойства immutability, но определяет свои операторы. 
-Например:
-* `__mul__()` помогает переопределить оператор умножения значения типа Dollar на некое число. 
-Результатом умножения будет значение типа Dollar. \
-Это позволяет писать такой код: Dollar(500) * 10 ⏤ получим: Dollar(5000).
-
-* Метод `__add__()` позволяет писать такой код: Dollar(500) + Dollar(80) ⏤ получим: Dollar(580).
-
-* Метод `__truediv__()` позволяет считать:
-```py
-Dollar(500) / Dollar(10) = 50 или
-Dollar(500) / 50 = Dollar(10).
-```
-* Метод `__str__()` красиво форматирует объекты типа Dollar, тут и появляется: $5,000 вместо 5000.
-
-```py
-from collections import namedtuple
-```
-```py
-class Dollar(namedtuple('Dollar', 'amount', defaults=(1,))):
-    def __mul__(self, other: Union[int, float]) -> 'Dollar':
-        return Dollar(self.amount * other)
-
-    def __truediv__(self, other: Union[int, float, 'Dollar']) -> 'Dollar':
-        return self.amount / other.amount \
-        if type(other) == Dollar \
-        else Dollar(self.amount / other)
-
-    def __add__(self, other: 'Dollar') -> 'Dollar':
-        return Dollar(self.amount + other.amount)
-
-    def __sub__(self, other: 'Dollar') -> 'Dollar':
-        return Dollar(self.amount - other.amount)
-
-    def __str__(self) -> str:
-        return f'${self.amount:,.2f}' \
-        if self.amount >= 0 \
-        else f'-${-self.amount:,.2f}'
-
-    def __repr__(self) -> str:
-        return str(self)
-```
-Теперь можно ввести недостающий доллар:
-```py
-USD = Dollar(1)
-```
-Code: https://onlinegdb.com/EySDwsUIo
-
----
-
-### Backend на FastAPI: mortgage calculator (May 23)
-
-В папке `webapptest` создадим проект. Там сохраним:
-* файл `main.py` и
-* каталог `venv` (`virtualenv`).
-
-В первую очередь устанавливаем необходимые библиотеки. Скопируйте в терминал следующую команду:
-```sh
-venv/bin/pip install "fastapi[all]" "uvicorn[standard]"
-```
-Проверить, что там установилось можно командой:
-```sh
-venv/bin/pip list
-```
-
-#### `main.py` и запуск WEB-сервиса:
-
-Создаём backend и регистрируем API. Декораторы помним?
-```py
-import fastapi
-
-app = fastapi.FastAPI()
-
-@app.get("/")
-def read_root():
-    return 'loan calculator'
-```
-Декоратор `@app.get("/")` устанавливает удалённую точку вызова для функции read_root(), которая просто возвращает строку (ничего хитрого!).
-
-Запускаем сервис локально, например, на порту 8000:
-```sh
-venv/bin/uvicorn main:app --reload --port 8000
-```
-Output:
-```
-INFO:     Will watch for changes in these directories: ['/Users/slava/PycharmProjects/webapptest']
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [29735] using watchgod
-INFO:     Started server process [29737]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-```
-Если всё хорошо, пусть бежит!
-
-Теперь через webbrowser можно вызвать функцию read_root, набрав следующий URL:
-
-http://127.0.0.1:8000/
-
-В браузере должно появиться:
-```
-"loan calculator"
-```
-Мы только что запустили минимальный WEB service (backend)!
-
-#### Loan Calculator
-
-Уже знакомы с именованными кортежами? Объекты LoanPayments будут содержать информацию о выплатах за определённый срок. Например за один месяц, год, весь период и т.д.:
-```py
-import collections
-```
-```py
-LoanPayments = collections.namedtuple(
-    'LoanPayments',
-    [
-        'interest',
-        'principle',
-        'paid',
-        'balance_left',
-        'payments_done',
-    ],
-)
-```
-Создать объект этого типа можно так:
-```py
-loan_payments = LoanPayments(
-    interest=1000,
-    principle=2000,
-    paid=1000+2000,
-    balance_left=100000 - 3000,
-    payments_done=1,
-)
-```
-Основная функция, которая считает выплаты по кредиту на заданном интервале:
-```py
-def payment(balance: float, term: int, rate: float, payments: int = 1) -> LoanPayments:
-
-    print(f'payment({balance=}, {term=}, {rate=}: {payments=})')
-
-    total_interest, total_principle = 0, 0
-    for _ in range(payments):
-        interest = balance * rate
-        principle = interest / ((1 + rate) ** term - 1)
-
-        total_interest += interest
-        total_principle += principle
-
-        balance -= principle
-        term -= 1
-
-    return LoanPayments(
-        interest=round(total_interest, 2),
-        principle=round(total_principle, 2),
-        paid=round(total_interest+total_principle, 2),
-        balance_left=round(balance, 2),
-        payments_done=payments,
-    )
-```
-Входные параметры для функции:
-* balance: размер долга по ссуде, например: 100000 ($100К).
-* term: оставшееся количество выплат, например: 30 * 12 (30 лет).
-* rate: кредитная ставка за один взнос.
-* payments: количество взносов, можно например указать: 1 (месяц), 12 (год), 120 (10 лет) или term (за всё время).
-
-Добавляем API:
-```py
-@app.get("/amortization_loan/")
-def amortization_loan(balance: float, months_left: int, annual_rate: float, months_to_pay: int = 1):
-
-    annual_rate *= 0.01
-    rate = (1 + annual_rate) ** (1 / 12) - 1
-
-    monthly = payment(balance, months_left, rate, 1)
-    annual = payment(balance, months_left, rate, 12)
-    total = payment(balance, months_left, rate, months_left)
-    paid = payment(balance, months_left, rate, months_to_pay)
-
-    return {
-        'monthly': monthly._asdict(),
-        'annual': annual._asdict(),
-        'total': total._asdict(),
-        'paid': paid._asdict(),
-    }
-```
-Теперь в браузере можно указать такой URL:
-
-http://127.0.0.1:8000/amortization_loan/?balance=100000&months_left=360&annual_rate=5&months_to_pay=120
-
-Что означает: вызвать функцию amortization_loan с параметрами:
-* balance=100000 ($100К);
-* months_left=360 (ссуда на 30 лет);
-* annual_rate=5 (5% годовых);
-* months_to_pay=120 (интересуют выплаты за 10 лет).
-
-В браузере получим ответ в виде JSON:
-```json
-{"monthly":{"interest":407.41,"principle":122.64,"paid":530.06,"balance_left":99877.36,"payments_done":1},"annual":{"interest":4855.52,"principle":1505.14,"paid":6360.66,"balance_left":98494.86,"payments_done":12},"total":{"interest":90819.87,"principle":100000.0,"paid":190819.87,"balance_left":0.0,"payments_done":360},"paid":{"interest":44675.09,"principle":18931.53,"paid":63606.62,"balance_left":81068.47,"payments_done":120}}
-```
-Новый API добавлен, сервис loan calculator работает!
-
-Следующий шаг можно пропустить:
-
-#### Форматирование JSON
-
-JSON можно красиво отформотрировать с помощью вызова модуля: python3 -m json.tool. Запускаем в терминале следующую команду:
-```sh
-echo '{"monthly":{"interest":407.41,"principle":122.64,"paid":530.06,"balance_left":99877.36,"payments_done":1},"annual":{"interest":4855.52,"principle":1505.14,"paid":6360.66,"balance_left":98494.86,"payments_done":12},"total":{"interest":90819.87,"principle":100000.0,"paid":190819.87,"balance_left":0.0,"payments_done":360},"paid":{"interest":44675.09,"principle":18931.53,"paid":63606.62,"balance_left":81068.47,"payments_done":120}}' | python3 -m json.tool
-```
-Output:
-```json
-{
-    "monthly": {
-        "interest": 407.41,
-        "principle": 122.64,
-        "paid": 530.06,
-        "balance_left": 99877.36,
-        "payments_done": 1
-    },
-    "annual": {
-        "interest": 4855.52,
-        "principle": 1505.14,
-        "paid": 6360.66,
-        "balance_left": 98494.86,
-        "payments_done": 12
-    },
-    "total": {
-        "interest": 90819.87,
-        "principle": 100000.0,
-        "paid": 190819.87,
-        "balance_left": 0.0,
-        "payments_done": 360
-    },
-    "paid": {
-        "interest": 44675.09,
-        "principle": 18931.53,
-        "paid": 63606.62,
-        "balance_left": 81068.47,
-        "payments_done": 120
-    }
-}
-```
-* За месяц заплатим: $530;
-* за год: $6,360;
-* за все 30 лет: $190,819;
-* за 10 лет: $63,606.
-
-#### Interactive API docs
-
-FastAPI также генерирует точку вызова для интерактивного API. Пока бежит ваш сервис, наберите в браузере следующий URL:
-
-http://127.0.0.1:8000/docs
-
-Должна генерироваться страница для вызова двух функций: `Root Read` и `Amortization Loan`.
-
-Кликаем на стрелочки и далее на "Try it out" и "Execute"!
-
-Получили очень простой UI, через который можно взаимодействовать с сервисом
-
-Full Code: https://onlinegdb.com/7FLyB8K7P
-
-See https://fastapi.tiangolo.com/
-
----
-
 
 ### map/starmap vs. list/generator comprehension & zip (June 2)
 
@@ -2039,120 +1683,6 @@ Code in https://onlinegdb.com/FLDien5qE
 
 ---
 
-### Ставим рейтинг списку слов (June 5)
-
-Дан список слов, требуется узнать на каком месте будет положение каждого слова после сортировки списка (игнорируем регистр букв).
-
-Решение:
-
-В качестве примера берём слова из цитаты Линуса Товальдса:
-```py
-words = ['Talk', 'is', 'cheap', 'Show', 'me', 'the', 'code', 'by', 'Linus', 'Torvalds']
-```
-Конструируем массив отсортированных индексов:
-```py
-indexes = list(range(len(words)))
-
-indexes.sort(key=lambda i: words[i].lower())
-```
-indexes[0] содержит индекс слова, которое после сортировки, должно находиться в положении 0.
-
-В общем случае: после сортировки слов, на месте r будет находится слово words[indexes[r]].
-
-Параметр key в функции sort определяет ключ/свойство, согласно которому производится сортировка.
-
-Создаём словарь ranks, который по индексу i выдаст рейтинг (положение) слова words[i]:
-```py
-ranks = {}
-for r, i in enumerate(indexes):
-    ranks[i] = r
-```
-А теперь конструируем список пар: слово и его позиция в отсортированном списке.
-```py
-ranked_words = []
-for i, w in enumerate(words):
-    ranked_words.append((w, ranks[i]))
-
-print(ranked_words)
-```
-
-Вроде не сложно. Можно сократить количество строк, используя разные list/dict comprehension. А в качестве упражнения, попробуем вместить весь код в одну строчку (это для тех, кто дотянет до конца!).
-
-#### Applying List & Dict Comprehension vs. Map
-
-Список indexes, а также словарь ranks и список ranked_words можно сконструировать каждый в одну строчку:
-```py
-indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
-
-ranks = {i: r for r, i in enumerate(indexes)}
-
-ranked_words = [(w, ranks[i]) for i, w in enumerate(words)]
-```
-Можно первые две строчки объединить, но получим нечто неуклюжее.
-
-Лучше ещё потренируемся в написании альтернативных решений. Словарь rank можно создать такими способами:
-```py
-ranks = dict(zip(indexes, range(len(words))))
-```
-```py
-ranks = dict(map(reversed, enumerate(indexes)))
-```
-
-А результирующий список ranked_words, такими способами:
-```py
-ranked_words = list(zip(words, (ranks[i] for i in range(len(words)))))
-```
-```py
-ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
-```
-```py
-ranked_words = [(words[i], ranks[i]) for i in range(len(words))]
-```
-Можно, конечно, избавиться от индексов:
-```py
-indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
-
-ranks = dict(map(reversed, enumerate(indexes)))
-
-ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
-```
-Или чисто технически объединить первые две строчки в одну:
-```py
-ranks = dict(map(reversed, enumerate(sorted(range(len(words)), key=lambda i: words[i].lower()))))
-
-ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
-```
-
-#### Альтернативное решение: ещё один `sort`
-
-Но можно пойти несколько другим путём. Вот альтернативное решение:
-```py
-indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
-
-ranks = dict(zip(indexes, range(len(words))))
-
-ranked_words = [(words[i], r) for i, r in sorted(ranks.items())]
-```
-После конструирования словаря `ranks`, преобразовываем его в список пар (индекс, ранк) и сортируем эту последовательность (по индексу). В результате получаем список пар `(0, r0)`, `(1, r1)`, ...
-
-Стало сложнее, но можно заметить, что мы делаем лишний шаг: сам словарь `ranks` нам не нужен!
-
-Проще сразу сортировать список пар из indexes:
-```py
-indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
-
-ranked_words = [(words[i], r) for i, r in sorted(zip(indexes, range(len(words))))]
-```
-Ну а теперь, можно и в одну строчку:
-```
-ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), key=lambda i: words[i].lower()), range(len(words))))]
-```
-На работе за такое "побьют"!!!
-
-Code in https://onlinegdb.com/eMH7atQTP
-
-
----
 
 ### Callable в Python (Aug 18)
 
@@ -2268,195 +1798,6 @@ The code is https://onlinegdb.com/TH9ry84dL
 
 ---
 
-
-### Пять простых задач на структуры данных и рекурсию (Aug 19)
-
-Параллельно будем использовать новый оператор match-case и сравним его с коротким if-else.
-
-#### 1. Merge Two Sorted Lists
-
-Given the heads of two sorted linked lists. Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
-
-Дано определение списка (linked list):
-```py
-class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next
-```
-* https://leetcode.com/problems/merge-two-sorted-lists/
-
-Решение:
-```py
-def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
-    match p, q:
-        case p, None:
-            return p
-        case None, q:
-            return q
-        case p, q if p.val <= q.val:
-            return ListNode(p.val, merge(p.next, q)) 
-        case p, q:
-            return merge(q, p)
-```
-Конструкция match-case довольно громоздка, но в данном случае добавляет ясности:
-* Если один один из списков пустой, ответом является второй список.
-* Если голова первого списка меньше головы второго, берём значение первого и сливаем оставшийся хвост со вторым списком.
-* В случае, если голова второго меньше, то просто меняем их местами.
-
-Вызов функции: `merge(list1, list2)`
-
-Можно и в одну строчку, с использованием короткой формы if-else:
-```py
-def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
-    return (ListNode(p.val, merge(p.next, q)) if p.val <= q.val else merge(q, p)) if p and q else p or q
-```
-Задания:
-* Два первых блока case можно объединить, как?
-* Перепишите функцию с использованием обычного оператора if-elif-else.
-* Решите задачу без рекурсии (используя цикл, будет длиннее).
-
-#### 2. Maximum Depth of Binary Tree
-
-Given the root of a binary tree, return its maximum depth, which is the number of nodes along the longest path from the root node down to the farthest leaf node.
-
-* https://leetcode.com/problems/maximum-depth-of-binary-tree/
-
-Дано определение списка (linked list):
-```py
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
-```
-Решение:
-```py
-def depth(r: TreeNode|None) -> int:
-    match r:
-        case None:
-            return 0
-        case TreeNode(val=_, left=left, right=right):
-            return max(depth(left), depth(right)) + 1
-```
-* Если дерево пустое, то ответ 0.
-* Для не пустого дерева, его depth на единицу больше чем максимальная глубина среди его поддеревьев.
-
-Вызываем функцию так: `depth(root)`
-
-В одну строчку:
-```py
-def depth(r: TreeNode|None) -> int:
-    return max(depth(r.left), depth(r.right)) + 1 if r else 0
-```
-Задания:
-* Последний блок case замените на case _.
-* Замените короткий if-else оператором if-elif-else.
-
-#### 3. Same Tree
-
-Given two binary trees, check if they are the same or not. Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
-
-* https://leetcode.com/problems/same-tree/
-
-Решение:
-```py
-def same(p: TreeNode|None, q: TreeNode|None) -> bool:
-    match p, q:
-        case None, None:
-            return True
-        case p, None if p is not None:
-            return False
-        case None, q if q is not None:
-            return False
-        case p, q:
-            return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right)))
-```
-* Два пустых дерева -- идентичны.
-* Если только одно из деревьев пустое, то они не идентичны.
-* Два не пустых дерева идентичны, если значения в их корнях совпадают, а также идентичными являются их левые и правые поддеревья (попарно).
-
-Стандартная функция all возвращает True если все значения равны True, фактически это тоже самое что `... and ... and ...` .
-
-Вызываем: `same(p, q)`
-
-В одну строчку:
-```py
-def same(p: TreeNode|None, q: TreeNode|None) -> bool:
-    return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right))) if p and q else p == q == None
-```
-Задания:
-* В первой функции, объедините второй и третий блоки case.
-* Замените короткий if-else оператором if-elif-else.
-
-#### 4. Symmetric Tree
-
-Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
-
-* https://leetcode.com/problems/symmetric-tree/
-
-Решение:
-
-Напишем функцию, которая проверяет если два данных дерева симметричны друг к другу:
-```py
-def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
-    match p, q:
-        case None, None:
-            return True
-        case p, None if p is not None:
-            return False
-        case None, q if q is not None:
-            return False
-        case _:
-            return all((p.val == q.val, symmetric(p.left, q.right), symmetric(p.right, q.left)))
-```
-* Два не пустые дерева симметричны, если их корни совпадают, левое поддерево первого дерева симметрично правому поддереву второго дерева, а также симметричны правое поддерево первого дерева и левое поддерево второго дерева.
-
-Вызов функции: `not root or symmetric(root.left, root.right)`
-
-В одну строчку:
-```py
-def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
-    return all((p.val == q.val, symmetric(p.left, q.right), symmetric(p.right, q.left))) if p and q else p == q == None
-```
-Задания:
-* Объедините первые три блока case в один.
-* Замените короткий if-else оператором if-elif-else.
-
-#### 5. Path Sum
-
-Given a binary tree and an integer target, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals target. A leaf is a node with no children.
-
-* https://leetcode.com/problems/path-sum/
-
-Решение:
-```py
-def has_path(r: TreeNode|None, target: int) -> bool:
-    match r:
-        case None:
-            return False
-        case TreeNode(val=val, left=None, right=None):
-            return val == target
-        case TreeNode(val=val, left=left, right=right):
-            return has_path(left, target-val) or has_path(right, target-val)
-```
-В данном случае процесс matching более сложный, поскольку используется паттерн по объектам.
-* Для узла-листа (второй case), ответ True только если target совпадает с его значением.
-* Для общего случая проверяем левое и правое поддеревья.
-
-Вызываем: `has_path(root, targetSum)`
-
-В одну строчку:
-```py
-def has_path(r: TreeNode|None, target: int) -> bool:
-    return (has_path(r.left, target - r.val) or has_path(r.right, target - r.val) if r.left or r.right else r.val == target) if r else False
-```
-
-Задания:
-* Замените последний case на case _.
-* Замените короткий if-else оператором if-elif-else.
-
----
 
 ### Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
 
@@ -3301,6 +2642,7 @@ Code: https://onlinegdb.com/o_vdN5LO7
 
 ---
 
+
 ## Solving Coding Problems
 
 
@@ -3405,7 +2747,122 @@ Code: https://onlinegdb.com/o_MRBjNxP
 ---
 
 
-### Пять задач (LeetCode/easy) с решением в одну строчку (June 24)
+### Ставим рейтинг списку слов (June 5)
+
+Дан список слов, требуется узнать на каком месте будет положение каждого слова после сортировки списка (игнорируем регистр букв).
+
+Решение:
+
+В качестве примера берём слова из цитаты Линуса Товальдса:
+```py
+words = ['Talk', 'is', 'cheap', 'Show', 'me', 'the', 'code', 'by', 'Linus', 'Torvalds']
+```
+Конструируем массив отсортированных индексов:
+```py
+indexes = list(range(len(words)))
+
+indexes.sort(key=lambda i: words[i].lower())
+```
+indexes[0] содержит индекс слова, которое после сортировки, должно находиться в положении 0.
+
+В общем случае: после сортировки слов, на месте r будет находится слово words[indexes[r]].
+
+Параметр key в функции sort определяет ключ/свойство, согласно которому производится сортировка.
+
+Создаём словарь ranks, который по индексу i выдаст рейтинг (положение) слова words[i]:
+```py
+ranks = {}
+for r, i in enumerate(indexes):
+    ranks[i] = r
+```
+А теперь конструируем список пар: слово и его позиция в отсортированном списке.
+```py
+ranked_words = []
+for i, w in enumerate(words):
+    ranked_words.append((w, ranks[i]))
+
+print(ranked_words)
+```
+
+Вроде не сложно. Можно сократить количество строк, используя разные list/dict comprehension. А в качестве упражнения, попробуем вместить весь код в одну строчку (это для тех, кто дотянет до конца!).
+
+#### Applying List & Dict Comprehension vs. Map
+
+Список indexes, а также словарь ranks и список ranked_words можно сконструировать каждый в одну строчку:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranks = {i: r for r, i in enumerate(indexes)}
+
+ranked_words = [(w, ranks[i]) for i, w in enumerate(words)]
+```
+Можно первые две строчки объединить, но получим нечто неуклюжее.
+
+Лучше ещё потренируемся в написании альтернативных решений. Словарь rank можно создать такими способами:
+```py
+ranks = dict(zip(indexes, range(len(words))))
+```
+```py
+ranks = dict(map(reversed, enumerate(indexes)))
+```
+
+А результирующий список ranked_words, такими способами:
+```py
+ranked_words = list(zip(words, (ranks[i] for i in range(len(words)))))
+```
+```py
+ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
+```
+```py
+ranked_words = [(words[i], ranks[i]) for i in range(len(words))]
+```
+Можно, конечно, избавиться от индексов:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranks = dict(map(reversed, enumerate(indexes)))
+
+ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
+```
+Или чисто технически объединить первые две строчки в одну:
+```py
+ranks = dict(map(reversed, enumerate(sorted(range(len(words)), key=lambda i: words[i].lower()))))
+
+ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
+```
+
+#### Альтернативное решение: ещё один `sort`
+
+Но можно пойти несколько другим путём. Вот альтернативное решение:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranks = dict(zip(indexes, range(len(words))))
+
+ranked_words = [(words[i], r) for i, r in sorted(ranks.items())]
+```
+После конструирования словаря `ranks`, преобразовываем его в список пар (индекс, ранк) и сортируем эту последовательность (по индексу). В результате получаем список пар `(0, r0)`, `(1, r1)`, ...
+
+Стало сложнее, но можно заметить, что мы делаем лишний шаг: сам словарь `ranks` нам не нужен!
+
+Проще сразу сортировать список пар из indexes:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranked_words = [(words[i], r) for i, r in sorted(zip(indexes, range(len(words))))]
+```
+Ну а теперь, можно и в одну строчку:
+```
+ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), key=lambda i: words[i].lower()), range(len(words))))]
+```
+На работе за такое "побьют"!!!
+
+Code in https://onlinegdb.com/eMH7atQTP
+
+---
+
+
+### LeetCode/Easy: Пять задач с решением в одну строчку (June 24)
 
 #### 242. Valid Anagram
 Given two strings s and t, return true if t is an anagram of s, and false otherwise.
@@ -3455,6 +2912,195 @@ def intersect(nums1: List[int], nums2: List[int]) -> List[int]:
 ```
 https://leetcode.com/problems/intersection-of-two-arrays-ii/
 
+---
+
+
+### Пять простых задач на структуры данных и рекурсию (Aug 19)
+
+Параллельно будем использовать новый оператор match-case и сравним его с коротким if-else.
+
+#### 1. Merge Two Sorted Lists
+
+Given the heads of two sorted linked lists. Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
+
+Дано определение списка (linked list):
+```py
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+```
+* https://leetcode.com/problems/merge-two-sorted-lists/
+
+Решение:
+```py
+def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
+    match p, q:
+        case p, None:
+            return p
+        case None, q:
+            return q
+        case p, q if p.val <= q.val:
+            return ListNode(p.val, merge(p.next, q)) 
+        case p, q:
+            return merge(q, p)
+```
+Конструкция match-case довольно громоздка, но в данном случае добавляет ясности:
+* Если один один из списков пустой, ответом является второй список.
+* Если голова первого списка меньше головы второго, берём значение первого и сливаем оставшийся хвост со вторым списком.
+* В случае, если голова второго меньше, то просто меняем их местами.
+
+Вызов функции: `merge(list1, list2)`
+
+Можно и в одну строчку, с использованием короткой формы if-else:
+```py
+def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
+    return (ListNode(p.val, merge(p.next, q)) if p.val <= q.val else merge(q, p)) if p and q else p or q
+```
+Задания:
+* Два первых блока case можно объединить, как?
+* Перепишите функцию с использованием обычного оператора if-elif-else.
+* Решите задачу без рекурсии (используя цикл, будет длиннее).
+
+#### 2. Maximum Depth of Binary Tree
+
+Given the root of a binary tree, return its maximum depth, which is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+* https://leetcode.com/problems/maximum-depth-of-binary-tree/
+
+Дано определение списка (linked list):
+```py
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+```
+Решение:
+```py
+def depth(r: TreeNode|None) -> int:
+    match r:
+        case None:
+            return 0
+        case TreeNode(val=_, left=left, right=right):
+            return max(depth(left), depth(right)) + 1
+```
+* Если дерево пустое, то ответ 0.
+* Для не пустого дерева, его depth на единицу больше чем максимальная глубина среди его поддеревьев.
+
+Вызываем функцию так: `depth(root)`
+
+В одну строчку:
+```py
+def depth(r: TreeNode|None) -> int:
+    return max(depth(r.left), depth(r.right)) + 1 if r else 0
+```
+Задания:
+* Последний блок case замените на case _.
+* Замените короткий if-else оператором if-elif-else.
+
+#### 3. Same Tree
+
+Given two binary trees, check if they are the same or not. Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
+
+* https://leetcode.com/problems/same-tree/
+
+Решение:
+```py
+def same(p: TreeNode|None, q: TreeNode|None) -> bool:
+    match p, q:
+        case None, None:
+            return True
+        case p, None if p is not None:
+            return False
+        case None, q if q is not None:
+            return False
+        case p, q:
+            return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right)))
+```
+* Два пустых дерева -- идентичны.
+* Если только одно из деревьев пустое, то они не идентичны.
+* Два не пустых дерева идентичны, если значения в их корнях совпадают, а также идентичными являются их левые и правые поддеревья (попарно).
+
+Стандартная функция all возвращает True если все значения равны True, фактически это тоже самое что `... and ... and ...` .
+
+Вызываем: `same(p, q)`
+
+В одну строчку:
+```py
+def same(p: TreeNode|None, q: TreeNode|None) -> bool:
+    return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right))) if p and q else p == q == None
+```
+Задания:
+* В первой функции, объедините второй и третий блоки case.
+* Замените короткий if-else оператором if-elif-else.
+
+#### 4. Symmetric Tree
+
+Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+
+* https://leetcode.com/problems/symmetric-tree/
+
+Решение:
+
+Напишем функцию, которая проверяет если два данных дерева симметричны друг к другу:
+```py
+def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
+    match p, q:
+        case None, None:
+            return True
+        case p, None if p is not None:
+            return False
+        case None, q if q is not None:
+            return False
+        case _:
+            return all((p.val == q.val, symmetric(p.left, q.right), symmetric(p.right, q.left)))
+```
+* Два не пустые дерева симметричны, если их корни совпадают, левое поддерево первого дерева симметрично правому поддереву второго дерева, а также симметричны правое поддерево первого дерева и левое поддерево второго дерева.
+
+Вызов функции: `not root or symmetric(root.left, root.right)`
+
+В одну строчку:
+```py
+def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
+    return all((p.val == q.val, symmetric(p.left, q.right), symmetric(p.right, q.left))) if p and q else p == q == None
+```
+Задания:
+* Объедините первые три блока case в один.
+* Замените короткий if-else оператором if-elif-else.
+
+#### 5. Path Sum
+
+Given a binary tree and an integer target, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals target. A leaf is a node with no children.
+
+* https://leetcode.com/problems/path-sum/
+
+Решение:
+```py
+def has_path(r: TreeNode|None, target: int) -> bool:
+    match r:
+        case None:
+            return False
+        case TreeNode(val=val, left=None, right=None):
+            return val == target
+        case TreeNode(val=val, left=left, right=right):
+            return has_path(left, target-val) or has_path(right, target-val)
+```
+В данном случае процесс matching более сложный, поскольку используется паттерн по объектам.
+* Для узла-листа (второй case), ответ True только если target совпадает с его значением.
+* Для общего случая проверяем левое и правое поддеревья.
+
+Вызываем: `has_path(root, targetSum)`
+
+В одну строчку:
+```py
+def has_path(r: TreeNode|None, target: int) -> bool:
+    return (has_path(r.left, target - r.val) or has_path(r.right, target - r.val) if r.left or r.right else r.val == target) if r else False
+```
+
+Задания:
+* Замените последний case на case _.
+* Замените короткий if-else оператором if-elif-else.
 
 ---
 
@@ -3550,7 +3196,7 @@ Code: https://onlinegdb.com/ghcfGOncm
 ---
 
 
-### LeetCode #39: Combination Sum (Medium Level) (May 25)
+### LeetCode/Medium #39: Combination Sum (May 25)
 
 Дан массив различных целых чисел (candidates) и целевое целое число (target).
 
@@ -3675,7 +3321,7 @@ def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
 ---
 
 
-### LeetCode #75: Sort Colors (Medium) (May 25)
+### LeetCode/Medium #75: Sort Colors (May 25)
 
 > Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
 > 
@@ -3997,6 +3643,366 @@ test()
 Функция `test` запускает `pig_it` для каждого теста и сверяет полученный результат с ожидаемым значением.
 
 Code: https://onlinegdb.com/PtHfV39vU
+
+---
+
+## Project: Mortgage Calculator
+
+### Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
+
+Возьмём учебный пример: подсчет процентов и выплат по fixed-rate mortage. Допустим цена дома $500,000, начальный взнос: 20%. Это можно выразить следующим кодом на Python:
+```py
+home_price = USD * 500000
+down_payment = home_price * 0.2
+mortgage = home_price - down_payment
+
+print(f'{home_price=}')
+print(f'{down_payment=}')
+print(f'{mortgage=}')
+
+loan_to_value = mortgage / home_price
+
+print(f'{loan_to_value=:.1%}')
+```
+Тут мы заодно посчитали LTV, который в данном примере составит: 80% (ну раз первый взнос: 20%).
+
+Мы тут пока не определили USD, но можно догадаться, речь про $1, а значит USD * 500000 означает: $500,000.
+Недостающий кусок кода разберём чуть позже, а пока посмотрим на вывод данного кода.
+
+Output:
+```
+home_price=$500,000.00
+down_payment=$100,000.00
+mortgage=$400,000.00
+
+loan_to_value=80.0%
+```
+Магическим образом числа форматируются как цены, хотя сама команда print этого вроде не делает.
+Определим, что ссуда берётся под 5% годовых на 30 лет. Пересчитываем в проценты за один месяц. Также вводим понятие amortization term которое означает срок ссуды в количестве месяцев:
+```py
+mortgage_rate = 0.05
+monthly_rate = (1 + mortgage_rate) ** (1 / 12) - 1
+
+print(f'{mortgage_rate=:.1%}')
+print(f'{monthly_rate=:.3%}')
+
+mortgage_term = 30
+amortization_term = mortgage_term * 12
+```
+Output:
+```
+mortgage_rate=5.0%
+monthly_rate=0.407%
+```
+Теперь считаем считаем выплаты как по процентам так и возврат по ссуде. Вычисления скрыты в функции, которую разберём чуть позже.
+```py
+monthly_interest, monthly_principle = payment(mortgage, amortization_term, monthly_rate)
+monthly_payment = monthly_interest + monthly_principle
+print(f'{monthly_interest=}')
+print(f'{monthly_principle=}')
+print(f'{monthly_payment=}')
+```
+Output:
+```py
+monthly_interest=$1,629.65
+monthly_principle=$490.57
+monthly_payment=$2,120.22
+```
+Опять магия: цены форматируются корректно!
+
+#### Функция `payment()`
+
+А вот и недостающая функция подсчёта выплат по ссуде:
+```py
+def payment(balance: Dollar, term: int, rate: float) -> Tuple[Dollar, Dollar]:
+    interest = balance * rate
+    principle = interest / ((1 + rate) ** term - 1)
+
+    return interest, principle
+```
+Считает по известным формулам и возвращает пару (tuple): оплата процентов и возврат ссуды. В сумме получим (месячный) платёж. На самом деле, этой функции всё равно, речь про месяцы или года. Используются абстрактные: balance, term, rate!
+Упрощая, допустим баланс по ссуде $400К, годовой процент: 5%, ссуда на 30 лет, то функция payment($400,000, 30, 5%) посчитает:
+```py
+interest = $400,000 * 5% = $20,000
+principle = $20,000 / (1.05^30 - 1) = $6,020
+```
+Общий платёж (за год): $5,000 + $1,505 = $26,020.
+
+В терминах целых годов, ответ будет не совсем верный. Более правильным будет сделать пересчёт по месяцам. Именно поэтому вы вызываем эту функцию как payment($400,000, 12*30, 0.407%).
+Заметим, что функция имеет аннотацию к типам и для balance указан тип Dollar, который мы пока нигде не определили.
+
+#### Тип `Dollar`
+
+Dollar ⏤ это класс, который наследует все поля и свойства другого типа collections.namedtuple. Можно и без наследования обойтись, но namedtuple является очень полезным типом, с которым следует познакомиться.
+
+Тип namedtuple позволяет определить наименованные кортежи. Как раз Dollar ⏤ это кортеж из всего одной но именованной компоненты: amount. Как и обычные tuple, namedtuple тоже является неизменяемым ⏤ ещё одно полезное свойство.
+
+Можно конечно же использовать namedtuple напрямую, например так:
+```py
+Dollar = namedtuple('Dollar', 'amount', defaults=(1,))
+```
+Тут мы определяем новый тип: неизменяемый именованный кортеж с полем amount (со значением по умолчанию: 1). Но этого недостаточно, если хотим производить арифметические операции с объектами типа Dollar.
+
+Поэтому Dollar наследует поле amount и свойства immutability, но определяет свои операторы. 
+Например:
+* `__mul__()` помогает переопределить оператор умножения значения типа Dollar на некое число. 
+Результатом умножения будет значение типа Dollar. \
+Это позволяет писать такой код: Dollar(500) * 10 ⏤ получим: Dollar(5000).
+
+* Метод `__add__()` позволяет писать такой код: Dollar(500) + Dollar(80) ⏤ получим: Dollar(580).
+
+* Метод `__truediv__()` позволяет считать:
+```py
+Dollar(500) / Dollar(10) = 50 или
+Dollar(500) / 50 = Dollar(10).
+```
+* Метод `__str__()` красиво форматирует объекты типа Dollar, тут и появляется: $5,000 вместо 5000.
+
+```py
+from collections import namedtuple
+```
+```py
+class Dollar(namedtuple('Dollar', 'amount', defaults=(1,))):
+    def __mul__(self, other: Union[int, float]) -> 'Dollar':
+        return Dollar(self.amount * other)
+
+    def __truediv__(self, other: Union[int, float, 'Dollar']) -> 'Dollar':
+        return self.amount / other.amount \
+        if type(other) == Dollar \
+        else Dollar(self.amount / other)
+
+    def __add__(self, other: 'Dollar') -> 'Dollar':
+        return Dollar(self.amount + other.amount)
+
+    def __sub__(self, other: 'Dollar') -> 'Dollar':
+        return Dollar(self.amount - other.amount)
+
+    def __str__(self) -> str:
+        return f'${self.amount:,.2f}' \
+        if self.amount >= 0 \
+        else f'-${-self.amount:,.2f}'
+
+    def __repr__(self) -> str:
+        return str(self)
+```
+Теперь можно ввести недостающий доллар:
+```py
+USD = Dollar(1)
+```
+Code: https://onlinegdb.com/EySDwsUIo
+
+---
+
+### Backend на FastAPI: mortgage calculator (May 23)
+
+В папке `webapptest` создадим проект. Там сохраним:
+* файл `main.py` и
+* каталог `venv` (`virtualenv`).
+
+В первую очередь устанавливаем необходимые библиотеки. Скопируйте в терминал следующую команду:
+```sh
+venv/bin/pip install "fastapi[all]" "uvicorn[standard]"
+```
+Проверить, что там установилось можно командой:
+```sh
+venv/bin/pip list
+```
+
+#### `main.py` и запуск WEB-сервиса:
+
+Создаём backend и регистрируем API. Декораторы помним?
+```py
+import fastapi
+
+app = fastapi.FastAPI()
+
+@app.get("/")
+def read_root():
+    return 'loan calculator'
+```
+Декоратор `@app.get("/")` устанавливает удалённую точку вызова для функции read_root(), которая просто возвращает строку (ничего хитрого!).
+
+Запускаем сервис локально, например, на порту 8000:
+```sh
+venv/bin/uvicorn main:app --reload --port 8000
+```
+Output:
+```
+INFO:     Will watch for changes in these directories: ['/Users/slava/PycharmProjects/webapptest']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [29735] using watchgod
+INFO:     Started server process [29737]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+Если всё хорошо, пусть бежит!
+
+Теперь через webbrowser можно вызвать функцию read_root, набрав следующий URL:
+
+http://127.0.0.1:8000/
+
+В браузере должно появиться:
+```
+"loan calculator"
+```
+Мы только что запустили минимальный WEB service (backend)!
+
+#### Loan Calculator
+
+Уже знакомы с именованными кортежами? Объекты LoanPayments будут содержать информацию о выплатах за определённый срок. Например за один месяц, год, весь период и т.д.:
+```py
+import collections
+```
+```py
+LoanPayments = collections.namedtuple(
+    'LoanPayments',
+    [
+        'interest',
+        'principle',
+        'paid',
+        'balance_left',
+        'payments_done',
+    ],
+)
+```
+Создать объект этого типа можно так:
+```py
+loan_payments = LoanPayments(
+    interest=1000,
+    principle=2000,
+    paid=1000+2000,
+    balance_left=100000 - 3000,
+    payments_done=1,
+)
+```
+Основная функция, которая считает выплаты по кредиту на заданном интервале:
+```py
+def payment(balance: float, term: int, rate: float, payments: int = 1) -> LoanPayments:
+
+    print(f'payment({balance=}, {term=}, {rate=}: {payments=})')
+
+    total_interest, total_principle = 0, 0
+    for _ in range(payments):
+        interest = balance * rate
+        principle = interest / ((1 + rate) ** term - 1)
+
+        total_interest += interest
+        total_principle += principle
+
+        balance -= principle
+        term -= 1
+
+    return LoanPayments(
+        interest=round(total_interest, 2),
+        principle=round(total_principle, 2),
+        paid=round(total_interest+total_principle, 2),
+        balance_left=round(balance, 2),
+        payments_done=payments,
+    )
+```
+Входные параметры для функции:
+* balance: размер долга по ссуде, например: 100000 ($100К).
+* term: оставшееся количество выплат, например: 30 * 12 (30 лет).
+* rate: кредитная ставка за один взнос.
+* payments: количество взносов, можно например указать: 1 (месяц), 12 (год), 120 (10 лет) или term (за всё время).
+
+Добавляем API:
+```py
+@app.get("/amortization_loan/")
+def amortization_loan(balance: float, months_left: int, annual_rate: float, months_to_pay: int = 1):
+
+    annual_rate *= 0.01
+    rate = (1 + annual_rate) ** (1 / 12) - 1
+
+    monthly = payment(balance, months_left, rate, 1)
+    annual = payment(balance, months_left, rate, 12)
+    total = payment(balance, months_left, rate, months_left)
+    paid = payment(balance, months_left, rate, months_to_pay)
+
+    return {
+        'monthly': monthly._asdict(),
+        'annual': annual._asdict(),
+        'total': total._asdict(),
+        'paid': paid._asdict(),
+    }
+```
+Теперь в браузере можно указать такой URL:
+
+http://127.0.0.1:8000/amortization_loan/?balance=100000&months_left=360&annual_rate=5&months_to_pay=120
+
+Что означает: вызвать функцию amortization_loan с параметрами:
+* balance=100000 ($100К);
+* months_left=360 (ссуда на 30 лет);
+* annual_rate=5 (5% годовых);
+* months_to_pay=120 (интересуют выплаты за 10 лет).
+
+В браузере получим ответ в виде JSON:
+```json
+{"monthly":{"interest":407.41,"principle":122.64,"paid":530.06,"balance_left":99877.36,"payments_done":1},"annual":{"interest":4855.52,"principle":1505.14,"paid":6360.66,"balance_left":98494.86,"payments_done":12},"total":{"interest":90819.87,"principle":100000.0,"paid":190819.87,"balance_left":0.0,"payments_done":360},"paid":{"interest":44675.09,"principle":18931.53,"paid":63606.62,"balance_left":81068.47,"payments_done":120}}
+```
+Новый API добавлен, сервис loan calculator работает!
+
+Следующий шаг можно пропустить:
+
+#### Форматирование JSON
+
+JSON можно красиво отформотрировать с помощью вызова модуля: python3 -m json.tool. Запускаем в терминале следующую команду:
+```sh
+echo '{"monthly":{"interest":407.41,"principle":122.64,"paid":530.06,"balance_left":99877.36,"payments_done":1},"annual":{"interest":4855.52,"principle":1505.14,"paid":6360.66,"balance_left":98494.86,"payments_done":12},"total":{"interest":90819.87,"principle":100000.0,"paid":190819.87,"balance_left":0.0,"payments_done":360},"paid":{"interest":44675.09,"principle":18931.53,"paid":63606.62,"balance_left":81068.47,"payments_done":120}}' | python3 -m json.tool
+```
+Output:
+```json
+{
+    "monthly": {
+        "interest": 407.41,
+        "principle": 122.64,
+        "paid": 530.06,
+        "balance_left": 99877.36,
+        "payments_done": 1
+    },
+    "annual": {
+        "interest": 4855.52,
+        "principle": 1505.14,
+        "paid": 6360.66,
+        "balance_left": 98494.86,
+        "payments_done": 12
+    },
+    "total": {
+        "interest": 90819.87,
+        "principle": 100000.0,
+        "paid": 190819.87,
+        "balance_left": 0.0,
+        "payments_done": 360
+    },
+    "paid": {
+        "interest": 44675.09,
+        "principle": 18931.53,
+        "paid": 63606.62,
+        "balance_left": 81068.47,
+        "payments_done": 120
+    }
+}
+```
+* За месяц заплатим: $530;
+* за год: $6,360;
+* за все 30 лет: $190,819;
+* за 10 лет: $63,606.
+
+#### Interactive API docs
+
+FastAPI также генерирует точку вызова для интерактивного API. Пока бежит ваш сервис, наберите в браузере следующий URL:
+
+http://127.0.0.1:8000/docs
+
+Должна генерироваться страница для вызова двух функций: `Root Read` и `Amortization Loan`.
+
+Кликаем на стрелочки и далее на "Try it out" и "Execute"!
+
+Получили очень простой UI, через который можно взаимодействовать с сервисом
+
+Full Code: https://onlinegdb.com/7FLyB8K7P
+
+See https://fastapi.tiangolo.com/
 
 ---
 
