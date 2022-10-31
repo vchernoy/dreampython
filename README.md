@@ -1136,4 +1136,93 @@ Code: https://onlinegdb.com/kML69mab7
 
 ---
 
+### LeetCode Problem #9: Palindrome Number (May 17)
+
+> Given an integer x, return True if x is a palindrome integer.
+>
+> An integer is a palindrome when it reads the same backward as forward.
+>
+> For example, 121 is a palindrome while 123 is not.
+
+https://leetcode.com/problems/palindrome-number/
+
+Рассмотрим несколько решений этой задачи.
+
+Вы знали что s[::-1] ⏤ переворачивает строку (а также список и кортеж)? Сначала целое x конвертируем в строку s, а затем сравниваем строку с её перевертышем. Это самое простое решение:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return s == s[::-1]
+```
+Не обязательно сравнивать целую строку, можно сравнить префикс с перевернутым суффиксом:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return s[:len(s)//2] == s[:(len(s)-1)//2:-1]
+```
+Тоже самое, что и первое решение, но через итераторы. В данном случае, не создаём перевёртыш строки, а бежим по ней в обратном порядке (reversed). Функция zip умеет бегать одновременно по нескольким iterables. A функция all возвращает True, если не встречает ни одного False!
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return all(a == b for a,b in zip(s, reversed(s)))
+```
+Похожее решение, но бегаем только по префиксу и суффиксу:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    return all(s[i] == s[-i-1] for i in range(len(s)//2))
+```
+Простой цикл, без всяких comprehensions. Помним, что отрицательный индекс указывает на последние элементы?
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    for i in range(len(s)):
+        if s[i] != s[-i-1]:
+            return False
+    return True
+```
+Тоже самое, только бегаем по префиксу и суффиксу:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    for i in range(0, len(s)//2):
+        if s[i] != s[-i-1]:
+            return False
+    return True
+```
+Тоже самое, только через цикл while:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    i, j = 0, len(s)-1
+    while i < j:
+        if s[i] != s[j]:
+            return False
+        i += 1
+        j -= 1
+    return True
+```
+Тоже самое, только короче:
+```py
+def is_palindrome(x: int) -> bool:
+    s = str(x)
+    i = 0
+    while i < len(s)//2:
+        if s[i] != s[-i-1]:
+            return False
+        i += 1
+    return True
+```
+А тут мы не переводим целое в строку. Младшие цифры x перекидываем в старшие цифры y. То есть y ⏤ это перевернутое целое от x:
+```py
+def is_palindrome(x: int) -> bool:
+    y, z = 0, x
+    while z > 0:
+        y = 10*y + z % 10
+        z //= 10            
+    return y == x
+```
+Code: https://onlinegdb.com/ghcfGOncm
+
+---
 
