@@ -1,5 +1,6 @@
 # Dream on Python
 
+## String & String Formatting
 
 ### Способы форматирования строк в Python (May 4)
 
@@ -142,6 +143,9 @@ Code to play: https://onlinegdb.com/l1GEcnq3s
 
 ---
 
+## Operations `+` and `*` on int, float, str, list, tuple
+
+
 ### Операция `+` в Python (May 5)
 
 В Python применять операцию `+` можно не только к числам, но и к строкам, спискам, и даже кортежам. Примеры:
@@ -216,6 +220,45 @@ Code to play with: https://onlinegdb.com/9Ej3RmaOu
 ---
 
 
+### Операция * в Python (May 11)
+
+В Python умножать на число можно не только числа, но и строки, списки и кортежи. Умножение чего-либо на 4 означает сложить "это самое" четыре раза. Примеры:
+```py
+print(20 * 4)
+print(20. * 4)
+print('20' * 4)
+print([20] * 4)
+print((20,) * 4)
+```
+Output:
+```
+80
+80.0
+20202020
+[20, 20, 20, 20]
+(20, 20, 20, 20)
+```
+БОЛЕЕ СЛОЖНЫЕ ПРИМЕРЫ:
+```py
+print('say hi, ' * 3)
+print('Hello my darling! ' * 2)
+print(['Say', 2, 'times', 'hi'] * 2)
+print(list(range(3)) * 2)
+print(tuple(range(3)) * 2)
+```
+Output:
+```
+say hi, say hi, say hi, 
+Hello my darling! Hello my darling! 
+['Say', 2, 'times', 'hi', 'Say', 2, 'times', 'hi']
+[0, 1, 2, 0, 1, 2]
+(0, 1, 2, 0, 1, 2)
+```
+Code: https://onlinegdb.com/26vDswZYs
+
+
+## Lists & Tuples
+
 ### Unpacking in Python (May 9)
 
 Допустим где-то определён список (list).
@@ -270,43 +313,6 @@ Code: https://onlinegdb.com/NvuGy8Oo8
 
 ---
 
-### Операция * в Python (May 11)
-
-В Python умножать на число можно не только числа, но и строки, списки и кортежи. Умножение чего-либо на 4 означает сложить "это самое" четыре раза. Примеры:
-```py
-print(20 * 4)
-print(20. * 4)
-print('20' * 4)
-print([20] * 4)
-print((20,) * 4)
-```
-Output:
-```
-80
-80.0
-20202020
-[20, 20, 20, 20]
-(20, 20, 20, 20)
-```
-БОЛЕЕ СЛОЖНЫЕ ПРИМЕРЫ:
-```py
-print('say hi, ' * 3)
-print('Hello my darling! ' * 2)
-print(['Say', 2, 'times', 'hi'] * 2)
-print(list(range(3)) * 2)
-print(tuple(range(3)) * 2)
-```
-Output:
-```
-say hi, say hi, say hi, 
-Hello my darling! Hello my darling! 
-['Say', 2, 'times', 'hi', 'Say', 2, 'times', 'hi']
-[0, 1, 2, 0, 1, 2]
-(0, 1, 2, 0, 1, 2)
-```
-Code: https://onlinegdb.com/26vDswZYs
-
----
 
 ### Инициализируем многомерные массивы (lists) в Python правильно! (May 12)
 
@@ -429,6 +435,7 @@ https://onlinegdb.com/-8B_D1JMB
 
 ---
 
+
 ### The Art of Print (May 15)
 
 #### Print string and list of its letters:
@@ -495,6 +502,8 @@ list(s)=['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
 Code in https://onlinegdb.com/nSMCNF6w1
 
 ---
+
+## Generators and Iterables
 
 ### The Art of Generators (May 15)
 
@@ -612,7 +621,6 @@ Code in https://onlinegdb.com/uV9ygOawD
 
 ---
 
-## Iterable или не iterable
 
 ### Iterable или не iterable? -- Part 1 (May 15)
 
@@ -942,7 +950,7 @@ Code: https://onlinegdb.com/wq9VInL3Z
 
 ---
 
-## Декораторы
+## Decorators
 
 ### Декораторы в Python -- Part 1 (May 17)
 
@@ -1119,9 +1127,15 @@ Code: https://onlinegdb.com/zYm7xeYeg
 
 ---
 
+## TBD
+
 ### Пять способов создать slices in Python (May 20)
 
-Возьмём для примера список, например из 6 слов (words). Нужно получить подсписок, например: все слова кроме первого. Или подсписок из каждого третьего слова. Или все слова с индексами между 2 и 4. Этого можно добиться разными способами.
+Возьмём для примера список, например из 6 слов (words). 
+Нужно получить подсписок, например: все слова кроме первого. 
+Или подсписок из каждого третьего слова. 
+Или все слова с индексами между 2 и 4. 
+Этого можно добиться разными способами.
 
 #### 1. words[beg:end:step]
 
@@ -1209,6 +1223,7 @@ Code: https://onlinegdb.com/0PnBp4y9n
 
 ----
 
+## TBD
 
 ### Что нового в Python 3.10 (May 22)
 
@@ -1320,6 +1335,8 @@ calc(expr)==eval(to_str(expr))=True
 Code: https://onlinegdb.com/Q9M1jLNIo
 
 ---
+
+## List, Tuple, Generator Comprehension
 
 
 ### map/starmap vs. list/generator comprehension & zip (June 2)
@@ -1683,6 +1700,7 @@ Code in https://onlinegdb.com/FLDien5qE
 
 ---
 
+## TBD
 
 ### Callable в Python (Aug 18)
 
@@ -1798,6 +1816,7 @@ The code is https://onlinegdb.com/TH9ry84dL
 
 ---
 
+## TBD
 
 ### Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
 
@@ -1939,6 +1958,8 @@ https://onlinegdb.com/ohW2_B63i
 
 ---
 
+## TBD 
+
 ### Увлекательная симметрия с Черепашкой (Oct 17) 
 
 Как вы думаете, что нарисует следующий алгоритм?
@@ -2043,7 +2064,7 @@ Code: https://onlinegdb.com/qrT12YxnT
 
 ---
 
-## Что такое строки?
+## String Internals
 
 ### Что такое строки? -- Part 1 (Oct 17)
 
