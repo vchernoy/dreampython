@@ -3404,3 +3404,335 @@ TStr("Hello")
 Code: https://onlinegdb.com/2ohZlESkI_
 
 ---
+
+### Что такое строки? (Oct 20)
+
+ЧАСТЬ 3
+
+В частях 1 и 2 мы реализовывали часть класса TStr:
+```py
+class TStr:
+    def __init__(self, chars: str = '') -> None:
+        self.chars = tuple(chars)
+
+    def __len__(self) -> int:
+        return len(self.chars)
+
+    def __str__(self) -> str:
+        return ''.join(self.chars)
+
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}("{self}")'
+
+    def __add__(self, s) -> 'TStr':
+        return TStr(self.chars + s.chars)
+
+    def __mul__(self, n: int) -> 'TStr':
+        return TStr(n * self.chars)
+
+    def __rmul__(self, n: int) -> 'TStr':
+        return TStr(n * self.chars)
+
+    def __eq__(self, x: object) -> bool:
+        return self.chars == x.chars
+
+    def __lt__(self, x: 'TStr') -> bool:
+        return self.chars < x.chars
+
+    def __le__(self, x: 'TStr') -> bool:
+        return self == x or self < x
+
+    def __hash__(self) -> int:
+        return hash(self.chars)
+
+    def __getitem__(self, i: int) -> 'TStr':
+        return TStr(self.chars[i])
+```
+
+#### String slicing in Python vs. Java
+
+Благодаря методу `__getitem__`, из строк можно вытаскивать отдельные символы (`s[i]`) или подстроки (`s[beg:end:step]`). 
+В Python можно использовать slicing как для строк так и для списков и кортежей. 
+Несмотря на то, что строки и slicing присутствуют как в Python, так и в Java и Golang, функциональность slicing реализована по-разному. 
+Вернее сделаны разные оптимизации.
+
+Например в Java, при создании подстроки, символы не копируются в новую строку. Вместо этого, созданная подстрока просто указывает на тот же массив символов, который используется в оригинальной строке.
+
+В Python, slicing честно копирует все символы в новую строку.
+
+Иногда подход Java сработает лучше, а иногда подход Python будет работать лучше. При этом разные подходы не меняют правильность работы slicing — это просто вопрос оптимизации под конкретные случаи.
+
+Представьте, что дана очень длинная строка из которой мы создаём короткую подстроку (slice). Что будет происходить в Java и Python?
+
+#### `s.find(x)` vs. `x in s`
+
+Если реализовать метод `s.find(x)` (возвращает индекс подстроки `x` в `s`, или -1 если подстрока `x` не найдена в `s`), 
+то можно бесплатно получить и операцию `x in s` 
+(которая делегирует проверку в метод `__contains__`):
+
+```py
+    def find(self, x: 'TStr') -> int:
+        return next((i for i in range(len(self)-len(x)+1) if self[i:i+len(x)] == x), -1)
+```
+```py
+    def __contains__(self, x: 'TStr') -> bool:
+        return self.find(x) >= 0
+```
+
+Теперь будет работать такой код:
+
+```py
+hello = TStr('Hello')
+world = TStr('World!')
+space = TStr(' ')
+hello_world = hello + space + world
+```
+
+```py
+for w in hello, space, world, space+hello:
+    print(hello_world.find(w))
+```
+
+```py
+for w in hello, space, world, space+hello:
+    print(w in hello_world)
+```
+Output:
+```
+0
+5
+6
+-1
+```
+
+```
+True
+True
+True
+False
+startswith & endswith
+```
+
+Добавим методы:
+```py
+    def startswith(self, prefix: 'TStr') -> bool:
+        return self[:len(prefix)] == prefix
+
+    def endswith(self, suffix: 'TStr') -> bool:
+        return self[-len(suffix):] == suffix
+```
+И проверим:
+```py
+for w in hello, space, world, hello+space:
+    print(hello_world.startswith(w))
+```
+```py
+for w in world, hello, space, space+world:
+    print(hello_world.endswith(w))
+```
+Output:
+```
+True
+False
+False
+True
+```
+```
+True
+False
+False
+True
+```
+
+#### s.replace(old, new)
+
+Метод `replace` реализован через рекурсию, получаем очень простой код:
+
+```py
+    def replace(self, old: 'TStr', new: 'TStr') -> 'TStr':
+        k = self.find(old)
+        return self[:k] + new + self[k+len(old):].replace(old, new) if k >= 0 else self
+```
+
+Пример:
+
+```py
+print(hello_world.replace(TStr('l'), TStr('L')*3))
+```
+
+Output:
+
+```
+HeLLLLLLo WorLLLd!
+```
+
+Code: https://onlinegdb.com/0CqoCkOm-
+
+---
+
+### Что такое строки? (Oct 23)
+
+ЧАСТЬ 4
+
+В предыдущих частях, была реализована часть класса TStr (строки на основе tuples). 
+Вот что получилось:
+
+```py
+class TStr:
+    def __init__(self, chars: str = '') -> None:
+        self.chars = tuple(chars)
+
+    def __len__(self) -> int:
+        return len(self.chars)
+
+    def __str__(self) -> str:
+        return ''.join(self.chars)
+
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}("{self}")'
+
+    def __add__(self, s) -> 'TStr':
+        return TStr(self.chars + s.chars)
+
+    def __mul__(self, n: int) -> 'TStr':
+        return TStr(n * self.chars)
+
+    def __rmul__(self, n: int) -> 'TStr':
+        return TStr(n * self.chars)
+
+    def __eq__(self, x: object) -> bool:
+        return self.chars == x.chars
+
+    def __lt__(self, x: 'TStr') -> bool:
+        return self.chars < x.chars
+
+    def __le__(self, x: 'TStr') -> bool:
+        return self == x or self < x
+
+    def __hash__(self) -> int:
+        return hash(self.chars)
+
+    def __getitem__(self, i: int) -> 'TStr':
+        return TStr(self.chars[i])
+
+    def find(self, x: 'TStr') -> int:
+        return next((i for i in range(len(self) - len(x) + 1) if self[i:i + len(x)] == x), -1)
+
+    def __contains__(self, x: 'TStr') -> bool:
+        return self.find(x) >= 0
+
+    def startswith(self, prefix: 'TStr') -> bool:
+        return self[:len(prefix)] == prefix
+
+    def endswith(self, suffix: 'TStr') -> bool:
+        return self[-len(suffix):] == suffix
+
+    def replace(self, old: 'TStr', new: 'TStr') -> 'TStr':
+        k = self.find(old)
+        return self[:k] + new + self[k+len(old):].replace(old, new) if k >= 0 else self
+```
+
+Теперь рассмотрим как реализовать метод `join`. 
+Хотим чтобы заработал следующий код:
+
+```py
+space = TStr(' ')
+words = [TStr('hello'), TStr('my'), TStr('dear'), TStr('friend')]
+
+print(repr(space.join(words)))
+print(repr(space.join([TStr('hello')])))
+print(repr(space.join([])))
+
+print(repr(TStr(':').join([TStr('hello')]*5)))
+```
+
+Output:
+
+```
+TStr("hello my dear friend")
+TStr("hello")
+TStr("")
+TStr("hello:hello:hello:hello:hello")
+```
+
+Метод `join` аккумулирует все символы в списке `res` (имеет тип: `list[str]`), 
+который в конце конвертируется в tuple и передаётся в конструктор TStr:
+
+```py
+    def join(self, sequence: Iterable['TStr']) -> 'TStr':
+        res: list[str] = []
+        for word in sequence:
+            if res:
+                res.extend(self.chars)
+
+            res.extend(word.chars)
+
+        return TStr(tuple(res))
+```
+Тут у нас проблема, поскольку `__init__` ожидает строку, а не tuple. 
+Исправляем `__init__`:
+
+```py
+    def __init__(self, chars: str | tuple[str] = ()) -> None:
+        self.chars = chars if type(chars) == tuple else tuple(chars)
+```
+
+Поясним, во время исполнения вызова метода: `space.join(words)`, в цикле `for`,
+* `self` — это `space`,
+* `sequence` — это `words`, а
+* `word` — это элементы `words` (`sequence`).
+ 
+Если предположить, что список слов может быть огромен, 
+то метод `join` выделит огромный список символов (размером больше, чем сумма всех символов во всех словах). 
+Далее из списка будет создан кортеж, который у будет частью результата (TStr). 
+Фактически зря использовали память под списков, ведь нам нужен кортеж. 
+Можно ли улучшить?
+
+Следующая версия использует генератор (функция `yield_chars`):
+
+```py
+import itertools
+```
+
+```py
+   def join21(self, sequence: Iterable['TStr']) -> 'TStr':
+        def yield_chars():
+            for word in sequence:
+                yield self.chars
+                yield word.chars
+
+        return TStr(tuple(
+            itertools.chain.from_iterable(
+                itertools.islice(
+                    yield_chars(),
+                    1,
+                    None)
+            )
+        ))
+```
+Можно и в одну, но очень длинную, строку:
+```py
+    def join(self, sequence: Iterable['TStr']) -> 'TStr':
+        return TStr(tuple(
+            itertools.chain.from_iterable(
+                t.chars for t in itertools.islice(
+                    itertools.chain.from_iterable(zip(itertools.repeat(self), sequence)),
+                    1,
+                    None
+                )
+            )
+        ))
+```
+Остальные методы (из str) можно дописать (в TStr) без особых проблем, какие-то из них будут более сложными, а какие-то более простыми.
+
+Чем еще отличаются строки в разных ЯП, кроме возможности модифицировать и оптимизаций?
+
+Главной задачей строк — это поддержка текста, который, на самом деле, может содержать не только English, но и другие разные языки.
+
+Вопрос как правильно кодировать буквы разных алфавитов (кириллица, китайский, иврит) — является наиболее важной и трудной задачей. Подходы к кодировкам разнятся у разных ЯП, есть даже разница в подходах между Python 2 и Python 3. Совершенно верно, строки в Python 2 не совместимы сo строками в Python 3.
+
+Code: https://onlinegdb.com/o_vdN5LO7
+
+---
+
+
