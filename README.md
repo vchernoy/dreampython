@@ -3231,3 +3231,176 @@ Code: https://onlinegdb.com/qrT12YxnT
 ---
 
 
+### Что такое строки? (Oct 19)
+
+ЧАСТЬ 2
+
+В части 1 мы начали реализовывать класс TStr (строки) на основе tuples (кортежей символов). Вот что у нас уже получилось:
+```py
+class TStr:
+    def __init__(self, chars: str = '') -> None:
+        self.chars = tuple(chars)
+
+    def __len__(self) -> int:
+        return len(self.chars)
+
+    def __str__(self) -> str:
+        return ''.join(self.chars)
+```
+Следующий метод `__repr__` создаёт строковое представление объекта. 
+Отметим, что метод `__str__` вызывается функцией str, a `__repr__` вызывается `repr`. 
+Это ещё один случай, когда нам без стандартных строк не обойтись:
+```py
+    def __repr__(self) -> str:
+        return f'{type(self).__name__}("{self}")'
+```
+Теперь следующий кусок кода будет правильно работать (попробуйте без `__repr__`):
+```py
+hello = TStr('Hello')
+world = TStr('World!')
+space = TStr(' ')
+
+print([hello, space, world])
+```
+Output:
+```
+[TStr("Hello"), TStr(" "), TStr("World!")]
+```
+
+#### TStr concatanation & repetition
+
+Следующие методы необходимы для слияния строк (concatanation) и повторения (repetition).
+```py
+    def __add__(self, s) -> 'TStr':
+        return TStr(self.chars + s.chars)
+
+    def __mul__(self, n: int) -> 'TStr':
+        return TStr(n * self.chars)
+
+    def __rmul__(self, n: int) -> 'TStr':
+        return TStr(n * self.chars)
+```
+Отметим, что эти операции основаны на кортежах, то есть используют (делегируют) соответствующие операции над tuple: concatantation и repetition.
+
+Пример, где эти методы используются:
+```py
+print(hello + space + world)
+print(world * 3)
+print(3 * world)
+```
+Output:
+```
+Hello World!
+World!World!World!
+World!World!World!
+```
+Метод `__add__` вызывается там, где над объектами TStr применяется оператор + (concatanation), а `__mul__` и `__rmul__`, там где над TStr и int применяется оператор * (repetition).
+
+#### TStr comparison
+
+Хотим сравнивать объекты TStr, как это позволяют обычные строки? Хотим сортировать списки из TStr? Значит необходимо добавить следующие методы:
+```py
+    def __eq__(self, x: object) -> bool:
+        return self.chars == x.chars
+
+    def __lt__(self, x: 'TStr') -> bool:
+        return self.chars < x.chars
+
+    def __le__(self, x: 'TStr') -> bool:
+        return self == x or self < x
+```
+* `__eq__` вызывается операцией `==`,
+* `__lt__` вызывается операцией `<`,
+* `__le__` вызывается операцией `<=`.
+
+Теперь применим сортировку:
+```py
+words = [world, hello]
+words.sort()
+print(words)
+```
+Output:
+```
+[TStr("Hello"), TStr("World!")]
+```
+
+#### Hashable TStr in `set` & `dict`
+
+Чтобы иметь возможность использовать TStr в set и dict (в качестве ключа), необходимо TStr сделать "hashable", то есть добавить:
+```py
+    def __hash__(self) -> int:
+        return hash(self.chars)
+```
+Метод `__hash__` вызывается функцией `hash`, которую мы применяем в `__hash__`, 
+но уже над значениями типа tuple (`self.chars`) — опять делегируем функциональность к tuple.
+Теперь можно создать множество из TStr, как это позволяет стандартный str:
+```py
+print(set(words))
+```
+Output:
+```
+{TStr("Hello"), TStr("World!")}
+```
+Попробуйте использовать TStr как ключи в `dict` — должно работать. 
+А потом уберите `__hash__`, что будет?
+
+#### `TStr[i]`, `TStr[beg:end:step]`, iteration over `TStr`
+
+Теперь предоставим доступ к отдельным символам по индексу, как это позволяют стандартные строки:
+
+```py
+    def __getitem__(self, i: int) -> 'TStr':
+        return TStr(self.chars[i])
+```
+
+Такой код будет работать:
+
+```py
+print([hello[0], hello[-1], hello[1:3], hello[:-1], hello[:], hello[::-1]])
+```
+
+Output:
+```
+[TStr("H"), TStr("o"), TStr("el"), TStr("Hell"), TStr("Hello"), TStr("olleH")]
+```
+Замечательно работают отрицательные индексы и даже взятие подстроки (slices). Работает также шаг и получение перевертыша. Магия! Опять делегировали функционал к tuple! Насколько всё-таки близки строки и tuples.
+
+Следующий код тоже работает благодаря __getitem__:
+```py
+print(list(hello))
+print(list(reversed(hello)))
+```
+Output:
+```
+[TStr("H"), TStr("e"), TStr("l"), TStr("l"), TStr("o")]
+[TStr("o"), TStr("l"), TStr("l"), TStr("e"), TStr("H")]
+```
+
+#### Пробег по символам (TStr стал перечислимым типом):
+```py
+for ch in hello:
+    print(repr(ch))
+```
+Output:
+```
+TStr("H")
+TStr("e")
+TStr("l")
+TStr("l")
+TStr("o")
+```
+Можно пробежаться по символам и их соединить:
+```py
+import functools
+res = functools.reduce(lambda x,y: x+y, hello, TStr())
+print(repr(res))
+```
+Output:
+```
+TStr("Hello")
+```
+Продолжение следует...
+
+Code: https://onlinegdb.com/2ohZlESkI_
+
+---
