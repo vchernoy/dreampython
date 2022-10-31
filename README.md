@@ -2884,3 +2884,244 @@ def has_path(r: TreeNode|None, target: int) -> bool:
 * Замените короткий if-else оператором if-elif-else.
 
 ---
+
+### Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
+
+Problem: Given a nested dictionary, in which each value is either a word or another dictionary (of the same type).
+
+Write a function that finds all unique words in this dictionary.
+```py
+def find_unique(d: dict) -> set[str]
+```
+Examples:
+* Input: `{1: hello, 2: hi, 3: hi}` \
+Output: `{hello}`
+* Input: `{10: hello, 20: hi, 30: {2: hi, 7:you}}` \
+Output: `{hello, you}`
+
+Решение задачи состоит из двух частей:
+1. Найти все слова в данной структуре данных.
+2. Выбрать только уникальные из них.
+
+Пробегаем по всем значениям словаря (ключи нам не важны).
+
+Собираем, те которые являются простыми строками.
+
+Рекурсивно обрабатываем значения, которые являются словарями.
+
+Следующая функция реализует рекурсивную обработку:
+```py
+def get_words(d: dict) -> list[str]:
+    words = []
+    for value in d.values():
+        if isinstance(value, dict):
+            words.extend(get_words(value))
+        else:
+            words.append(value)
+
+    return words
+```
+В чём разница между `isinstance(value, dict)` и `type(value) == dict`?
+
+Считаем количество копий для каждого найденного слова.
+
+Оставляем только те, которые уникальны (количество копий == 1):
+```py
+from collections import Counter
+```
+```py
+def find_unique(d: dict) -> set[str]:
+    words = get_words(d)
+    c = Counter(words)
+    unique = set()
+    for word, n in c.items():
+        if n == 1:
+            unique.add(word)
+
+    return unique
+```
+Тесты:
+```py
+from collections import defaultdict
+```
+```py
+dicts = (
+    {10: 'hello', 20: 'hi'},
+    {10: 'hello', 20: 'hi', 30: 'hi'},
+    {10: 'hello', 20: 'hi', 30: {2: 'hi', 7: 'you'}},
+    {10: 'hello', 20: 'hi', 30: defaultdict(str, {2: 'hi', 7: 'you'})},
+)
+```
+```py
+for d in dicts:
+    print(find_unique(d))
+```
+Output:
+```
+{'hello', 'hi'}
+{'hello'}
+{'hello', 'you'}
+{'hello', 'you'}
+```
+Рассмотрим разные улучшения
+
+Используя set-comprehension, функцию find_unique можно реализовать в одну строчку:
+```py
+def find_unique(d: dict) -> set[str]:
+    return {word for word, n in Counter(get_words(d)).items() if n == 1}
+```
+Чтобы избежать многократного создания списков (из-за рекурсивных вызовов) и копирования слов из спика в списов, рекурсивная функция может просто добавлять все найденные слова в один и тот же список:
+```py
+def get_words(d: dict) -> list[str]:
+    words = []
+
+    def get_all(d: dict) -> None:
+        for value in d.values():
+            if isinstance(value, dict):
+                get_all(value)
+            else:
+                words.append(value)
+
+    get_all(d)
+
+    return words
+```
+Рекурсивная обработка производится внутренней функцией, а внешняя фактически является обёрткой, чтобы сохранить ту же самую сигнатуру (определение).
+
+В следующем варианте, вместо создания списка слов, который потенциально может быть очень длинным, используется ленивый поиск слов, через генератор.
+```py
+from typing import Iterator
+def get_words(d: dict) -> Iterator[str]:
+    for value in d.values():
+        if isinstance(value, dict):
+            for v in get_words(value):
+                yield v
+        else:
+            yield value
+```
+Следующее решение сразу создаёт Counter, в котором подсчитываются копии каждого слова.
+```py
+def get_words(d: dict) -> Counter:
+    c = Counter()
+
+    def get_all(d: dict) -> None:
+        for value in d.values():
+            if isinstance(value, dict):
+                get_all(value)
+            else:
+                c[value] += 1
+
+    get_all(d)
+
+    return c
+```
+```py
+def find_unique(d: dict) -> set[str]:
+    return {word for word, n in get_words(d).items() if n == 1}
+```
+Это наиболее оптимальное решение из всех рассмотренных
+
+https://onlinegdb.com/ohW2_B63i
+
+---
+
+
+### Что такое строки? (Oct 17)
+
+ЧАСТЬ 1
+
+В Python доступен встроенный тип данных: str (строка). Строки используются для представления текста, слов и отдельных символов. Например: `'Hello World!'` — это константная строка (имеет тип str).
+
+Строка — это последовательность символов конечной длинны.
+
+#### Strings in C ('71), Oberon ('89)
+
+В языках программирования предыдущего поколения, таких как C (1971) и Oberon (1989), строки имели минимальную поддержку (со стороны ЯП). Обычно строки представлялись в виде массива символов, а для обозначения конца строки использовался специальный символ с кодом 0.
+
+В Python такое можно представить в виде списка (list), который может быть частично заполнен символами.
+
+Хотите посчитать длину строки?
+
+Бежим по массиву символов пока не встретим специальный символ "конец строки".
+
+Строки можно было менять, поскольку строка — это просто массив символов (list в Python).
+
+#### Strings in Java ('95), Golang ('09), Python ('91)
+
+Языки программирования нового поколения, такие как Java (1995), Golang (2009) и Python (1991), вводят отдельный тип "строка" (String в Java, string в Golang, str в Python). В новых ЯП строки обычно делают неизменяемыми (immutable/unmodifiable), что делает работу с ними более удобным (почему?).
+
+Так сделано в Python, Golang и Java (и много где ещё).
+
+#### Custom string implementation based on tuples
+
+А что если бы в Python не было бы типа str, можно было бы реализовать свои "строки"?
+
+С некоторыми оговорками и ограничениями, можно, хотя не получим такого-же удобства, как со встроенным типом str.
+
+Для введения новых типов, в Python используется конструкция определения класса (class). Проще всего строку в Python можно реализовать с помощью кортежа (tuple) символов — да, нам всё-же нужны отдельные символы.
+
+Почему используем кортеж, а не список?
+
+Списки можно менять, а кортежи — нет, прям как стандартные строки, так что tuple подходит нам более органично.
+
+Назовём наш строковый тип: TStr, префикс "T" — от слова "tuple", то есть делаем строки на основе tuples.
+
+Начнём с определения класса TStr, введением конструктора (`__init__`) и метода (`__len__`):
+```py
+class TStr:
+    def __init__(self, chars: str = '') -> None:
+        self.chars = tuple(chars)
+
+    def __len__(self) -> int:
+        return len(self.chars)
+```
+Объекты класса TStr содержат атрибут chars (символы) — который содержит в tuple отдельные символы.
+
+Метод `__len__` считает длину строки, что равно длине кортежа (`self.chars`). Определение метода `__len__` позволяет использовать объекты TStr в функции len, например теперь такой код будет корректно работать:
+```py
+s = TStr('Hello World!')
+print(len(s))
+
+s = TStr()
+print(len(s))
+```
+Output:
+```
+12
+0
+```
+К сожалению, попытка вывести на экран объекты TStr при помощи print провалится:
+```py
+s = TStr('Hello')
+print(s)
+print(s.chars)
+```
+Output:
+```
+<__main__.TStr object at 0x7fb5f424abe0>
+('H', 'e', 'l', 'l', 'o')
+```
+Первый print неявно пытается преобразовать TStr в тип str. Это можно починить определением метода `__str__`:
+```py
+    def __str__(self) -> str:
+        return ''.join(self.chars)
+```
+Метод `__str__` сливает все символы кортежа (`self.chars`) в нормальную строку (типа str). Теперь получим:
+```
+Hello
+('H', 'e', 'l', 'l', 'o')
+```
+Разумеется, в гипотетическом Python, без типа str, метод `__str__` был бы не таким, так что это ещё одно необходимое допущение, которое мы делаем для удобства.
+
+Напомним, что встроенные строки (str) позволяют производить множество операций, например: 
+слияние, повторение, выделение отдельных символов или подстрок по индексам. 
+* Строки можно сравнивать и использовать в качестве ключей в словарях. 
+* Строки имеют много методов, например startswith, endswith, find, replace и т.д. 
+
+Всё это можно реализовать в TStr и это будет работать как в стандартном str.
+
+Продолжение следует.
+
+Code: https://onlinegdb.com/PEyCCALh0
+
+
