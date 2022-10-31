@@ -2583,3 +2583,114 @@ def intersect(nums1: List[int], nums2: List[int]) -> List[int]:
 https://leetcode.com/problems/intersection-of-two-arrays-ii/
 
 ---
+
+### Callable в Python (Aug 18)
+
+В Python объект может быть Callable, то есть, его можно вызвать как обычную функцию.
+
+Стандартная функция callable проверяет, является ли данный объект "вызываемым".
+
+Очевидно, что любая функция, метод, в том числе внутренние и lambda — являются Callable.
+Напишем простую программу и протестируем разные объекты на это свойство.
+```py
+import operator
+import typing
+import functools
+```
+```py
+def add(a: int, b: int) -> int: return a + b
+```
+```py
+def mk_power_add(k: int) -> typing.Callable[[int, int], int]:
+    def power_k_add(a: int, b: int): return a**k + b**k
+    return power_k_add
+```
+Функция add а также результат вызова mk_power_add(1) — эти примеры функций, которые просто суммируют два аргумента
+
+То есть это примеры Callable, a значит callable(add) и callable(mk_power_add(1) вернёт True.
+
+Также `callable(lambda a, b: a+b)` тоже вернёт True.
+
+Далее приведём примеры статической функции (функция класса) и метода:
+```py
+class A:
+    @staticmethod
+    def add(a: int, b: int) -> int: return a + b
+```
+```py
+class Power:
+    def __init__(self, k: int): self.k = k
+
+    def add(self, a: int, b: int) -> int: return a**self.k + b**self.k
+```
+Обе функции `A.add` и `Power(1).add` суммируют два аргумента и являются Callable.
+
+В следующем примере объекты двух классов являются Callable, поскольку у них реализован специальный скрытый метод `__call__`:
+```py
+class Add:
+    def __init__(self):
+        self.__name__ = f'{type(self).__name__}'
+
+    def __call__(self, a: int, b: int) -> int: return a + b
+```
+```py
+class MkPowerAdd:
+    def __init__(self, k: int):
+        self.k = k
+        self.__name__ = f'{type(self).__name__}({self.k})'
+
+    def __call__(self, a: int, b: int) -> int: return a**self.k + b**self.k
+```
+Вызовы `callable(Add())` и `callable(MkPowerAdd(1))` вернут True.
+
+В следующем примере берём функцию с тремя аргументами, в которой фиксируем один аргумент, получим частичную функцию с двумя аргументами. Тоже Callable:
+```py
+def power_add(a: int, b: int, k: int): return a**k + b**k
+```
+Вызов `callable(functools.partial(power_add, k=1))` вернёт True.
+
+Библиотечные функции `int.__add__`, operator.add — тоже Callable.
+
+Движемся вперёд: для удобства зафиксируем степень k=1 и определим таблицу объектов для проверки на Callable:
+```py
+k = 1
+```
+```py
+power1_add = functools.partial(power_add, k=k)
+power1_add.__name__ = 'power1_add'
+```
+```py
+tab = (
+    int.__add__,
+    operator.add,
+    lambda a, b: a + b,
+    add,
+    mk_power_add(k),
+    A.add,
+    Power(1).add,
+    MkPowerAdd(k),
+    power1_add,
+)
+```
+Каждый объект по сути является аналогом операции +. Выполним вызов на аргументах a=12 и b=5 и проверим результат:
+```py
+a, b = 12, 5
+```
+```py
+for func in tab:
+    print(f'{callable(func)=}, {func.__name__}, {func(12, 5)=}')
+```
+Получим табличку:
+```py
+callable(func)=True, func=<lambda>, func(12, 5)=17
+callable(func)=True, func=add, func(12, 5)=17
+callable(func)=True, func=power_k_add, func(12, 5)=17
+callable(func)=True, func=add, func(12, 5)=17
+callable(func)=True, func=add, func(12, 5)=17
+callable(func)=True, func=Add, func(12, 5)=17
+callable(func)=True, func=MkPowerAdd(1), func(12, 5)=17
+callable(func)=True, func=power1_add, func(12, 5)=17
+```
+The code is https://onlinegdb.com/TH9ry84dL
+
+---
