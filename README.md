@@ -1678,186 +1678,6 @@ See https://fastapi.tiangolo.com/
 ---
 
 
-### Фильтруем список списков (May 25)
-
-Допустим дан список списков. Наша цель оставить только уникальные списки. Причём под уникальностью двух списков понимаем, что они состоят из одних и тех же элементов (порядок не важен).
-
-Как это сделать?
-
-Пример, дан список списков чисел.
-```py
-store = [
-    [7, 2],
-    [2, 7],
-    [6, 2, 1],
-    [1, 1, 7],
-    [1, 2, 6],
-    [1, 6, 2],
-    [2, 2, 1, 3],
-    [1, 2, 2, 3],
-]
-```
-После фильтрации, получим только "уникальные списки":
-```py
-unique = [
-    [2, 7]
-    [1, 2, 6],
-    [1, 1, 7],
-    [1, 2, 2, 3],
-]
-```
-Почему?
-
-Потому как по нашим условиям:
-
-* [7, 2] и [2, 7] ⏤ не уникальны (состоят из одинаковых элементов, но в разном порядке).
-* [6, 2, 1], [1, 2, 6], [1, 6, 2] ⏤ не уникальны.
-* [1, 2, 2, 3] и [1, 2, 3, 2] ⏤ не уникальны.
-
-Как оставить только уникальные элементы?
-
-Список необязательно содержит уникальные элементы, а множество как раз таки гарантирует уникальность.
-
-Но множество может хранить только hashable элементы, то есть например tuples, но не lists.
-
-А элементы нашего списка ⏤ тоже списки!
-
-Значит первый шаг: перевести все внутренние списки в tuples:
-```py
-set_of_values = set(tuple(values) for values in store)
-```
-Этого будет недостаточно, ведь такое множество уберёт уникальные элементы, только если они будут равны, например: [2,7] и [2,7]. Но посчитает уникальными списки: [7,2] и [2,7].
-
-Решение: можно сначала отсортировать эти списки, а потом уже конвертировать в tuple. Получим:
-```py
-unique_as_set = set(tuple(sorted(values)) for values in store)
-```
-Используем set comprehension: множество формируется из элементов: tuple(sorted(values)).
-
-Можно сделать тоже самое через обычный цикл:
-```py
-unique_as_set = set()
-for values in store:
-    unique_as_set.add(tuple(sorted(values)))
-```
-Двигаемся дальше, мы достигли цели, теперь у нас только уникальные списки (вернее tuples). Но что если хотим перевести в оригинальный формат, то есть вместо set of tuples получить list of lists?
-
-Теперь используем list comprehension:
-```py
-unique = [list(values) for values in unique_as_set]
-``` 
-То есть формируем список из элементов: list(values). Можно обычным циклом:
-```py
-unique = []
-for values in unique_as_set:
-    unique.append(list(values))
-```
-Можно всё сделать в один шаг:
-```py
-unique = [list(values) for values in set(tuple(sorted(values)) for values in store)]
-```
-Можно вывести всё на печать:
-```py
-print(f'{store=}')
-print(f'{unique_as_set=}')
-print(f'{unique=}')
-```
-Бонус: А если цель посчитать все уникальные списки?
-
-Тогда вместо set используем Counter и кидаем в него отсортированные tuples:
-```py
-from collections import Counter
-
-counted_values = Counter(tuple(sorted(b)) for b in values)
-
-print(f'{counted_values=}')
-```
-
-Code: https://onlinegdb.com/o_MRBjNxP
-
----
-
-### LeetCode #75: Sort Colors (Medium) (May 25)
-
-> Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
-> 
-> We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.
-> 
-> You must solve this problem without using the library's sort function.
-> 
-> Example 1:
-> 
-> Input: nums = [2,0,2,1,1,0]
-> Output: [0,0,1,1,2,2]
-> 
-> Example 2:
-> 
-> Input: nums = [2,0,1]
-> Output: [0,1,2]
-
-Начнём с более простой задачи, когда присутствуют только два цвета: red (0) и white (1).
-
-Один из способов отсортировать массив из 0 и 1: это запустить partition:
-
-* Все 0 слева пропускаем, затем все 1 справа пропускаем.
-* Если уперлись слева в 1, а справа в 0, то делаем swap.
-* Повторяем процесс, пока не проверим все числа.
-
-Теперь с тремя цветами:
-
-* Делим массив так: слева собираем все 0, а справа все 1 и 2.
-* Затем делим правую часть массива на 1 (идут в левую часть), а все 2.
-```py
-from typing import List
-
-def sort_colors0(nums: List[int]) -> None:
-    def partition(beg, end, left):
-        i = beg
-        j = end
-        while True:
-            while i < j and nums[i] == left:
-                i += 1
-            while i < j and nums[j-1] != left:
-                j -= 1
-
-            if i == j:
-                break
-
-            nums[i], nums[j-1] = nums[j-1], nums[i]
-        return i
-
-    mid = partition(0, len(nums), 0)
-    partition(mid, len(nums), 1)
-```
-
-Ещё более простое решение: подсчитываем сколько 0, 1 и 2 в массиве.
-Далее просто заполняем массив: сначала пойдут все 0, потом 1, а затем: 2.
-```py
-from collections import Counter
-```
-```py
-def sort_colors1(nums: List[int]) -> None:
-    c = Counter(nums)
-    for i in range(len(nums)):
-        nums[i] = 0 if i < c[0] else 1 if i < c[0] + c[1] else 2
-```
-Следующее решение похоже на предыдущее, но потенциально может быть несколько более быстрым:
-```py
-def sort_colors2(nums: List[int]) -> None:
-    c = Counter(nums)
-    for i in range(c[0]):
-        nums[i] = 0
-
-    for i in range(c[0], c[0]+c[1]):
-        nums[i] = 1
-
-    for i in range(c[0]+c[1], len(nums)):
-        nums[i] = 2
-```
-Code to play: https://onlinegdb.com/P2hNkRMdH
-
----
-
 ### map/starmap vs. list/generator comprehension & zip (June 2)
 
 Начинаем с импорта:
@@ -2331,57 +2151,6 @@ ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), k
 
 Code in https://onlinegdb.com/eMH7atQTP
 
----
-
-### Пять задач (LeetCode/easy) с решением в одну строчку (June 24)
-
-#### 242. Valid Anagram
-Given two strings s and t, return true if t is an anagram of s, and false otherwise.
-
-An Anagram is a word formed by rearranging the letters of a different word, using all the original letters exactly once.
-```py
-def is_аnagram(s: str, t: str) -> bool:
-    return sorted(list(s)) == sorted(list(t))
-```
-https://leetcode.com/problems/valid-anagram/
-
-#### 169. Majority Element
-Given an array nums of size n, return the majority element.
-
-The majority element is the element that appears more than ⌊n / 2⌋ times.
-```py
-def majority_еlement(nums: List[int]) -> int:
-    return next(v for v,c in Counter(nums).items() if c > len(nums) // 2, None)
-```
-https://leetcode.com/problems/majority-element/
-
-#### 229. Majority Element II
-Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
-```py
-def majority_elements(nums: List[int]) -> List[int]:
-    return [v for v,c in Counter(nums).items() if c > len(nums) // 3]
-```
-https://leetcode.com/problems/majority-element-ii/
-
-#### 217. Contains Duplicate
-Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
-```py
-def contains_dup(nums: List[int]) -> bool:
-    return any(c >= 2 for c in Counter(nums).values())
-```
-```py
-def contains_dup(nums: List[int]) -> bool:
-    return max(Counter(nums).values()) >= 2
-```
-https://leetcode.com/problems/contains-duplicate/
-
-#### 350. Intersection of Two Arrays II
-Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
-```py
-def intersect(nums1: List[int], nums2: List[int]) -> List[int]:
-    return (Counter(nums1) & Counter(nums2)).elements()
-```
-https://leetcode.com/problems/intersection-of-two-arrays-ii/
 
 ---
 
@@ -3535,6 +3304,161 @@ Code: https://onlinegdb.com/o_vdN5LO7
 ## Solving Coding Problems
 
 
+
+### Фильтруем список списков (May 25)
+
+Допустим дан список списков. Наша цель оставить только уникальные списки. Причём под уникальностью двух списков понимаем, что они состоят из одних и тех же элементов (порядок не важен).
+
+Как это сделать?
+
+Пример, дан список списков чисел.
+```py
+store = [
+    [7, 2],
+    [2, 7],
+    [6, 2, 1],
+    [1, 1, 7],
+    [1, 2, 6],
+    [1, 6, 2],
+    [2, 2, 1, 3],
+    [1, 2, 2, 3],
+]
+```
+После фильтрации, получим только "уникальные списки":
+```py
+unique = [
+    [2, 7]
+    [1, 2, 6],
+    [1, 1, 7],
+    [1, 2, 2, 3],
+]
+```
+Почему?
+
+Потому как по нашим условиям:
+
+* [7, 2] и [2, 7] ⏤ не уникальны (состоят из одинаковых элементов, но в разном порядке).
+* [6, 2, 1], [1, 2, 6], [1, 6, 2] ⏤ не уникальны.
+* [1, 2, 2, 3] и [1, 2, 3, 2] ⏤ не уникальны.
+
+Как оставить только уникальные элементы?
+
+Список необязательно содержит уникальные элементы, а множество как раз таки гарантирует уникальность.
+
+Но множество может хранить только hashable элементы, то есть например tuples, но не lists.
+
+А элементы нашего списка ⏤ тоже списки!
+
+Значит первый шаг: перевести все внутренние списки в tuples:
+```py
+set_of_values = set(tuple(values) for values in store)
+```
+Этого будет недостаточно, ведь такое множество уберёт уникальные элементы, только если они будут равны, например: [2,7] и [2,7]. Но посчитает уникальными списки: [7,2] и [2,7].
+
+Решение: можно сначала отсортировать эти списки, а потом уже конвертировать в tuple. Получим:
+```py
+unique_as_set = set(tuple(sorted(values)) for values in store)
+```
+Используем set comprehension: множество формируется из элементов: tuple(sorted(values)).
+
+Можно сделать тоже самое через обычный цикл:
+```py
+unique_as_set = set()
+for values in store:
+    unique_as_set.add(tuple(sorted(values)))
+```
+Двигаемся дальше, мы достигли цели, теперь у нас только уникальные списки (вернее tuples). Но что если хотим перевести в оригинальный формат, то есть вместо set of tuples получить list of lists?
+
+Теперь используем list comprehension:
+```py
+unique = [list(values) for values in unique_as_set]
+``` 
+То есть формируем список из элементов: list(values). Можно обычным циклом:
+```py
+unique = []
+for values in unique_as_set:
+    unique.append(list(values))
+```
+Можно всё сделать в один шаг:
+```py
+unique = [list(values) for values in set(tuple(sorted(values)) for values in store)]
+```
+Можно вывести всё на печать:
+```py
+print(f'{store=}')
+print(f'{unique_as_set=}')
+print(f'{unique=}')
+```
+Бонус: А если цель посчитать все уникальные списки?
+
+Тогда вместо set используем Counter и кидаем в него отсортированные tuples:
+```py
+from collections import Counter
+
+counted_values = Counter(tuple(sorted(b)) for b in values)
+
+print(f'{counted_values=}')
+```
+
+Code: https://onlinegdb.com/o_MRBjNxP
+
+---
+
+
+### Пять задач (LeetCode/easy) с решением в одну строчку (June 24)
+
+#### 242. Valid Anagram
+Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+
+An Anagram is a word formed by rearranging the letters of a different word, using all the original letters exactly once.
+```py
+def is_аnagram(s: str, t: str) -> bool:
+    return sorted(list(s)) == sorted(list(t))
+```
+https://leetcode.com/problems/valid-anagram/
+
+#### 169. Majority Element
+Given an array nums of size n, return the majority element.
+
+The majority element is the element that appears more than ⌊n / 2⌋ times.
+```py
+def majority_еlement(nums: List[int]) -> int:
+    return next(v for v,c in Counter(nums).items() if c > len(nums) // 2, None)
+```
+https://leetcode.com/problems/majority-element/
+
+#### 229. Majority Element II
+Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
+```py
+def majority_elements(nums: List[int]) -> List[int]:
+    return [v for v,c in Counter(nums).items() if c > len(nums) // 3]
+```
+https://leetcode.com/problems/majority-element-ii/
+
+#### 217. Contains Duplicate
+Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
+```py
+def contains_dup(nums: List[int]) -> bool:
+    return any(c >= 2 for c in Counter(nums).values())
+```
+```py
+def contains_dup(nums: List[int]) -> bool:
+    return max(Counter(nums).values()) >= 2
+```
+https://leetcode.com/problems/contains-duplicate/
+
+#### 350. Intersection of Two Arrays II
+Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
+```py
+def intersect(nums1: List[int], nums2: List[int]) -> List[int]:
+    return (Counter(nums1) & Counter(nums2)).elements()
+```
+https://leetcode.com/problems/intersection-of-two-arrays-ii/
+
+
+---
+
+
 ### LeetCode Problem #9: Palindrome Number (May 17)
 
 > Given an integer x, return True if x is a palindrome integer.
@@ -3747,6 +3671,88 @@ def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
     return res
 ```
 Остальные решения смотрите тут: https://onlinegdb.com/2S4gQRwbe
+
+---
+
+
+### LeetCode #75: Sort Colors (Medium) (May 25)
+
+> Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+> 
+> We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.
+> 
+> You must solve this problem without using the library's sort function.
+> 
+> Example 1:
+> 
+> Input: nums = [2,0,2,1,1,0]
+> Output: [0,0,1,1,2,2]
+> 
+> Example 2:
+> 
+> Input: nums = [2,0,1]
+> Output: [0,1,2]
+
+Начнём с более простой задачи, когда присутствуют только два цвета: red (0) и white (1).
+
+Один из способов отсортировать массив из 0 и 1: это запустить partition:
+
+* Все 0 слева пропускаем, затем все 1 справа пропускаем.
+* Если уперлись слева в 1, а справа в 0, то делаем swap.
+* Повторяем процесс, пока не проверим все числа.
+
+Теперь с тремя цветами:
+
+* Делим массив так: слева собираем все 0, а справа все 1 и 2.
+* Затем делим правую часть массива на 1 (идут в левую часть), а все 2.
+```py
+from typing import List
+
+def sort_colors0(nums: List[int]) -> None:
+    def partition(beg, end, left):
+        i = beg
+        j = end
+        while True:
+            while i < j and nums[i] == left:
+                i += 1
+            while i < j and nums[j-1] != left:
+                j -= 1
+
+            if i == j:
+                break
+
+            nums[i], nums[j-1] = nums[j-1], nums[i]
+        return i
+
+    mid = partition(0, len(nums), 0)
+    partition(mid, len(nums), 1)
+```
+
+Ещё более простое решение: подсчитываем сколько 0, 1 и 2 в массиве.
+Далее просто заполняем массив: сначала пойдут все 0, потом 1, а затем: 2.
+```py
+from collections import Counter
+```
+```py
+def sort_colors1(nums: List[int]) -> None:
+    c = Counter(nums)
+    for i in range(len(nums)):
+        nums[i] = 0 if i < c[0] else 1 if i < c[0] + c[1] else 2
+```
+Следующее решение похоже на предыдущее, но потенциально может быть несколько более быстрым:
+```py
+def sort_colors2(nums: List[int]) -> None:
+    c = Counter(nums)
+    for i in range(c[0]):
+        nums[i] = 0
+
+    for i in range(c[0], c[0]+c[1]):
+        nums[i] = 1
+
+    for i in range(c[0]+c[1], len(nums)):
+        nums[i] = 2
+```
+Code to play: https://onlinegdb.com/P2hNkRMdH
 
 ---
 
