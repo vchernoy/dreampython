@@ -854,7 +854,7 @@ Code: https://onlinegdb.com/o6581Ooqw
 
 ---
 
-### Iterable или не iterable: Part 3 (May 15)
+### Iterable или не iterable -- Part 3 (May 15)
 
 Настaло время показать примеры объектов, которые не являются итерируемыми. В первую очередь это числа (целые, вещественные), булевские значения (True, False), и конечно None.
 
@@ -937,152 +937,6 @@ size:     1
 ```
 
 Code: https://onlinegdb.com/wq9VInL3Z
-
----
-
-
-### Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
-
-Возьмём учебный пример: подсчет процентов и выплат по fixed-rate mortage. Допустим цена дома $500,000, начальный взнос: 20%. Это можно выразить следующим кодом на Python:
-```py
-home_price = USD * 500000
-down_payment = home_price * 0.2
-mortgage = home_price - down_payment
-
-print(f'{home_price=}')
-print(f'{down_payment=}')
-print(f'{mortgage=}')
-
-loan_to_value = mortgage / home_price
-
-print(f'{loan_to_value=:.1%}')
-```
-Тут мы заодно посчитали LTV, который в данном примере составит: 80% (ну раз первый взнос: 20%).
-
-Мы тут пока не определили USD, но можно догадаться, речь про $1, а значит USD * 500000 означает: $500,000.
-Недостающий кусок кода разберём чуть позже, а пока посмотрим на вывод данного кода.
-
-Output:
-```
-home_price=$500,000.00
-down_payment=$100,000.00
-mortgage=$400,000.00
-
-loan_to_value=80.0%
-```
-Магическим образом числа форматируются как цены, хотя сама команда print этого вроде не делает.
-Определим, что ссуда берётся под 5% годовых на 30 лет. Пересчитываем в проценты за один месяц. Также вводим понятие amortization term которое означает срок ссуды в количестве месяцев:
-```py
-mortgage_rate = 0.05
-monthly_rate = (1 + mortgage_rate) ** (1 / 12) - 1
-
-print(f'{mortgage_rate=:.1%}')
-print(f'{monthly_rate=:.3%}')
-
-mortgage_term = 30
-amortization_term = mortgage_term * 12
-```
-Output:
-```
-mortgage_rate=5.0%
-monthly_rate=0.407%
-```
-Теперь считаем считаем выплаты как по процентам так и возврат по ссуде. Вычисления скрыты в функции, которую разберём чуть позже.
-```py
-monthly_interest, monthly_principle = payment(mortgage, amortization_term, monthly_rate)
-monthly_payment = monthly_interest + monthly_principle
-print(f'{monthly_interest=}')
-print(f'{monthly_principle=}')
-print(f'{monthly_payment=}')
-```
-Output:
-```py
-monthly_interest=$1,629.65
-monthly_principle=$490.57
-monthly_payment=$2,120.22
-```
-Опять магия: цены форматируются корректно!
-
-#### Функция `payment()`
-
-А вот и недостающая функция подсчёта выплат по ссуде:
-```py
-def payment(balance: Dollar, term: int, rate: float) -> Tuple[Dollar, Dollar]:
-    interest = balance * rate
-    principle = interest / ((1 + rate) ** term - 1)
-
-    return interest, principle
-```
-Считает по известным формулам и возвращает пару (tuple): оплата процентов и возврат ссуды. В сумме получим (месячный) платёж. На самом деле, этой функции всё равно, речь про месяцы или года. Используются абстрактные: balance, term, rate!
-Упрощая, допустим баланс по ссуде $400К, годовой процент: 5%, ссуда на 30 лет, то функция payment($400,000, 30, 5%) посчитает:
-```py
-interest = $400,000 * 5% = $20,000
-principle = $20,000 / (1.05^30 - 1) = $6,020
-```
-Общий платёж (за год): $5,000 + $1,505 = $26,020.
-
-В терминах целых годов, ответ будет не совсем верный. Более правильным будет сделать пересчёт по месяцам. Именно поэтому вы вызываем эту функцию как payment($400,000, 12*30, 0.407%).
-Заметим, что функция имеет аннотацию к типам и для balance указан тип Dollar, который мы пока нигде не определили.
-
-#### Тип `Dollar`
-
-Dollar ⏤ это класс, который наследует все поля и свойства другого типа collections.namedtuple. Можно и без наследования обойтись, но namedtuple является очень полезным типом, с которым следует познакомиться.
-
-Тип namedtuple позволяет определить наименованные кортежи. Как раз Dollar ⏤ это кортеж из всего одной но именованной компоненты: amount. Как и обычные tuple, namedtuple тоже является неизменяемым ⏤ ещё одно полезное свойство.
-
-Можно конечно же использовать namedtuple напрямую, например так:
-```py
-Dollar = namedtuple('Dollar', 'amount', defaults=(1,))
-```
-Тут мы определяем новый тип: неизменяемый именованный кортеж с полем amount (со значением по умолчанию: 1). Но этого недостаточно, если хотим производить арифметические операции с объектами типа Dollar.
-
-Поэтому Dollar наследует поле amount и свойства immutability, но определяет свои операторы. 
-Например:
-* `__mul__()` помогает переопределить оператор умножения значения типа Dollar на некое число. 
-Результатом умножения будет значение типа Dollar. \
-Это позволяет писать такой код: Dollar(500) * 10 ⏤ получим: Dollar(5000).
-
-* Метод `__add__()` позволяет писать такой код: Dollar(500) + Dollar(80) ⏤ получим: Dollar(580).
-
-* Метод `__truediv__()` позволяет считать:
-```py
-Dollar(500) / Dollar(10) = 50 или
-Dollar(500) / 50 = Dollar(10).
-```
-* Метод `__str__()` красиво форматирует объекты типа Dollar, тут и появляется: $5,000 вместо 5000.
-
-```py
-from collections import namedtuple
-```
-```py
-class Dollar(namedtuple('Dollar', 'amount', defaults=(1,))):
-    def __mul__(self, other: Union[int, float]) -> 'Dollar':
-        return Dollar(self.amount * other)
-
-    def __truediv__(self, other: Union[int, float, 'Dollar']) -> 'Dollar':
-        return self.amount / other.amount \
-        if type(other) == Dollar \
-        else Dollar(self.amount / other)
-
-    def __add__(self, other: 'Dollar') -> 'Dollar':
-        return Dollar(self.amount + other.amount)
-
-    def __sub__(self, other: 'Dollar') -> 'Dollar':
-        return Dollar(self.amount - other.amount)
-
-    def __str__(self) -> str:
-        return f'${self.amount:,.2f}' \
-        if self.amount >= 0 \
-        else f'-${-self.amount:,.2f}'
-
-    def __repr__(self) -> str:
-        return str(self)
-```
-Теперь можно ввести недостающий доллар:
-```py
-USD = Dollar(1)
-```
-Code: https://onlinegdb.com/EySDwsUIo
 
 ---
 
@@ -1550,6 +1404,153 @@ calc(expr)==eval(to_str(expr))=True
 ```
 
 Code: https://onlinegdb.com/Q9M1jLNIo
+
+---
+
+## Project: Mortgage Calculator
+
+### Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
+
+Возьмём учебный пример: подсчет процентов и выплат по fixed-rate mortage. Допустим цена дома $500,000, начальный взнос: 20%. Это можно выразить следующим кодом на Python:
+```py
+home_price = USD * 500000
+down_payment = home_price * 0.2
+mortgage = home_price - down_payment
+
+print(f'{home_price=}')
+print(f'{down_payment=}')
+print(f'{mortgage=}')
+
+loan_to_value = mortgage / home_price
+
+print(f'{loan_to_value=:.1%}')
+```
+Тут мы заодно посчитали LTV, который в данном примере составит: 80% (ну раз первый взнос: 20%).
+
+Мы тут пока не определили USD, но можно догадаться, речь про $1, а значит USD * 500000 означает: $500,000.
+Недостающий кусок кода разберём чуть позже, а пока посмотрим на вывод данного кода.
+
+Output:
+```
+home_price=$500,000.00
+down_payment=$100,000.00
+mortgage=$400,000.00
+
+loan_to_value=80.0%
+```
+Магическим образом числа форматируются как цены, хотя сама команда print этого вроде не делает.
+Определим, что ссуда берётся под 5% годовых на 30 лет. Пересчитываем в проценты за один месяц. Также вводим понятие amortization term которое означает срок ссуды в количестве месяцев:
+```py
+mortgage_rate = 0.05
+monthly_rate = (1 + mortgage_rate) ** (1 / 12) - 1
+
+print(f'{mortgage_rate=:.1%}')
+print(f'{monthly_rate=:.3%}')
+
+mortgage_term = 30
+amortization_term = mortgage_term * 12
+```
+Output:
+```
+mortgage_rate=5.0%
+monthly_rate=0.407%
+```
+Теперь считаем считаем выплаты как по процентам так и возврат по ссуде. Вычисления скрыты в функции, которую разберём чуть позже.
+```py
+monthly_interest, monthly_principle = payment(mortgage, amortization_term, monthly_rate)
+monthly_payment = monthly_interest + monthly_principle
+print(f'{monthly_interest=}')
+print(f'{monthly_principle=}')
+print(f'{monthly_payment=}')
+```
+Output:
+```py
+monthly_interest=$1,629.65
+monthly_principle=$490.57
+monthly_payment=$2,120.22
+```
+Опять магия: цены форматируются корректно!
+
+#### Функция `payment()`
+
+А вот и недостающая функция подсчёта выплат по ссуде:
+```py
+def payment(balance: Dollar, term: int, rate: float) -> Tuple[Dollar, Dollar]:
+    interest = balance * rate
+    principle = interest / ((1 + rate) ** term - 1)
+
+    return interest, principle
+```
+Считает по известным формулам и возвращает пару (tuple): оплата процентов и возврат ссуды. В сумме получим (месячный) платёж. На самом деле, этой функции всё равно, речь про месяцы или года. Используются абстрактные: balance, term, rate!
+Упрощая, допустим баланс по ссуде $400К, годовой процент: 5%, ссуда на 30 лет, то функция payment($400,000, 30, 5%) посчитает:
+```py
+interest = $400,000 * 5% = $20,000
+principle = $20,000 / (1.05^30 - 1) = $6,020
+```
+Общий платёж (за год): $5,000 + $1,505 = $26,020.
+
+В терминах целых годов, ответ будет не совсем верный. Более правильным будет сделать пересчёт по месяцам. Именно поэтому вы вызываем эту функцию как payment($400,000, 12*30, 0.407%).
+Заметим, что функция имеет аннотацию к типам и для balance указан тип Dollar, который мы пока нигде не определили.
+
+#### Тип `Dollar`
+
+Dollar ⏤ это класс, который наследует все поля и свойства другого типа collections.namedtuple. Можно и без наследования обойтись, но namedtuple является очень полезным типом, с которым следует познакомиться.
+
+Тип namedtuple позволяет определить наименованные кортежи. Как раз Dollar ⏤ это кортеж из всего одной но именованной компоненты: amount. Как и обычные tuple, namedtuple тоже является неизменяемым ⏤ ещё одно полезное свойство.
+
+Можно конечно же использовать namedtuple напрямую, например так:
+```py
+Dollar = namedtuple('Dollar', 'amount', defaults=(1,))
+```
+Тут мы определяем новый тип: неизменяемый именованный кортеж с полем amount (со значением по умолчанию: 1). Но этого недостаточно, если хотим производить арифметические операции с объектами типа Dollar.
+
+Поэтому Dollar наследует поле amount и свойства immutability, но определяет свои операторы. 
+Например:
+* `__mul__()` помогает переопределить оператор умножения значения типа Dollar на некое число. 
+Результатом умножения будет значение типа Dollar. \
+Это позволяет писать такой код: Dollar(500) * 10 ⏤ получим: Dollar(5000).
+
+* Метод `__add__()` позволяет писать такой код: Dollar(500) + Dollar(80) ⏤ получим: Dollar(580).
+
+* Метод `__truediv__()` позволяет считать:
+```py
+Dollar(500) / Dollar(10) = 50 или
+Dollar(500) / 50 = Dollar(10).
+```
+* Метод `__str__()` красиво форматирует объекты типа Dollar, тут и появляется: $5,000 вместо 5000.
+
+```py
+from collections import namedtuple
+```
+```py
+class Dollar(namedtuple('Dollar', 'amount', defaults=(1,))):
+    def __mul__(self, other: Union[int, float]) -> 'Dollar':
+        return Dollar(self.amount * other)
+
+    def __truediv__(self, other: Union[int, float, 'Dollar']) -> 'Dollar':
+        return self.amount / other.amount \
+        if type(other) == Dollar \
+        else Dollar(self.amount / other)
+
+    def __add__(self, other: 'Dollar') -> 'Dollar':
+        return Dollar(self.amount + other.amount)
+
+    def __sub__(self, other: 'Dollar') -> 'Dollar':
+        return Dollar(self.amount - other.amount)
+
+    def __str__(self) -> str:
+        return f'${self.amount:,.2f}' \
+        if self.amount >= 0 \
+        else f'-${-self.amount:,.2f}'
+
+    def __repr__(self) -> str:
+        return str(self)
+```
+Теперь можно ввести недостающий доллар:
+```py
+USD = Dollar(1)
+```
+Code: https://onlinegdb.com/EySDwsUIo
 
 ---
 
@@ -3042,6 +3043,111 @@ https://onlinegdb.com/ohW2_B63i
 
 ---
 
+### Увлекательная симметрия с Черепашкой (Oct 17) 
+
+Как вы думаете, что нарисует следующий алгоритм?
+
+1. Рисуем равносторонний треугольник.
+2. Рисуем точку в любом месте внутри треугольника.
+3. Следующую точку рисуем посередине между текущей точкой и случайно выбранной вершиной треугольника.
+4. Бесконечно долго повторяем последний шаг (3).
+
+Постепенно будет создаваться фрактал из вложенных треугольников.
+
+Давайте попробуем отобразить это на Python. Для графики используем весёлый модуль turtle (черепашка).
+
+Это та самая Черепашка, с которой дети учатся программированию. 
+
+Черепашка может делать следующие операции:
+
+* `down`/`up`: опустить или поднять хвост
+* `left`/`right`: повернуться налево или направо
+* `forward`: прыгнуть вперёд
+* `setpos`: прыгнуть в определенную позицию
+
+Главное, что если черепашка перемещается с опущенным хвостом, то она оставляет след (рисует).
+
+Начнём писать код.
+
+Импортируем черепашку (turtle) и модуль работы со случайными числами (random) —нужно выбирать вершину случайным образом):
+
+```py
+import random, turtle
+
+side = 600
+vertexes = []
+```
+
+* `side` — длинна стороны треугольника, а
+* `vertexes` — список координат трёх вершин треугольника.
+
+Устанавливаем максимальную скорость, цвет хвоста и заливки, а также прыгаем в начальную позицию:
+
+```py
+turtle.speed(0)
+turtle.color('red', 'yellow')
+turtle.up()
+turtle.setpos(-side / 2, side / 2)
+turtle.down()
+```
+
+Теперь нарисуем треугольник, и запомним в списке vertexes все его вершины:
+
+```py
+turtle.begin_fill()
+
+for _ in range(3):
+    turtle.forward(side)
+    turtle.right(120)
+    vertexes.append(turtle.pos())
+
+turtle.end_fill()
+```
+Три раза делам следующее: прыгаем вперёд (вдоль стороны треугольника), поворачиваемся на 120 градусов (создаём внутренний угол: 180 - 120 = 60), и запоминаем вершину треугольника в vertexes.
+
+* `begin_fill`/`end_fill` — позволяют залить треугольник неким цветом — это необязательно, можно эти вызовы убрать.
+
+До входа в бесконечный цикл создаём три переменных:
+
+* `total_dots` — для подсчёта нарисованных точек (это необязательно).
+* `x`, `y` — положение текущей точки (начнём с 0,0)
+
+```py
+total_dots = 0
+x = y = 0
+while True:
+    v_x, v_y = vertexes[random.randint(0, 2)]
+    x = (x + v_x) / 2
+    y = (y + v_y) / 2
+```
+
+* `randint(0, 2)` генерирует случайное целое число от 0 до 2 (включительно) — то есть случайно выбираем вершину.
+
+Далее в том же цикле синим цветом рисуем точку с диаметром 3:
+
+```py
+    turtle.up()
+    turtle.setpos(x, y)
+    turtle.down()
+    turtle.dot(3, 'blue')
+```
+
+Обновляем статистику нарисованных точек и выводим в консоль каждую тысячу (это необязательно делать).
+
+```py
+    total_dots += 1
+    if total_dots % 1000 == 0:
+        print(f'total dots drawn: {total_dots}')
+```
+Всё! Запускам с PyCharm и ждём, минут 5, а можно и часик.... К 10,000 точек картинка получается очень даже ничего так.
+
+Медитация!
+
+Code: https://onlinegdb.com/qrT12YxnT
+
+---
+
+## Что такое строки?
 
 ### Что такое строки? -- Part 1 (Oct 17)
 
@@ -3640,111 +3746,7 @@ Code: https://onlinegdb.com/o_vdN5LO7
 
 ---
 
-
-### Увлекательная симметрия с Черепашкой (Oct 17) 
-
-Как вы думаете, что нарисует следующий алгоритм?
-
-1. Рисуем равносторонний треугольник.
-2. Рисуем точку в любом месте внутри треугольника.
-3. Следующую точку рисуем посередине между текущей точкой и случайно выбранной вершиной треугольника.
-4. Бесконечно долго повторяем последний шаг (3).
-
-Постепенно будет создаваться фрактал из вложенных треугольников.
-
-Давайте попробуем отобразить это на Python. Для графики используем весёлый модуль turtle (черепашка).
-
-Это та самая Черепашка, с которой дети учатся программированию. 
-
-Черепашка может делать следующие операции:
-
-* `down`/`up`: опустить или поднять хвост
-* `left`/`right`: повернуться налево или направо
-* `forward`: прыгнуть вперёд
-* `setpos`: прыгнуть в определенную позицию
-
-Главное, что если черепашка перемещается с опущенным хвостом, то она оставляет след (рисует).
-
-Начнём писать код.
-
-Импортируем черепашку (turtle) и модуль работы со случайными числами (random) —нужно выбирать вершину случайным образом):
-
-```py
-import random, turtle
-
-side = 600
-vertexes = []
-```
-
-* `side` — длинна стороны треугольника, а
-* `vertexes` — список координат трёх вершин треугольника.
-
-Устанавливаем максимальную скорость, цвет хвоста и заливки, а также прыгаем в начальную позицию:
-
-```py
-turtle.speed(0)
-turtle.color('red', 'yellow')
-turtle.up()
-turtle.setpos(-side / 2, side / 2)
-turtle.down()
-```
-
-Теперь нарисуем треугольник, и запомним в списке vertexes все его вершины:
-
-```py
-turtle.begin_fill()
-
-for _ in range(3):
-    turtle.forward(side)
-    turtle.right(120)
-    vertexes.append(turtle.pos())
-
-turtle.end_fill()
-```
-Три раза делам следующее: прыгаем вперёд (вдоль стороны треугольника), поворачиваемся на 120 градусов (создаём внутренний угол: 180 - 120 = 60), и запоминаем вершину треугольника в vertexes.
-
-* `begin_fill`/`end_fill` — позволяют залить треугольник неким цветом — это необязательно, можно эти вызовы убрать.
-
-До входа в бесконечный цикл создаём три переменных:
-
-* `total_dots` — для подсчёта нарисованных точек (это необязательно).
-* `x`, `y` — положение текущей точки (начнём с 0,0)
-
-```py
-total_dots = 0
-x = y = 0
-while True:
-    v_x, v_y = vertexes[random.randint(0, 2)]
-    x = (x + v_x) / 2
-    y = (y + v_y) / 2
-```
-
-* `randint(0, 2)` генерирует случайное целое число от 0 до 2 (включительно) — то есть случайно выбираем вершину.
-
-Далее в том же цикле синим цветом рисуем точку с диаметром 3:
-
-```py
-    turtle.up()
-    turtle.setpos(x, y)
-    turtle.down()
-    turtle.dot(3, 'blue')
-```
-
-Обновляем статистику нарисованных точек и выводим в консоль каждую тысячу (это необязательно делать).
-
-```py
-    total_dots += 1
-    if total_dots % 1000 == 0:
-        print(f'total dots drawn: {total_dots}')
-```
-Всё! Запускам с PyCharm и ждём, минут 5, а можно и часик.... К 10,000 точек картинка получается очень даже ничего так.
-
-Медитация!
-
-Code: https://onlinegdb.com/qrT12YxnT
-
----
-
+## Solving Coding Problems
 
 ### Pig It — в одну строчку (Oct 25)
 
