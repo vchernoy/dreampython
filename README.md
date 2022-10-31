@@ -3736,3 +3736,246 @@ Code: https://onlinegdb.com/o_vdN5LO7
 ---
 
 
+### Pig It — в одну строчку (Oct 25)
+
+> Problem: Write a function `pig_it` that on the given text, 
+> moves the first letter of each word to the end of it, 
+> then adds `'ay'` to the end of the word.
+> 
+> It must leave punctuation marks untouched.
+>
+> Examples:
+> 
+> * `pig_it('Pig latin is cool')`
+> * returns: `igPay atinlay siay oolcay`
+> 
+> 
+> * `pig_it('Hello world !')`
+> * returns: `elloHay orldway !`
+
+Функция `pig_it` перемешивает каждое слово в тексте: первая буква прыгает в конец слова, к которому добавляется суффикс 'ay'. При этом функция не трогает пунктуацию.
+
+Сделаем несколько упрощающих предположений:
+
+* Слова и знаки пунктуации разделены друг от друга ровно одним пробелом.
+* В качестве знаков пунктуации допустимы только символы: `','`, `'.'`, `'!'`, `'?'`, `':'`, `';'`.
+* Встречаются только одиночные знаки пунктуации (например, запрещён: `???` или `!?`).
+
+#### Реализуем алгоритм по шагам:
+
+Step 1: Как проверить, что данное слово, `w`, состоит только из знака пунктуации?
+Можно это сделать следующими способами (результат проверки запоминаем в переменной):
+```py
+is_punctuation_mark = w == ',' or w == '.' or w == '!' or w == '?' or w == ':' or w == ';'
+```
+Делаем короче, через проверку в кортеже:
+```py
+is_punctuation_mark = w in (',', '.', '!', '?', ':', ';')
+```
+Проверяем, если слово находится среди элементов кортежа.
+
+Поскольку строка — это фактически кортеж символов, то кортеж можно заменить строкой, а проверку наличия элемента в кортеже — заменим проверкой наличия символа в строке:
+```py
+is_punctuation_mark = w in ',.!?:;'
+```
+Лучше запомнить все знаки препинания в строковой переменной:
+```py
+punctuation_marks = ',.!?:;'
+```
+```py
+is_punctuation_mark = w in punctuation_marks
+```
+
+Step 2: Если дано слово, `w` (не знак препинания), как из него получить `pigged_w`?
+```py
+pigged_w = w[1:] + w[0] + 'ay'
+```
+
+Сливаем вместе все символы начиная со второго, 
+в конце добавляем первый символ слова и `'ay'`. 
+Для суффикса введём переменную `suffix`:
+
+```py
+suffix = 'ay'
+```
+```py
+pigged_w = w[1:] + w[0] + suffix
+```
+
+Step 3: Дано слово, w (без пробелов), если w — это знак препинания, то оставим w как есть, в противном случае, перетасуем буквы w согласно условию задачи. Запомним результат в переменной pigged_w:
+```py
+is_punctuation_mark = w in punctuation_marks
+if is_punctuation_mark:
+    pigged_w = w
+else:
+    pigged_w = w[1:] + w[0] + suffix
+```
+
+Step 4: Теперь разобьем текст на слова, и пробежимся по по каждому слову:
+```py
+words = text.split()
+for w in words:
+    pass
+```
+
+Step 5: Получили цикл-for, который ничего не делает, 
+но теперь у нас есть возможность обработать каждое слово из `text`:
+
+```py
+words = text.split()
+for w in words:
+    is_punctuation_mark = w in punctuation_marks
+    if is_punctuation_mark:
+        pigged_w = w
+    else:
+        pigged_w = w[1:] + w[0] + suffix
+```
+
+Step 6: Пока, мы ничего не делам со значениями `pigged_w`. 
+Их следует запомнить в списке, скажем, `pigged_words`. 
+Теперь все перемешанные слова можно соеденить в `pigged_text`:
+
+```py
+pigged_words = []
+words = text.split()
+for w in words:
+    ...
+
+pigged_text = ' '.join(pigged_words)
+```
+
+Step 7: Соберём весь код в одной функции:
+
+```py
+punctuation_marks = ',.!?:;'
+suffix = 'ay'
+```
+```py
+def pig_it(text):
+    pigged_words = []
+    words = text.split()
+    for w in words:
+        is_punctuation_mark = w in punctuation_marks
+        if is_punctuation_mark:
+            pigged_w = w
+        else:
+            pigged_w = w[1:] + w[0] + suffix
+
+        pigged_words.append(pigged_w)
+
+    pigged_text = ' '.join(pigged_words)
+    return pigged_text
+```
+
+Получили желаемое решение. Теперь следует проверить корректность функции и покрыть её тестами (смотрите ниже). Тесты помогут не сломать решение во время оптимизации кода.
+
+#### Refactoring
+
+Сократим код, избавляясь от всех переменных, которые используются только в одном месте:
+
+```py
+def pig_it(text):
+    pigged_words = []
+    for w in text.split():
+        if w in punctuation_marks:
+            pigged_w = w
+        else:
+            pigged_w = w[1:] + w[0] + suffix
+
+        pigged_words.append(pigged_w)
+
+    return ' '.join(pigged_words)
+```
+
+Перепишем команду-if через укороченное выражение-if:
+
+```py
+def pig_it(text):
+    pigged_words = []
+    for w in text.split():
+        pigged_w = w if w in punctuation_marks else w[1:] + w[0] + suffix
+        pigged_words.append(pigged_w)
+
+    return ' '.join(pigged_words)
+```
+
+Избавляемся от `pigged_w`:
+
+```py
+def pig_it(text):
+    pigged_words = []
+    for w in text.split():
+        pigged_words.append(w if w in punctuation_marks else w[1:] + w[0] + suffix)
+
+    return ' '.join(pigged_words)
+```
+
+Чисто механически заменяем цикл-for и `append` на List Comprehension:
+
+```py
+def pig_it(text):
+    pigged_words = [w if w in punctuation_marks else w[1:] + w[0] + suffix for w in text.split()]
+    return ' '.join(pigged_words)
+```
+
+Избавляемся от `pigged_words`:
+
+```py
+def pig_it(text):
+    return ' '.join([w if w in punctuation_marks else w[1:] + w[0] + suffix for w in text.split()])
+```
+
+Можно удалить скобки `[ ]`. Почему? Что поменялось?
+
+```py
+def pig_it(text):
+    return ' '.join(w if w in punctuation_marks else w[1:] + w[0] + suffix for w in text.split())
+```
+
+Мы достигли решения в одну строчку (one-liner).
+
+Иногда код коротких функций записывают на той же строке, сразу после определения функции (тут это излишне, но так иногда делают):
+
+```py
+def pig_it(text): return ' '.join(w if w in punctuation_marks else w[1:] + w[0] + suffix for w in text.split())
+```
+
+Можно также определять безымянные функции через lambda.
+
+```py
+pig_it = lambda text: ' '.join(w if w in punctuation_marks else w[1:] + w[0] + suffix for w in text.split())
+```
+
+Заметим, что запоминая lambda в переменной, фактически, даём ей имя. 
+Большого смысла в этом нет, но такой код тоже можно встретить.
+
+#### Testing
+
+Группу тестов определяем в одной таблице. 
+Для каждого теста указываем входное значение и ожидаемый результат:
+
+```py
+def test():
+    table = (
+        ('', ''),
+        (';', ';'),
+        ('; . , :', '; . , :'),
+        ('a', 'aay'),
+        ('Pig latin is cool', 'igPay atinlay siay oolcay'),
+        ('Hello world !', 'elloHay orldway !'),
+    )
+
+    for text, expected in table:
+        pigged_text = pig_it(text)
+        print(f'{pigged_text = }, {pigged_text == expected = }')
+```
+
+```py
+test()
+```
+Функция `test` запускает `pig_it` для каждого теста и сверяет полученный результат с ожидаемым значением.
+
+Code: https://onlinegdb.com/PtHfV39vU
+
+---
+
