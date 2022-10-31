@@ -2065,3 +2065,125 @@ Code to play: https://onlinegdb.com/P2hNkRMdH
 
 ---
 
+### map/starmap vs. list/generator comprehension & zip (June 2)
+
+Начинаем с импорта:
+```py
+from functools import partial
+from itertools import starmap, repeat
+import operator
+```
+* partial ⏤ позволяет у функций фиксировать параметры, например: partial(operator.add, 10) ⏤ это функция, которая добавляет 10, то есть аналог: lambda x: operator.add(10, х), ну или lambda x: 10 + х.
+* repeat ⏤ генерирует значения по кругу, например, repeat(7) создаст бесконечную последовательность: 7, 7, 7,...
+* starmap ⏤ аналог встроенной функции map, ниже объясяем разницу.
+
+Допустим дан список целых чисел values и наша цель создать новый список square_values, который будет содержать квадраты значений первого списка. Пишем простой цикл:
+```py
+values = [10, 2, 7, 5, 4, 9, 1, 8]
+
+square_values = []
+for v in values:
+    square_values.append(v**2)
+
+print(square_values)
+```
+Output:
+```
+[100, 4, 49, 25, 16, 81, 1, 64]
+```
+Вычисляем квадраты, используя list comprehension:
+```py
+square_values = [v**2 for v in values]
+print(square_values)
+```
+Вместо `v**2` можно использовать `pow(v, 2)` или `v*v`.
+
+#### Generators
+
+Заменив квадратные скобки `[v**2 for ...]` на круглые (v**2 for ...), получим generator expression.
+Чтобы посчитать квадраты чисел, нужно заставить генератор работать, например, конвертируя его в список:
+```py
+square_values = (v**2 for v in values)
+print(list(square_values))
+```
+Генератор можно создать через функцию:
+```py
+def square(values):
+    for v in values:
+        yield v**2
+
+square_values = square(values)
+print(list(square_values))
+```
+Далее, будем подразумевать вызов функции print после каждого вычисления square_values.
+
+#### `map(func, iterable)`
+
+map в каком-то смысле является аналогом generator comprehension.
+
+Первый параметр ⏤ это функция, которую map применяет к компонентам второго параметра, который должен быть iterable (например, list).
+* map производит ленивые вычисления, map(lambda v: v**2, values) ⏤ это аналог: (v**2 for v in values) ⏤ lazy evaluation.
+* list(map(lambda v: v**2, values)) ⏤ это аналог [v**2 for v in values], то есть производит список ⏤ eager evaluation.
+
+Простое решение с map:
+```py
+square_values = map(lambda v: v**2, values)
+```
+Теперь попробуем обойтись без введения функций, через lambda. Такой хитрый вариант: используем partial + pow:
+```py
+square_values = map(partial(pow, exp=2), values)
+```
+
+#### `map(func, iterable1, iterable2, ...)`
+
+map может работать сразу с несколькими iterables. В этом случае, map применяет функцию к значениям из всех последовательностей, а значит функция должна работать с несколькими аргументами. Вот два примера:
+```py
+square_values = map(operator.mul, values, values)
+```
+```py
+square_values = map(operator.pow, values, repeat(2))
+```
+Попробуем проявить креативность и накидать ещё однострочных решений. Все они должны произвести тот же самый список квадратов оригинальных чисел.
+
+#### Generator + `zip(iterable1, iterable2, ...)`
+
+Возвращаемся к generator expression, но добавляем zip.
+
+zip группирует несколько последовательностей в одну, состоящую из tuples.
+
+Проще всего это понять на примере:
+```py
+square_values = (v[0]*v[1] for v in zip(values, values))
+```
+Далее два примера, которые аналогичны применению map над двумя iterables, но используем generator expression + zip:
+```py
+square_values = (operator.mul(*v) for v in zip(values, values))
+```
+```py
+square_values = (operator.pow(*v) for v in zip(values, repeat(2)))
+```
+
+### `starmap(func, iterable of tuples)` + `zip`
+
+starmap ⏤ это аналог map, но умеет распаковывать кортежи (tuples) автоматически:
+```py
+square_values = starmap(operator.mul, zip(values, values))
+```
+```py
+square_values = starmap(operator.pow, zip(values, repeat(2)))
+```
+#### Что тут происходит?
+
+Ну и два самых странных решения:
+```py
+square_values = map(operator.mul, *[values]*2)
+```
+```py
+square_values = map(int(2).__rpow__, values)
+```
+Code: https://onlinegdb.com/N6qx5p-Da
+
+---
+
+
+
