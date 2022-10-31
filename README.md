@@ -1,6 +1,6 @@
 # Dream on Python
 
-## Strings & String Formatting
+## Strings and String Formatting
 
 ### Способы форматирования строк в Python (May 4)
 
@@ -143,7 +143,7 @@ Code to play: https://onlinegdb.com/l1GEcnq3s
 
 ---
 
-## Operations `+` and `*` on int, float, str, list, tuple
+## Operations `+` and `*` on Numbers, Strings, Lists, and Tuples
 
 
 ### Операция `+` в Python (May 5)
@@ -503,7 +503,7 @@ Code in https://onlinegdb.com/nSMCNF6w1
 
 ---
 
-## Generators and Iterables
+## Generators, Iterables, Callables
 
 ### The Art of Generators (May 15)
 
@@ -950,9 +950,125 @@ Code: https://onlinegdb.com/wq9VInL3Z
 
 ---
 
+
+### Callables (Aug 18)
+
+В Python объект может быть Callable, то есть, его можно вызвать как обычную функцию.
+
+Стандартная функция callable проверяет, является ли данный объект "вызываемым".
+
+Очевидно, что любая функция, метод, в том числе внутренние и lambda — являются Callable.
+Напишем простую программу и протестируем разные объекты на это свойство.
+```py
+import operator
+import typing
+import functools
+```
+```py
+def add(a: int, b: int) -> int: return a + b
+```
+```py
+def mk_power_add(k: int) -> typing.Callable[[int, int], int]:
+    def power_k_add(a: int, b: int): return a**k + b**k
+    return power_k_add
+```
+Функция add а также результат вызова mk_power_add(1) — эти примеры функций, которые просто суммируют два аргумента
+
+То есть это примеры Callable, a значит callable(add) и callable(mk_power_add(1) вернёт True.
+
+Также `callable(lambda a, b: a+b)` тоже вернёт True.
+
+Далее приведём примеры статической функции (функция класса) и метода:
+```py
+class A:
+    @staticmethod
+    def add(a: int, b: int) -> int: return a + b
+```
+```py
+class Power:
+    def __init__(self, k: int): self.k = k
+
+    def add(self, a: int, b: int) -> int: return a**self.k + b**self.k
+```
+Обе функции `A.add` и `Power(1).add` суммируют два аргумента и являются Callable.
+
+В следующем примере объекты двух классов являются Callable, 
+поскольку у них реализован специальный скрытый метод `__call__`:
+
+```py
+class Add:
+    def __init__(self):
+        self.__name__ = f'{type(self).__name__}'
+
+    def __call__(self, a: int, b: int) -> int: return a + b
+```
+```py
+class MkPowerAdd:
+    def __init__(self, k: int):
+        self.k = k
+        self.__name__ = f'{type(self).__name__}({self.k})'
+
+    def __call__(self, a: int, b: int) -> int: return a**self.k + b**self.k
+```
+
+Вызовы `callable(Add())` и `callable(MkPowerAdd(1))` вернут True.
+
+В следующем примере берём функцию с тремя аргументами, в которой фиксируем один аргумент, получим частичную функцию с двумя аргументами. Тоже Callable:
+```py
+def power_add(a: int, b: int, k: int): return a**k + b**k
+```
+Вызов `callable(functools.partial(power_add, k=1))` вернёт True.
+
+Библиотечные функции `int.__add__`, operator.add — тоже Callable.
+
+Движемся вперёд: для удобства зафиксируем степень k=1 и определим таблицу объектов для проверки на Callable:
+```py
+k = 1
+```
+```py
+power1_add = functools.partial(power_add, k=k)
+power1_add.__name__ = 'power1_add'
+```
+```py
+tab = (
+    int.__add__,
+    operator.add,
+    lambda a, b: a + b,
+    add,
+    mk_power_add(k),
+    A.add,
+    Power(1).add,
+    MkPowerAdd(k),
+    power1_add,
+)
+```
+Каждый объект по сути является аналогом операции +. Выполним вызов на аргументах a=12 и b=5 и проверим результат:
+```py
+a, b = 12, 5
+```
+```py
+for func in tab:
+    print(f'{callable(func)=}, {func.__name__}, {func(12, 5)=}')
+```
+Получим табличку:
+```py
+callable(func)=True, func=<lambda>, func(12, 5)=17
+callable(func)=True, func=add, func(12, 5)=17
+callable(func)=True, func=power_k_add, func(12, 5)=17
+callable(func)=True, func=add, func(12, 5)=17
+callable(func)=True, func=add, func(12, 5)=17
+callable(func)=True, func=Add, func(12, 5)=17
+callable(func)=True, func=MkPowerAdd(1), func(12, 5)=17
+callable(func)=True, func=power1_add, func(12, 5)=17
+```
+The code is https://onlinegdb.com/TH9ry84dL
+
+---
+
+
 ## Decorators
 
-### Декораторы в Python -- Part 1 (May 17)
+### Декораторы -- Part 1 (May 17)
 
 Покажем, как к некой функции добавить дополнительные свойства без того, чтобы менять её код. Пусть, например, у нас есть функция:
 ```py
@@ -1008,7 +1124,7 @@ Code: https://onlinegdb.com/kML69mab7
 
 ---
 
-### Декораторы в Python -- Part 2 (May 18)
+### Декораторы -- Part 2 (May 18)
 
 Рассмотрим ещё один простой декоратор: @cache. Этот decorator запоминает результат вызова функции и при повторном вызове с такими же параметрами использует сохранённое значение.
 
@@ -1127,101 +1243,6 @@ Code: https://onlinegdb.com/zYm7xeYeg
 
 ---
 
-## TBD
-
-### Пять способов создать slices in Python (May 20)
-
-Возьмём для примера список, например из 6 слов (words). 
-Нужно получить подсписок, например: все слова кроме первого. 
-Или подсписок из каждого третьего слова. 
-Или все слова с индексами между 2 и 4. 
-Этого можно добиться разными способами.
-
-#### 1. words[beg:end:step]
-
-Создаём подсписок через words[beg:end:step]. step может быть отрицательным, тогда получим обратный порядок. Этот способ создаёт совершенно новый список, копируя все элементы. Поэтому изменение words никак не влияет на созданный список.
-```py
-words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
-tail = words[1:]
-words[-1] = words[-1].upper()
-print(f'{words=}')
-print(f'{tail=}')
-```
-Output:
-```
-words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
-tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
-```
-#### 2. list comprehension + range(beg, end, step)
-
-Тоже самое можно добиться и при помощи list comprehension.
-```py
-words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
-tail = [words[i] for i in range(1, len(words))]
-words[-1] = words[-1].upper()
-print(f'{words=}')
-print(f'{tail=}')
-```
-Output:
-```
-words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
-tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
-```
-#### 3. generator comprehension + range
-
-А это уже generator comprehension (используются круглые скобки). Фактически реальный подсписок создаётся только в последней строчек при конвертации генератора в список. В отличие от предыдущих примеров, изменения в words отобразятся и в tail!
-```py
-words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
-tail = (words[i] for i in range(1, len(words)))
-words[-1] = words[-1].upper()
-print(f'{words=}')
-print(f'{list(tail)=}')
-```
-Output:
-```
-words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
-list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
-```
-
-#### 4. slice & words[slice(beg, end, step)]
-
-Несколько похожий пример с использованием стандартной функции slice(). Эта функция очень похожа на range(), но slice не создаёт последовательность значений (не является iterable), а просто описывает индексы подсписка. Получаем shadow slice (как в предыдущем примере), но в момент вызова words[sliced] ⏤ создаётся список.
-```py
-words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
-sliced = slice(1, len(words))
-print(f'{sliced=}')
-words[-1] = words[-1].upper()
-print(f'{words=}')
-tail = words[sliced]
-print(f'{tail=}')
-```
-Output:
-```
-sliced=slice(1, 6, None)
-words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
-tail=['statement', 'considered', 'harmful', 'by', 'WIRTH']
-```
-#### 5. itertools.islice(words, beg, end, step)
-
-В последнем примере itertools.islice() возвращает итератор. Тоже вариант shadow slice. Изменения в оригинальном списке повлияют и на значения выдаваемые итератором.
-```py
-import itertools
-
-words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
-tail = itertools.islice(words, 1, len(words))
-words[-1] = words[-1].upper()
-print(f'{words=}')
-print(f'{list(tail)=}')
-```
-Output:
-```
-words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
-list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
-```
-
-Code: https://onlinegdb.com/0PnBp4y9n
-
-----
 
 ## TBD
 
@@ -1700,120 +1721,98 @@ Code in https://onlinegdb.com/FLDien5qE
 
 ---
 
-## TBD
 
-### Callable в Python (Aug 18)
+### Пять способов создать slices in Python (May 20)
 
-В Python объект может быть Callable, то есть, его можно вызвать как обычную функцию.
+Возьмём для примера список, например из 6 слов (words). 
+Нужно получить подсписок, например: все слова кроме первого. 
+Или подсписок из каждого третьего слова. 
+Или все слова с индексами между 2 и 4. 
+Этого можно добиться разными способами.
 
-Стандартная функция callable проверяет, является ли данный объект "вызываемым".
+#### 1. words[beg:end:step]
 
-Очевидно, что любая функция, метод, в том числе внутренние и lambda — являются Callable.
-Напишем простую программу и протестируем разные объекты на это свойство.
+Создаём подсписок через words[beg:end:step]. step может быть отрицательным, тогда получим обратный порядок. Этот способ создаёт совершенно новый список, копируя все элементы. Поэтому изменение words никак не влияет на созданный список.
 ```py
-import operator
-import typing
-import functools
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = words[1:]
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{tail=}')
 ```
-```py
-def add(a: int, b: int) -> int: return a + b
+Output:
 ```
-```py
-def mk_power_add(k: int) -> typing.Callable[[int, int], int]:
-    def power_k_add(a: int, b: int): return a**k + b**k
-    return power_k_add
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
 ```
-Функция add а также результат вызова mk_power_add(1) — эти примеры функций, которые просто суммируют два аргумента
+#### 2. list comprehension + range(beg, end, step)
 
-То есть это примеры Callable, a значит callable(add) и callable(mk_power_add(1) вернёт True.
-
-Также `callable(lambda a, b: a+b)` тоже вернёт True.
-
-Далее приведём примеры статической функции (функция класса) и метода:
+Тоже самое можно добиться и при помощи list comprehension.
 ```py
-class A:
-    @staticmethod
-    def add(a: int, b: int) -> int: return a + b
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = [words[i] for i in range(1, len(words))]
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{tail=}')
 ```
-```py
-class Power:
-    def __init__(self, k: int): self.k = k
-
-    def add(self, a: int, b: int) -> int: return a**self.k + b**self.k
+Output:
 ```
-Обе функции `A.add` и `Power(1).add` суммируют два аргумента и являются Callable.
-
-В следующем примере объекты двух классов являются Callable, 
-поскольку у них реализован специальный скрытый метод `__call__`:
-
-```py
-class Add:
-    def __init__(self):
-        self.__name__ = f'{type(self).__name__}'
-
-    def __call__(self, a: int, b: int) -> int: return a + b
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
 ```
-```py
-class MkPowerAdd:
-    def __init__(self, k: int):
-        self.k = k
-        self.__name__ = f'{type(self).__name__}({self.k})'
+#### 3. generator comprehension + range
 
-    def __call__(self, a: int, b: int) -> int: return a**self.k + b**self.k
+А это уже generator comprehension (используются круглые скобки). Фактически реальный подсписок создаётся только в последней строчек при конвертации генератора в список. В отличие от предыдущих примеров, изменения в words отобразятся и в tail!
+```py
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = (words[i] for i in range(1, len(words)))
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{list(tail)=}')
+```
+Output:
+```
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
 ```
 
-Вызовы `callable(Add())` и `callable(MkPowerAdd(1))` вернут True.
+#### 4. slice & words[slice(beg, end, step)]
 
-В следующем примере берём функцию с тремя аргументами, в которой фиксируем один аргумент, получим частичную функцию с двумя аргументами. Тоже Callable:
+Несколько похожий пример с использованием стандартной функции slice(). Эта функция очень похожа на range(), но slice не создаёт последовательность значений (не является iterable), а просто описывает индексы подсписка. Получаем shadow slice (как в предыдущем примере), но в момент вызова words[sliced] ⏤ создаётся список.
 ```py
-def power_add(a: int, b: int, k: int): return a**k + b**k
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+sliced = slice(1, len(words))
+print(f'{sliced=}')
+words[-1] = words[-1].upper()
+print(f'{words=}')
+tail = words[sliced]
+print(f'{tail=}')
 ```
-Вызов `callable(functools.partial(power_add, k=1))` вернёт True.
+Output:
+```
+sliced=slice(1, 6, None)
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+tail=['statement', 'considered', 'harmful', 'by', 'WIRTH']
+```
+#### 5. itertools.islice(words, beg, end, step)
 
-Библиотечные функции `int.__add__`, operator.add — тоже Callable.
+В последнем примере itertools.islice() возвращает итератор. Тоже вариант shadow slice. Изменения в оригинальном списке повлияют и на значения выдаваемые итератором.
+```py
+import itertools
 
-Движемся вперёд: для удобства зафиксируем степень k=1 и определим таблицу объектов для проверки на Callable:
-```py
-k = 1
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = itertools.islice(words, 1, len(words))
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{list(tail)=}')
 ```
-```py
-power1_add = functools.partial(power_add, k=k)
-power1_add.__name__ = 'power1_add'
+Output:
 ```
-```py
-tab = (
-    int.__add__,
-    operator.add,
-    lambda a, b: a + b,
-    add,
-    mk_power_add(k),
-    A.add,
-    Power(1).add,
-    MkPowerAdd(k),
-    power1_add,
-)
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
 ```
-Каждый объект по сути является аналогом операции +. Выполним вызов на аргументах a=12 и b=5 и проверим результат:
-```py
-a, b = 12, 5
-```
-```py
-for func in tab:
-    print(f'{callable(func)=}, {func.__name__}, {func(12, 5)=}')
-```
-Получим табличку:
-```py
-callable(func)=True, func=<lambda>, func(12, 5)=17
-callable(func)=True, func=add, func(12, 5)=17
-callable(func)=True, func=power_k_add, func(12, 5)=17
-callable(func)=True, func=add, func(12, 5)=17
-callable(func)=True, func=add, func(12, 5)=17
-callable(func)=True, func=Add, func(12, 5)=17
-callable(func)=True, func=MkPowerAdd(1), func(12, 5)=17
-callable(func)=True, func=power1_add, func(12, 5)=17
-```
-The code is https://onlinegdb.com/TH9ry84dL
 
+Code: https://onlinegdb.com/0PnBp4y9n
 
 ---
 
