@@ -2415,3 +2415,118 @@ sq_odd_values = map(partial(pow, exp=2), filter(partial(operator.and_, 1), value
 ```
 
 Code in https://onlinegdb.com/FLDien5qE
+
+---
+
+### Ставим рейтинг списку слов (June 5)
+
+Дан список слов, требуется узнать на каком месте будет положение каждого слова после сортировки списка (игнорируем регистр букв).
+
+Решение:
+
+В качестве примера берём слова из цитаты Линуса Товальдса:
+```py
+words = ['Talk', 'is', 'cheap', 'Show', 'me', 'the', 'code', 'by', 'Linus', 'Torvalds']
+```
+Конструируем массив отсортированных индексов:
+```py
+indexes = list(range(len(words)))
+
+indexes.sort(key=lambda i: words[i].lower())
+```
+indexes[0] содержит индекс слова, которое после сортировки, должно находиться в положении 0.
+
+В общем случае: после сортировки слов, на месте r будет находится слово words[indexes[r]].
+
+Параметр key в функции sort определяет ключ/свойство, согласно которому производится сортировка.
+
+Создаём словарь ranks, который по индексу i выдаст рейтинг (положение) слова words[i]:
+```py
+ranks = {}
+for r, i in enumerate(indexes):
+    ranks[i] = r
+```
+А теперь конструируем список пар: слово и его позиция в отсортированном списке.
+```py
+ranked_words = []
+for i, w in enumerate(words):
+    ranked_words.append((w, ranks[i]))
+
+print(ranked_words)
+```
+
+Вроде не сложно. Можно сократить количество строк, используя разные list/dict comprehension. А в качестве упражнения, попробуем вместить весь код в одну строчку (это для тех, кто дотянет до конца!).
+
+#### Applying List & Dict Comprehension vs. Map
+
+Список indexes, а также словарь ranks и список ranked_words можно сконструировать каждый в одну строчку:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranks = {i: r for r, i in enumerate(indexes)}
+
+ranked_words = [(w, ranks[i]) for i, w in enumerate(words)]
+```
+Можно первые две строчки объединить, но получим нечто неуклюжее.
+
+Лучше ещё потренируемся в написании альтернативных решений. Словарь rank можно создать такими способами:
+```py
+ranks = dict(zip(indexes, range(len(words))))
+```
+```py
+ranks = dict(map(reversed, enumerate(indexes)))
+```
+
+А результирующий список ranked_words, такими способами:
+```py
+ranked_words = list(zip(words, (ranks[i] for i in range(len(words)))))
+```
+```py
+ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
+```
+```py
+ranked_words = [(words[i], ranks[i]) for i in range(len(words))]
+```
+Можно, конечно, избавиться от индексов:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranks = dict(map(reversed, enumerate(indexes)))
+
+ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
+```
+Или чисто технически объединить первые две строчки в одну:
+```py
+ranks = dict(map(reversed, enumerate(sorted(range(len(words)), key=lambda i: words[i].lower()))))
+
+ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
+```
+
+#### Альтернативное решение: ещё один `sort`
+
+Но можно пойти несколько другим путём. Вот альтернативное решение:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranks = dict(zip(indexes, range(len(words))))
+
+ranked_words = [(words[i], r) for i, r in sorted(ranks.items())]
+```
+После конструирования словаря `ranks`, преобразовываем его в список пар (индекс, ранк) и сортируем эту последовательность (по индексу). В результате получаем список пар `(0, r0)`, `(1, r1)`, ...
+
+Стало сложнее, но можно заметить, что мы делаем лишний шаг: сам словарь `ranks` нам не нужен!
+
+Проще сразу сортировать список пар из indexes:
+```py
+indexes = sorted(range(len(words)), key=lambda i: words[i].lower())
+
+ranked_words = [(words[i], r) for i, r in sorted(zip(indexes, range(len(words))))]
+```
+Ну а теперь, можно и в одну строчку:
+```
+ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), key=lambda i: words[i].lower()), range(len(words))))]
+```
+На работе за такое "побьют"!!!
+
+Code in https://onlinegdb.com/eMH7atQTP
+
