@@ -1345,3 +1345,92 @@ Code: https://onlinegdb.com/zYm7xeYeg
 
 ---
 
+### Пять способов создать slices in Python (May 20)
+
+Возьмём для примера список, например из 6 слов (words). Нужно получить подсписок, например: все слова кроме первого. Или подсписок из каждого третьего слова. Или все слова с индексами между 2 и 4. Этого можно добиться разными способами.
+
+#### 1. words[beg:end:step]
+
+Создаём подсписок через words[beg:end:step]. step может быть отрицательным, тогда получим обратный порядок. Этот способ создаёт совершенно новый список, копируя все элементы. Поэтому изменение words никак не влияет на созданный список.
+```py
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = words[1:]
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{tail=}')
+```
+Output:
+```
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
+```
+#### 2. list comprehension + range(beg, end, step)
+
+Тоже самое можно добиться и при помощи list comprehension.
+```py
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = [words[i] for i in range(1, len(words))]
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{tail=}')
+```
+Output:
+```
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
+```
+#### 3. generator comprehension + range
+
+А это уже generator comprehension (используются круглые скобки). Фактически реальный подсписок создаётся только в последней строчек при конвертации генератора в список. В отличие от предыдущих примеров, изменения в words отобразятся и в tail!
+```py
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = (words[i] for i in range(1, len(words)))
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{list(tail)=}')
+```
+Output:
+```
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
+```
+
+#### 4. slice & words[slice(beg, end, step)]
+
+Несколько похожий пример с использованием стандартной функции slice(). Эта функция очень похожа на range(), но slice не создаёт последовательность значений (не является iterable), а просто описывает индексы подсписка. Получаем shadow slice (как в предыдущем примере), но в момент вызова words[sliced] ⏤ создаётся список.
+```py
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+sliced = slice(1, len(words))
+print(f'{sliced=}')
+words[-1] = words[-1].upper()
+print(f'{words=}')
+tail = words[sliced]
+print(f'{tail=}')
+```
+Output:
+```
+sliced=slice(1, 6, None)
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+tail=['statement', 'considered', 'harmful', 'by', 'WIRTH']
+```
+#### 5. itertools.islice(words, beg, end, step)
+
+В последнем примере itertools.islice() возвращает итератор. Тоже вариант shadow slice. Изменения в оригинальном списке повлияют и на значения выдаваемые итератором.
+```py
+import itertools
+
+words = ['GoTo', 'statement', 'considered', 'harmful', 'by', 'Wirth']
+tail = itertools.islice(words, 1, len(words))
+words[-1] = words[-1].upper()
+print(f'{words=}')
+print(f'{list(tail)=}')
+```
+Output:
+```
+words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
+list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
+```
+
+Code: https://onlinegdb.com/0PnBp4y9n
+
+----
