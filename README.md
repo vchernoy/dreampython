@@ -1983,3 +1983,85 @@ print(f'{counted_values=}')
 Code: https://onlinegdb.com/o_MRBjNxP
 
 ---
+
+### LeetCode #75: Sort Colors (Medium) (May 25)
+
+> Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+> 
+> We will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.
+> 
+> You must solve this problem without using the library's sort function.
+> 
+> Example 1:
+> 
+> Input: nums = [2,0,2,1,1,0]
+> Output: [0,0,1,1,2,2]
+> 
+> Example 2:
+> 
+> Input: nums = [2,0,1]
+> Output: [0,1,2]
+
+Начнём с более простой задачи, когда присутствуют только два цвета: red (0) и white (1).
+
+Один из способов отсортировать массив из 0 и 1: это запустить partition:
+
+* Все 0 слева пропускаем, затем все 1 справа пропускаем.
+* Если уперлись слева в 1, а справа в 0, то делаем swap.
+* Повторяем процесс, пока не проверим все числа.
+
+Теперь с тремя цветами:
+
+* Делим массив так: слева собираем все 0, а справа все 1 и 2.
+* Затем делим правую часть массива на 1 (идут в левую часть), а все 2.
+```py
+from typing import List
+
+def sort_colors0(nums: List[int]) -> None:
+    def partition(beg, end, left):
+        i = beg
+        j = end
+        while True:
+            while i < j and nums[i] == left:
+                i += 1
+            while i < j and nums[j-1] != left:
+                j -= 1
+
+            if i == j:
+                break
+
+            nums[i], nums[j-1] = nums[j-1], nums[i]
+        return i
+
+    mid = partition(0, len(nums), 0)
+    partition(mid, len(nums), 1)
+```
+
+Ещё более простое решение: подсчитываем сколько 0, 1 и 2 в массиве.
+Далее просто заполняем массив: сначала пойдут все 0, потом 1, а затем: 2.
+```py
+from collections import Counter
+```
+```py
+def sort_colors1(nums: List[int]) -> None:
+    c = Counter(nums)
+    for i in range(len(nums)):
+        nums[i] = 0 if i < c[0] else 1 if i < c[0] + c[1] else 2
+```
+Следующее решение похоже на предыдущее, но потенциально может быть несколько более быстрым:
+```py
+def sort_colors2(nums: List[int]) -> None:
+    c = Counter(nums)
+    for i in range(c[0]):
+        nums[i] = 0
+
+    for i in range(c[0], c[0]+c[1]):
+        nums[i] = 1
+
+    for i in range(c[0]+c[1], len(nums)):
+        nums[i] = 2
+```
+Code to play: https://onlinegdb.com/P2hNkRMdH
+
+---
+
