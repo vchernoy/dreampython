@@ -2694,3 +2694,193 @@ callable(func)=True, func=power1_add, func(12, 5)=17
 The code is https://onlinegdb.com/TH9ry84dL
 
 ---
+
+
+### Пять простых задач на структуры данных и рекурсию (Aug 19)
+
+Параллельно будем использовать новый оператор match-case и сравним его с коротким if-else.
+
+#### 1. Merge Two Sorted Lists
+
+Given the heads of two sorted linked lists. Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
+
+Дано определение списка (linked list):
+```py
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+```
+* https://leetcode.com/problems/merge-two-sorted-lists/
+
+Решение:
+```py
+def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
+    match p, q:
+        case p, None:
+            return p
+        case None, q:
+            return q
+        case p, q if p.val <= q.val:
+            return ListNode(p.val, merge(p.next, q)) 
+        case p, q:
+            return merge(q, p)
+```
+Конструкция match-case довольно громоздка, но в данном случае добавляет ясности:
+* Если один один из списков пустой, ответом является второй список.
+* Если голова первого списка меньше головы второго, берём значение первого и сливаем оставшийся хвост со вторым списком.
+* В случае, если голова второго меньше, то просто меняем их местами.
+
+Вызов функции: `merge(list1, list2)`
+
+Можно и в одну строчку, с использованием короткой формы if-else:
+```py
+def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
+    return (ListNode(p.val, merge(p.next, q)) if p.val <= q.val else merge(q, p)) if p and q else p or q
+```
+Задания:
+* Два первых блока case можно объединить, как?
+* Перепишите функцию с использованием обычного оператора if-elif-else.
+* Решите задачу без рекурсии (используя цикл, будет длиннее).
+
+#### 2. Maximum Depth of Binary Tree
+
+Given the root of a binary tree, return its maximum depth, which is the number of nodes along the longest path from the root node down to the farthest leaf node.
+
+* https://leetcode.com/problems/maximum-depth-of-binary-tree/
+
+Дано определение списка (linked list):
+```py
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+```
+Решение:
+```py
+def depth(r: TreeNode|None) -> int:
+    match r:
+        case None:
+            return 0
+        case TreeNode(val=_, left=left, right=right):
+            return max(depth(left), depth(right)) + 1
+```
+* Если дерево пустое, то ответ 0.
+* Для не пустого дерева, его depth на единицу больше чем максимальная глубина среди его поддеревьев.
+
+Вызываем функцию так: `depth(root)`
+
+В одну строчку:
+```py
+def depth(r: TreeNode|None) -> int:
+    return max(depth(r.left), depth(r.right)) + 1 if r else 0
+```
+Задания:
+* Последний блок case замените на case _.
+* Замените короткий if-else оператором if-elif-else.
+
+#### 3. Same Tree
+
+Given two binary trees, check if they are the same or not. Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
+
+* https://leetcode.com/problems/same-tree/
+
+Решение:
+```py
+def same(p: TreeNode|None, q: TreeNode|None) -> bool:
+    match p, q:
+        case None, None:
+            return True
+        case p, None if p is not None:
+            return False
+        case None, q if q is not None:
+            return False
+        case p, q:
+            return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right)))
+```
+* Два пустых дерева -- идентичны.
+* Если только одно из деревьев пустое, то они не идентичны.
+* Два не пустых дерева идентичны, если значения в их корнях совпадают, а также идентичными являются их левые и правые поддеревья (попарно).
+
+Стандартная функция all возвращает True если все значения равны True, фактически это тоже самое что `... and ... and ...` .
+
+Вызываем: `same(p, q)`
+
+В одну строчку:
+```py
+def same(p: TreeNode|None, q: TreeNode|None) -> bool:
+    return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right))) if p and q else p == q == None
+```
+Задания:
+* В первой функции, объедините второй и третий блоки case.
+* Замените короткий if-else оператором if-elif-else.
+
+#### 4. Symmetric Tree
+
+Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+
+* https://leetcode.com/problems/symmetric-tree/
+
+Решение:
+
+Напишем функцию, которая проверяет если два данных дерева симметричны друг к другу:
+```py
+def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
+    match p, q:
+        case None, None:
+            return True
+        case p, None if p is not None:
+            return False
+        case None, q if q is not None:
+            return False
+        case _:
+            return all((p.val == q.val, symmetric(p.left, q.right), symmetric(p.right, q.left)))
+```
+* Два не пустые дерева симметричны, если их корни совпадают, левое поддерево первого дерева симметрично правому поддереву второго дерева, а также симметричны правое поддерево первого дерева и левое поддерево второго дерева.
+
+Вызов функции: `not root or symmetric(root.left, root.right)`
+
+В одну строчку:
+```py
+def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
+    return all((p.val == q.val, symmetric(p.left, q.right), symmetric(p.right, q.left))) if p and q else p == q == None
+```
+Задания:
+* Объедините первые три блока case в один.
+* Замените короткий if-else оператором if-elif-else.
+
+#### 5. Path Sum
+
+Given a binary tree and an integer target, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals target. A leaf is a node with no children.
+
+* https://leetcode.com/problems/path-sum/
+
+Решение:
+```py
+def has_path(r: TreeNode|None, target: int) -> bool:
+    match r:
+        case None:
+            return False
+        case TreeNode(val=val, left=None, right=None):
+            return val == target
+        case TreeNode(val=val, left=left, right=right):
+            return has_path(left, target-val) or has_path(right, target-val)
+```
+В данном случае процесс matching более сложный, поскольку используется паттерн по объектам.
+* Для узла-листа (второй case), ответ True только если target совпадает с его значением.
+* Для общего случая проверяем левое и правое поддеревья.
+
+Вызываем: `has_path(root, targetSum)`
+
+В одну строчку:
+```py
+def has_path(r: TreeNode|None, target: int) -> bool:
+    return (has_path(r.left, target - r.val) or has_path(r.right, target - r.val) if r.left or r.right else r.val == target) if r else False
+```
+
+Задания:
+* Замените последний case на case _.
+* Замените короткий if-else оператором if-elif-else.
+
+---
