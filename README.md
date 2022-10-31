@@ -612,7 +612,7 @@ Code in https://onlinegdb.com/uV9ygOawD
 
 ---
 
-### Iterable или не iterable? (May 15)
+### Iterable или не iterable? -- Part 1 (May 15)
 
 Из итерируемых объектов можно создать итератор, который позволяет пробежать по компонентам объекта в цикле for.
 Лучше понять это на примерах. Берём список: [1, 10, 100]. Поскольку список являются iterable, из него можно создать итератор:
@@ -758,7 +758,7 @@ Code: https://onlinegdb.com/hoEB0NXUG
 
 ---
 
-### Iterable или не iterable: Part 2, May 15
+### Iterable или не iterable -- Part 2 (May 15)
 
 Идём дальше: строки (str) и словари (dict) -- итерируемые. Строка итерируется по буквам, а словарь по своим ключам.
 Более интересные примеры: классы-генераторы и файлы. Эти типы тоже итерируемые!
@@ -1086,62 +1086,6 @@ Code: https://onlinegdb.com/EySDwsUIo
 
 ---
 
-### Декораторы в Python (May 17)
-
-Покажем, как к некой функции добавить дополнительные свойства без того, чтобы менять её код. Пусть, например, у нас есть функция:
-```py
-def test_func(x, y):
-    ...
-```
-Один из простых способов достичь этого ⏤ это написать декоратор. В качестве примера, можно создать decorator, который при вызове функции печатает входные параметры и возвращаемое значение.
-
-Чтобы применить декоратор, скажем log_call, к функции test_func, нужно декорировать последнюю специальным образом, добавив @log_call перед определением функции:
-```py
-@log_call
-def test_func(x, y):
-    print('I am doing some magic!')
-    print(f'I am using the parameters: {x=}, {y=}')
-    print('Biggest magic has done.')
-    return 'done'
-```
-Эффект от декоратора проявится при вызове функции test_func:
-```py
-print(test_func(10, 'hi'))
-```
-Output:
-```
-test_func(10,hi)
-I am doing some magic!
-I am using the parameters: x=10, y='hi'
-Biggest magic has done.
-test_func: done
-done
-```
-Первая и предпоследняя строки печатаются самим декоратором log_call, который реализован следующим образом:
-```py
-def log_call(some_func):
-    def call_it(*args):
-        print(f'{some_func.__name__}({",".join(str(arg) for arg in args)})')
-        ret = some_func(*args)
-        print(f'{some_func.__name__}: {ret}')
-        return ret
-
-    return call_it
-```
-Как видим, декоратор `log_call` ⏤ это функция, которая принимает на вход другую функцию (`some_func`). 
-Декоратор оборачивает вызов some_func в другую функцию `call_it`, которая как раз и выводит на экран
-
-* имя вызванной (декодируемой) функции: `some_func.__name__`,
-* переданные параметры: `",".join(str(arg) for arg in args)` и
-* результирующее значение: `ret`.
-
-Заметим, что `call_it()` запаковывает все полученные параметры в tuple: args. 
-А далее, распаковывает кортеж при передаче параметров в функцию `some_func()`.
-
-Code: https://onlinegdb.com/kML69mab7
-
----
-
 ### LeetCode Problem #9: Palindrome Number (May 17)
 
 > Given an integer x, return True if x is a palindrome integer.
@@ -1232,7 +1176,63 @@ Code: https://onlinegdb.com/ghcfGOncm
 
 ---
 
-### Декораторы в Python: Part 2 (May 18)
+### Декораторы в Python -- Part 1 (May 17)
+
+Покажем, как к некой функции добавить дополнительные свойства без того, чтобы менять её код. Пусть, например, у нас есть функция:
+```py
+def test_func(x, y):
+    ...
+```
+Один из простых способов достичь этого ⏤ это написать декоратор. В качестве примера, можно создать decorator, который при вызове функции печатает входные параметры и возвращаемое значение.
+
+Чтобы применить декоратор, скажем log_call, к функции test_func, нужно декорировать последнюю специальным образом, добавив @log_call перед определением функции:
+```py
+@log_call
+def test_func(x, y):
+    print('I am doing some magic!')
+    print(f'I am using the parameters: {x=}, {y=}')
+    print('Biggest magic has done.')
+    return 'done'
+```
+Эффект от декоратора проявится при вызове функции test_func:
+```py
+print(test_func(10, 'hi'))
+```
+Output:
+```
+test_func(10,hi)
+I am doing some magic!
+I am using the parameters: x=10, y='hi'
+Biggest magic has done.
+test_func: done
+done
+```
+Первая и предпоследняя строки печатаются самим декоратором log_call, который реализован следующим образом:
+```py
+def log_call(some_func):
+    def call_it(*args):
+        print(f'{some_func.__name__}({",".join(str(arg) for arg in args)})')
+        ret = some_func(*args)
+        print(f'{some_func.__name__}: {ret}')
+        return ret
+
+    return call_it
+```
+Как видим, декоратор `log_call` ⏤ это функция, которая принимает на вход другую функцию (`some_func`). 
+Декоратор оборачивает вызов some_func в другую функцию `call_it`, которая как раз и выводит на экран
+
+* имя вызванной (декодируемой) функции: `some_func.__name__`,
+* переданные параметры: `",".join(str(arg) for arg in args)` и
+* результирующее значение: `ret`.
+
+Заметим, что `call_it()` запаковывает все полученные параметры в tuple: args. 
+А далее, распаковывает кортеж при передаче параметров в функцию `some_func()`.
+
+Code: https://onlinegdb.com/kML69mab7
+
+---
+
+### Декораторы в Python -- Part 2 (May 18)
 
 Рассмотрим ещё один простой декоратор: @cache. Этот decorator запоминает результат вызова функции и при повторном вызове с такими же параметрами использует сохранённое значение.
 
@@ -3043,7 +3043,7 @@ https://onlinegdb.com/ohW2_B63i
 ---
 
 
-### Что такое строки? -- ЧАСТЬ 1 (Oct 17)
+### Что такое строки? -- Part 1 (Oct 17)
 
 В Python доступен встроенный тип данных: str (строка). Строки используются для представления текста, слов и отдельных символов. Например: `'Hello World!'` — это константная строка (имеет тип str).
 
@@ -3142,7 +3142,7 @@ Code: https://onlinegdb.com/PEyCCALh0
 ---
 
 
-### Что такое строки? -- ЧАСТЬ 2 (Oct 19)
+### Что такое строки? -- Part 2 (Oct 19)
 
 В части 1 мы начали реализовывать класс TStr (строки) на основе tuples (кортежей символов). Вот что у нас уже получилось:
 ```py
@@ -3314,7 +3314,7 @@ Code: https://onlinegdb.com/2ohZlESkI_
 
 ---
 
-### Что такое строки? -- ЧАСТЬ 3 (Oct 20)
+### Что такое строки? -- Part 3 (Oct 20)
 
 В частях 1 и 2 мы реализовывали часть класса TStr:
 ```py
@@ -3477,7 +3477,7 @@ Code: https://onlinegdb.com/0CqoCkOm-
 
 ---
 
-### Что такое строки? -- ЧАСТЬ 4 (Oct 23)
+### Что такое строки? -- Part 4 (Oct 23)
 
 В предыдущих частях, была реализована часть класса TStr (строки на основе tuples). 
 Вот что получилось:
