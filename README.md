@@ -1546,3 +1546,217 @@ calc(expr)==eval(to_str(expr))=True
 Code: https://onlinegdb.com/Q9M1jLNIo
 
 ---
+
+### Backend на FastAPI: mortgage calculator (May 23)
+
+В папке `webapptest` создадим проект. Там сохраним:
+* файл `main.py` и
+* каталог `venv` (`virtualenv`).
+
+В первую очередь устанавливаем необходимые библиотеки. Скопируйте в терминал следующую команду:
+```sh
+venv/bin/pip install "fastapi[all]" "uvicorn[standard]"
+```
+Проверить, что там установилось можно командой:
+```sh
+venv/bin/pip list
+```
+
+#### `main.py` и запуск WEB-сервиса:
+
+Создаём backend и регистрируем API. Декораторы помним?
+```py
+import fastapi
+
+app = fastapi.FastAPI()
+
+@app.get("/")
+def read_root():
+    return 'loan calculator'
+```
+Декоратор `@app.get("/")` устанавливает удалённую точку вызова для функции read_root(), которая просто возвращает строку (ничего хитрого!).
+
+Запускаем сервис локально, например, на порту 8000:
+```sh
+venv/bin/uvicorn main:app --reload --port 8000
+```
+Output:
+```
+INFO:     Will watch for changes in these directories: ['/Users/slava/PycharmProjects/webapptest']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [29735] using watchgod
+INFO:     Started server process [29737]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+Если всё хорошо, пусть бежит!
+
+Теперь через webbrowser можно вызвать функцию read_root, набрав следующий URL:
+
+http://127.0.0.1:8000/
+
+В браузере должно появиться:
+```
+"loan calculator"
+```
+Мы только что запустили минимальный WEB service (backend)!
+
+#### Loan Calculator
+
+Уже знакомы с именованными кортежами? Объекты LoanPayments будут содержать информацию о выплатах за определённый срок. Например за один месяц, год, весь период и т.д.:
+```py
+import collections
+```
+```py
+LoanPayments = collections.namedtuple(
+    'LoanPayments',
+    [
+        'interest',
+        'principle',
+        'paid',
+        'balance_left',
+        'payments_done',
+    ],
+)
+```
+Создать объект этого типа можно так:
+```py
+loan_payments = LoanPayments(
+    interest=1000,
+    principle=2000,
+    paid=1000+2000,
+    balance_left=100000 - 3000,
+    payments_done=1,
+)
+```
+Основная функция, которая считает выплаты по кредиту на заданном интервале:
+```py
+def payment(balance: float, term: int, rate: float, payments: int = 1) -> LoanPayments:
+
+    print(f'payment({balance=}, {term=}, {rate=}: {payments=})')
+
+    total_interest, total_principle = 0, 0
+    for _ in range(payments):
+        interest = balance * rate
+        principle = interest / ((1 + rate) ** term - 1)
+
+        total_interest += interest
+        total_principle += principle
+
+        balance -= principle
+        term -= 1
+
+    return LoanPayments(
+        interest=round(total_interest, 2),
+        principle=round(total_principle, 2),
+        paid=round(total_interest+total_principle, 2),
+        balance_left=round(balance, 2),
+        payments_done=payments,
+    )
+```
+Входные параметры для функции:
+* balance: размер долга по ссуде, например: 100000 ($100К).
+* term: оставшееся количество выплат, например: 30 * 12 (30 лет).
+* rate: кредитная ставка за один взнос.
+* payments: количество взносов, можно например указать: 1 (месяц), 12 (год), 120 (10 лет) или term (за всё время).
+
+Добавляем API:
+```py
+@app.get("/amortization_loan/")
+def amortization_loan(balance: float, months_left: int, annual_rate: float, months_to_pay: int = 1):
+
+    annual_rate *= 0.01
+    rate = (1 + annual_rate) ** (1 / 12) - 1
+
+    monthly = payment(balance, months_left, rate, 1)
+    annual = payment(balance, months_left, rate, 12)
+    total = payment(balance, months_left, rate, months_left)
+    paid = payment(balance, months_left, rate, months_to_pay)
+
+    return {
+        'monthly': monthly._asdict(),
+        'annual': annual._asdict(),
+        'total': total._asdict(),
+        'paid': paid._asdict(),
+    }
+```
+Теперь в браузере можно указать такой URL:
+
+http://127.0.0.1:8000/amortization_loan/?balance=100000&months_left=360&annual_rate=5&months_to_pay=120
+
+Что означает: вызвать функцию amortization_loan с параметрами:
+* balance=100000 ($100К);
+* months_left=360 (ссуда на 30 лет);
+* annual_rate=5 (5% годовых);
+* months_to_pay=120 (интересуют выплаты за 10 лет).
+
+В браузере получим ответ в виде JSON:
+```json
+{"monthly":{"interest":407.41,"principle":122.64,"paid":530.06,"balance_left":99877.36,"payments_done":1},"annual":{"interest":4855.52,"principle":1505.14,"paid":6360.66,"balance_left":98494.86,"payments_done":12},"total":{"interest":90819.87,"principle":100000.0,"paid":190819.87,"balance_left":0.0,"payments_done":360},"paid":{"interest":44675.09,"principle":18931.53,"paid":63606.62,"balance_left":81068.47,"payments_done":120}}
+```
+Новый API добавлен, сервис loan calculator работает!
+
+Следующий шаг можно пропустить:
+
+#### Форматирование JSON
+
+JSON можно красиво отформотрировать с помощью вызова модуля: python3 -m json.tool. Запускаем в терминале следующую команду:
+```sh
+echo '{"monthly":{"interest":407.41,"principle":122.64,"paid":530.06,"balance_left":99877.36,"payments_done":1},"annual":{"interest":4855.52,"principle":1505.14,"paid":6360.66,"balance_left":98494.86,"payments_done":12},"total":{"interest":90819.87,"principle":100000.0,"paid":190819.87,"balance_left":0.0,"payments_done":360},"paid":{"interest":44675.09,"principle":18931.53,"paid":63606.62,"balance_left":81068.47,"payments_done":120}}' | python3 -m json.tool
+```
+Output:
+```json
+{
+    "monthly": {
+        "interest": 407.41,
+        "principle": 122.64,
+        "paid": 530.06,
+        "balance_left": 99877.36,
+        "payments_done": 1
+    },
+    "annual": {
+        "interest": 4855.52,
+        "principle": 1505.14,
+        "paid": 6360.66,
+        "balance_left": 98494.86,
+        "payments_done": 12
+    },
+    "total": {
+        "interest": 90819.87,
+        "principle": 100000.0,
+        "paid": 190819.87,
+        "balance_left": 0.0,
+        "payments_done": 360
+    },
+    "paid": {
+        "interest": 44675.09,
+        "principle": 18931.53,
+        "paid": 63606.62,
+        "balance_left": 81068.47,
+        "payments_done": 120
+    }
+}
+```
+* За месяц заплатим: $530;
+* за год: $6,360;
+* за все 30 лет: $190,819;
+* за 10 лет: $63,606.
+
+#### Interactive API docs
+
+FastAPI также генерирует точку вызова для интерактивного API. Пока бежит ваш сервис, наберите в браузере следующий URL:
+
+http://127.0.0.1:8000/docs
+
+Должна генерироваться страница для вызова двух функций: `Root Read` и `Amortization Loan`.
+
+Кликаем на стрелочки и далее на "Try it out" и "Execute"!
+
+Получили очень простой UI, через который можно взаимодействовать с сервисом
+
+Full Code: https://onlinegdb.com/7FLyB8K7P
+
+See https://fastapi.tiangolo.com/
+
+---
+
