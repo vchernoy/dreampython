@@ -2324,4 +2324,94 @@ odd_values = filter(partial(operator.and_, 1), values)
 
 Code: https://onlinegdb.com/HZDjuLk45
 
+---
 
+### `map`+`filter` vs. list/generator comprehension
+
+Комбинируем два предудущих поста. Теперь наша цель ⏤ найти в списке values все нечётные числа и поместить их квадраты в sq_odd_values. Начнём с простого решения:
+```py
+from functools import partial
+import operator
+```
+```py
+values = [10, 2, 7, 5, 4, 9, 1, 8]
+sq_odd_values = []
+for v in values:
+    if v % 2 == 1:
+        sq_odd_values.append(v**2)
+
+print(sq_odd_values)
+```
+Output:
+```
+[49, 25, 81, 1]
+```
+Далее используем короткую форму if:
+```py
+sq_odd_values = []
+for v in values:
+    sq_odd_values.append(v**2) if v % 2 == 1 else ...
+
+print(sq_odd_values)
+```
+Переходим на вложенный list comprehension:
+```py
+sq_odd_values = [v**2 for v in [v for v in values if v % 2 == 1]]
+print(sq_odd_values)
+```
+Можно сделать тоже самое, но без nested list comprehension:
+```py
+sq_odd_values = [v**2 for v in values if v % 2 == 1]
+print(sq_odd_values)
+```
+
+#### Generators
+
+Помним, что в дух предыдущих постах мы вводили два генератора? Используем их композицию:
+```py
+def square(values):
+    for v in values:
+        yield v**2
+
+def odd_only(values):
+    for v in values:
+       (yield v) if v % 2 == 1 else ...
+
+sq_odd_values = square(odd_only(values))
+print(list(sq_odd_values))
+```
+Оба генератора: square и odd_only принимают iterable и создают iterables. Получим ли тот же ответ для композиции: `odd_values(square(values))`?
+
+Далее опустим print-команды.
+
+Несложно заменить композидцию генераторов одним:
+```py
+def square_odd(values):
+    for v in values:
+        (yield v**2) if v % 2 == 1 else ...
+
+sq_odd_values = square_odd(values)
+```
+
+#### Generator Expressions
+
+Вложенные generator expressions и нет (по аналогии со списками):
+```py
+sq_odd_values = (v**2 for v in (v for v in values if v % 2 == 1))
+```
+```py
+sq_odd_values = (v**2 for v in values if v % 2 == 1)
+```
+
+#### `map`/`filter`
+
+По аналогии с предыдущими двумя постами, используем lambda:
+```py
+sq_odd_values = map(lambda v: v**2, filter(lambda v: v % 2 == 1, values))
+```
+Или операторы:
+```py
+sq_odd_values = map(partial(pow, exp=2), filter(partial(operator.and_, 1), values))
+```
+
+Code in https://onlinegdb.com/FLDien5qE
