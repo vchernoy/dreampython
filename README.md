@@ -4291,10 +4291,10 @@ def apply_square(nums: list[float]) -> None:
 * Time Complexity: $\mathcal{O}(n)$,
 * where $n$ is the input size
 
-$\mathcal{O}$ (или big-$\mathcal{O}$) -- это форма асимптотической записи.
+$\mathcal{O}$ (или big- $\mathcal{O}$) -- это форма асимптотической записи.
 
 Например, если
-* f(n) = 5∙n + 1000
+* $f(n) = 5 \cdot n + 1000$
 
 Можно записать:
 * $f(n) = \mathcal{O}(n)$
@@ -4314,7 +4314,7 @@ $\mathcal{O}$ (или big-$\mathcal{O}$) -- это форма асимптоти
 
 То есть $g(n)$ растёт примерно как обычная (любая!) константа.
 
-Кроме $\mathcal{O}()$ используют и другие нотации, например: $Omega()$, $Theta()$, $o()$ -- про них как нибудь в другой раз.
+Кроме $\mathcal{O}()$ используют и другие нотации, например: $\mathcal{\Omega}()$, $\mathcal{\Theta}()$, $\mathcal{o}()$ -- про них как нибудь в другой раз.
 
 Что на счёт памяти?
 
@@ -4460,7 +4460,7 @@ def squares_of5(nums: list[float]) -> list[float]:
 * $1000 / n = \mathcal{O}(1)$
 * $\mathcal{O}(n) / n = \mathcal{O}(1)$
 
-#### $\mathcal{O}(N)$
+#### $\mathcal{O}(n)$
 * $\mathcal{O}(n) + \mathcal{O}(n) = \mathcal{O}(n)$
 * $1000 \cdot \mathcal{O}(n) = \mathcal{O}(n)$
 * $\mathcal{O}(1000 \cdot n) = \mathcal{O}(n)$
@@ -4469,13 +4469,13 @@ def squares_of5(nums: list[float]) -> list[float]:
 * $n \cdot \mathcal{O}(1) = \mathcal{O}(n)$
 * $1000 \cdot n + 1000 \cdot \mathcal{O}(n) + 1000 \cdot n \cdot \mathcal{O}(1) = \mathcal{O}(n)$
 
-#### $\mathcal{O}(N^2)$
+#### $\mathcal{O}(n^2)$
 * $100  \cdot  n^2 + 100 \cdot n + 1000 = \mathcal{O}(n^2)$
 * $n \cdot \mathcal{O}(n) + n^2  \cdot \mathcal{O}(1) = \mathcal{O}(n^2)$
 * $\mathcal{O}(n) \cdot \mathcal{O}(n) = \mathcal{O}(n^2)$
 * $1000 \cdot n^2 = \mathcal{O}(n^2)$ 
 
-#### $\mathcal{O}(N^3)$
+#### $\mathcal{O}(n^3)$
 * $n^2 \cdot \mathcal{O}(n) = \mathcal{O}(n^3)$
 * $\mathcal{O}(n) \cdot \mathcal{O}(n) \cdot \mathcal{O}(n) = \mathcal{O}(n^3)$
 * $4\cdot n^3 + 1000 \cdot n^2 + 10^30 = \mathcal{O}(n^3)$
