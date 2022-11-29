@@ -4288,42 +4288,42 @@ def apply_square(nums: list[float]) -> None:
 
 Записывают это так:
 
-* Time Complexity: O(n),
-* where n is the input size
+* Time Complexity: $\mathcal{O}(n)$,
+* where $n$ is the input size
 
-O (или big-O) -- это форма асимптотической записи.
+$\mathcal{O}$ (или big-$\mathcal{O}$) -- это форма асимптотической записи.
 
 Например, если
 * f(n) = 5∙n + 1000
 
 Можно записать:
-* f(n) = O(n)
+* $f(n) = \mathcal{O}(n)$
 
-То есть f(n), с ростом n, растет не быстрее, чем линейно от n.
-* g(n) = 10
+То есть $f(n)$, с ростом $n$, растет не быстрее, чем линейно от $n$.
+* $g(n) = 10$
 
 Можно записать:
-* g(n) = O(n)
+* $g(n) = \mathcal{O}(n)$
 
-Хотя очевидно, что g(n) -- это постоянная функция, и вообще не растёт.
+Хотя очевидно, что $g(n)$ -- это постоянная функция, и вообще не растёт.
 
-То есть O(n) -- это некий верхний предел на скорость роста.
+То есть $\mathcal{O}(n)$ -- это некий верхний предел на скорость роста.
 
 Более точно можно было бы записать:
-* g(n) = O(1)
+* $g(n) = \mathcal{O}(1)$
 
-То есть g(n) растёт примерно как обычная (любая!) константа.
+То есть $g(n)$ растёт примерно как обычная (любая!) константа.
 
-Кроме O() используют и другие нотации, например: Omega(), Theta(), o() -- про них как нибудь в другой раз.
+Кроме $\mathcal{O}()$ используют и другие нотации, например: $Omega()$, $Theta()$, $o()$ -- про них как нибудь в другой раз.
 
 Что на счёт памяти?
 
 Функция (почти) не использует дополнительную память.
 
-Даже если n (размер списка) будет огромным, от этого запросы на дополнительную память (кроме input) у данной функции не вырастут.
+Даже если $n$ (размер списка) будет огромным, от этого запросы на дополнительную память (кроме input) у данной функции не вырастут.
 
 А значит имеем:
-* Space Complexity: O(1)
+* Space Complexity: $\mathcal{O}(1)$
 
 ПРИМЕР 2
 ```py
@@ -4340,17 +4340,17 @@ def squares_of1(nums: list[float]) -> list[float]:
 
 Из-за дополнительной памяти, space complexity пропорционально размеру nums.
 
-* Time Complexity: O(n),
-* Space Complexity: O(n),
-* where n is len(nums)
+* Time Complexity: $\mathcal{O}(n)$,
+* Space Complexity: $\mathcal{O}(n)$,
+* where $n$ is len(nums)
 
-Время работы O(n) поскольку время работы append почти не зависит от длинны списка, куда добавляется новый элемент.
+Время работы $\mathcal{O}(n)$ поскольку время работы append почти не зависит от длинны списка, куда добавляется новый элемент.
 
-Вернее так: иногда append работает очень долго (O(n)), но в большинстве случаев быстро (O(1)).
+Вернее так: иногда append работает очень долго ($\mathcal{O}(n)$), но в большинстве случаев быстро ($\mathcal{O}(1)$).
 
-В среднем, на n операций, получим, что append работает О(1).
+В среднем, на n операций, получим, что append работает $\mathcal{O}(1)$.
 
-Более точная фраза: amortized averaged time is O(1).
+Более точная фраза: amortized averaged time is $\mathcal{O}(1)$.
 
 Можно сказать следующее:
 
@@ -4371,21 +4371,21 @@ def squares_of2(nums: list[float]) -> list[float]:
 
 И это делает значительно замедляет работу цикла, ведь list-concatenation всегда работает пропорционально размеру соединяемых списков.
 
-На каждой итерации список (и время) постепенно растёт до О(n).
+На каждой итерации список (и время) постепенно растёт до $\mathcal{O}(n)$.
 
-Количество итераций n, умножаем на O(n), и получим: О(n^2).
+Количество итераций $n$, умножаем на $\mathcal{O}(n)$, и получим: $\mathcal{O}(n^2)$.
 
-* Time Complexity: O(n^2).
-* Space Complexity: O(n).
+* Time Complexity: $\mathcal{O}(n^2)$.
+* Space Complexity: $\mathcal{O}(n)$.
 * The algorithm runs in polynomial time and space.
 
 Функция требует много памяти, постоянно создаёт всё более длинный список.
 
-То есть суммарный размера запроса по памяти тоже будет O(n^2).
+То есть суммарный размера запроса по памяти тоже будет $\mathcal{O}(n^2)$.
 
 Но поскольку временные списки не используются в будущих итерациях, runtime system будут их удалять.
 
-Поэтому строго говоря, Space Complexity: O(n).
+Поэтому строго говоря, Space Complexity: $\mathcal{O}(n)$.
 
 Заметим, что если вместо:
 ```py
@@ -4409,8 +4409,8 @@ def squares_of3(nums: list[float]) -> list[float]:
     return [num**2 for num in nums]
 ```
 Это принципиально не меняет поведение алгоритма:
-* Time Complexity: O(n)
-* Space Complexity: O(n)
+* Time Complexity: $\mathcal{O}(n)$
+* Space Complexity: $\mathcal{O}(n)$
 
 The algorithm runs in linear time and space.
 
@@ -4429,8 +4429,8 @@ def squares_of4(nums: list[float]) -> list[float]:
 Первый цикл копирует все элементы в новый список.
 
 Второй цикл возводит в квадрат.
-* Time Complexity: O(n) + O(n) = O(n)
-* Space Complexity: O(n)
+* Time Complexity: $\mathcal{O}(n) + \mathcal{O}(n) = \mathcal{O}(n)$
+* Space Complexity: $\mathcal{O}(n)$
 
 Как видим, хоть практически функция изменилась, скорее всего будет менее эффективна, но с точки зрения асимптотики ничего не поменялось.
 
@@ -4445,15 +4445,15 @@ def squares_of5(nums: list[float]) -> list[float]:
 ```
 Тоже вначале копируем список (но без цикла), а потом вызываем функцию apply_square (из примера 1).
 
-Результат тот же, каждая из этих операцию берёт O(n).
+Результат тот же, каждая из этих операцию берёт $\mathcal{O}(n)$.
 
-* Time Complexity: O(n) + O(n) = O(n)
-* Space Complexity: O(n)
+* Time Complexity: $\mathcal{O}(n) + \mathcal{O}(n) = \mathcal{O}(n)$
+* Space Complexity: $\mathcal{O}(n)$
 * The algorithm runs in linear time and space.
 
 ### Немного алгебры
 
-#### $$ \mathcal{O}(1) $$
+#### $\mathcal{O}(1)$
 * $1000 = \mathcal{O}(1)$
 * $1000 \cdot \mathcal{O}(1) = \mathcal{O}(1)$
 * $\mathcal{O}(1) \cdot \mathcal{O}(1) = \mathcal{O}(1)$
