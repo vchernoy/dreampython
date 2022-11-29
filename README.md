@@ -4454,28 +4454,28 @@ def squares_of5(nums: list[float]) -> list[float]:
 #### Немного алгебры
 
 O(1)
-* 1000 = O(1)
-* 1000∙O(1) = O(1)
-* O(1)∙O(1) = O(1)
-* 1000 / n = O(1)
-* O(n) / n = O(1)
+* $1000 = O(1)$
+* $1000 \cdot O(1) = O(1)$
+* $O(1) \cdot O(1) = O(1)$
+* $1000 / n = O(1)$
+* $O(n) / n = O(1)$
 
 O(N)
-* O(n) + O(n) = O(n)
-* 1000∙O(n) = O(n)
-* O(1000∙n) = O(n)
-* O(1)∙O(n) = O(n)
-* O(n) + O(1) = O(n)
-* n∙O(1) = O(n)
-* 1000∙n + 1000∙O(n) + 1000∙n∙O(1) = O(n)
+* $O(n) + O(n) = O(n)$
+* $1000 \cdot O(n) = O(n)$
+* $O(1000 \cdot n) = O(n)$
+* $O(1) \cdot O(n) = O(n)$
+* $O(n) + O(1) = O(n)$
+* $n \cdot O(1) = O(n)$
+* $1000 \cdot n + 1000 \cdot O(n) + 1000 \cdot n \cdot O(1) = O(n)$
 
 O(N^2)
-* 100 ∙ n^2 + 100∙n + 1000 = O(n^2)
-* n∙O(n) + n^2 ∙ O(1) = O(n^2)
-* O(n)∙O(n) = O(n^2)
-* 1000 ∙ n^2 = O(n^2)
+* $100  \cdot  n^2 + 100 \cdot n + 1000 = O(n^2)$
+* $n \cdot O(n) + n^2  \cdot  O(1) = O(n^2)$
+* $O(n) \cdot O(n) = O(n^2)$
+* $1000 \cdot n^2 = O(n^2)$ 
 
 O(N^3)
-* n^2 ∙ O(n) = O(n^3)
-* O(n)∙O(n)∙O(n) = O(n^3)
-* 4∙n^3 + 1000∙n^2 + 10^30 = O(n^3)
+* $n^2 \cdot O(n) = O(n^3)$
+* $O(n) \cdot O(n) \cdot O(n) = O(n^3)$
+* $4\cdot n^3 + 1000 \cdot n^2 + 10^30 = O(n^3)$
