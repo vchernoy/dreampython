@@ -2681,7 +2681,7 @@ Given an array nums of size n, return the majority element.
 
 The majority element is the element that appears more than ⌊n / 2⌋ times.
 ```py
-def majority_еlement(nums: List[int]) -> int:
+def majority_еlement(nums: list[int]) -> int:
     return next(v for v,c in Counter(nums).items() if c > len(nums) // 2, None)
 ```
 https://leetcode.com/problems/majority-element/
@@ -2689,7 +2689,7 @@ https://leetcode.com/problems/majority-element/
 #### 229. Majority Element II
 Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
 ```py
-def majority_elements(nums: List[int]) -> List[int]:
+def majority_elements(nums: list[int]) -> list[int]:
     return [v for v,c in Counter(nums).items() if c > len(nums) // 3]
 ```
 https://leetcode.com/problems/majority-element-ii/
@@ -2697,11 +2697,11 @@ https://leetcode.com/problems/majority-element-ii/
 #### 217. Contains Duplicate
 Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
 ```py
-def contains_dup(nums: List[int]) -> bool:
+def contains_dup(nums: list[int]) -> bool:
     return any(c >= 2 for c in Counter(nums).values())
 ```
 ```py
-def contains_dup(nums: List[int]) -> bool:
+def contains_dup(nums: list[int]) -> bool:
     return max(Counter(nums).values()) >= 2
 ```
 https://leetcode.com/problems/contains-duplicate/
@@ -2709,7 +2709,7 @@ https://leetcode.com/problems/contains-duplicate/
 #### 350. Intersection of Two Arrays II
 Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
 ```py
-def intersect(nums1: List[int], nums2: List[int]) -> List[int]:
+def intersect(nums1: list[int], nums2: list[int]) -> list[int]:
     return (Counter(nums1) & Counter(nums2)).elements()
 ```
 https://leetcode.com/problems/intersection-of-two-arrays-ii/
@@ -3061,8 +3061,8 @@ https://leetcode.com/problems/combination-sum/
 
 К рекурсивной функции (`comb`), можно добавить кэширование вызовов: `@cache`.
 ```py
-def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
-    def comb(k: int, target: int) -> List[List[int]]:
+def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
+    def comb(k: int, target: int) -> list[list[int]]:
         if k == 0:
             if target == 0:
                 return [[]]
@@ -3079,9 +3079,9 @@ def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
 
 Добавлен параметр tail, который собирает текущую комбинацию. Ещё одно отличие: рекурсивная функция добавляет полученную комбинацию в список, а не возвращает её. Ну и интенсивно используется tuple, а не list. Это даёт возможность кэшировать ответы.
 ```py
-def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
+def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
     res = []
-    def comb(k: int, target: int, tail: Tuple[int]):
+    def comb(k: int, target: int, tail: tuple[int]):
         if k == 0:
             if target == 0:
                 res.append(tail)
@@ -3100,9 +3100,9 @@ def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
 
 Тут уж кэширование не будет работать:
 ```py
-def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
+def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
     res = []
-    def comb(k: int, target: int, tail: List[int]):
+    def comb(k: int, target: int, tail: list[int]):
         if k == 0:
             if target == 0:
                 res.append(tail)
@@ -3156,7 +3156,7 @@ def combination_sum(candidates: List[int], target: int) -> List[List[int]]:
 ```py
 from typing import List
 
-def sort_colors0(nums: List[int]) -> None:
+def sort_colors0(nums: list[int]) -> None:
     def partition(beg, end, left):
         i = beg
         j = end
@@ -3182,14 +3182,14 @@ def sort_colors0(nums: List[int]) -> None:
 from collections import Counter
 ```
 ```py
-def sort_colors1(nums: List[int]) -> None:
+def sort_colors1(nums: list[int]) -> None:
     c = Counter(nums)
     for i in range(len(nums)):
         nums[i] = 0 if i < c[0] else 1 if i < c[0] + c[1] else 2
 ```
 Следующее решение похоже на предыдущее, но потенциально может быть несколько более быстрым:
 ```py
-def sort_colors2(nums: List[int]) -> None:
+def sort_colors2(nums: list[int]) -> None:
     c = Counter(nums)
     for i in range(c[0]):
         nums[i] = 0
@@ -3516,7 +3516,7 @@ monthly_payment=$2,120.22
 
 А вот и недостающая функция подсчёта выплат по ссуде:
 ```py
-def payment(balance: Dollar, term: int, rate: float) -> Tuple[Dollar, Dollar]:
+def payment(balance: Dollar, term: int, rate: float) -> tuple[Dollar, Dollar]:
     interest = balance * rate
     principle = interest / ((1 + rate) ** term - 1)
 
