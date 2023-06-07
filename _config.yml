@@ -1,1 +1,3 @@
-theme: jekyll-theme-modernist
+title: Dream on Python
+description: Posts about Python & programming
+theme: jekyll-theme-leap-day
