@@ -1,8 +1,8 @@
 # Dream on Python
 
-### [Strings and String Formatting](strings_and_string_formatting.md)
+### [Strings & String Formatting](strings_and_string_formatting.md)
 
-### [Operations `+` and `*` on Numbers, Strings, Lists, and Tuples](operations_plus_product_on_numbers_strings_lists_tuples.md)
+### [Operations + and * on Numbers, Strings, Lists, and Tuples](operations_plus_product_on_numbers_strings_lists_tuples.md)
 
 ### [Lists & Tuples](lists_and_tuples.md)
 
@@ -10,7 +10,7 @@
 
 ### [Decorators](decorators.md)
 
-### [List, Tuple, and Generator Comprehensions](list_tuple_generator_comprehensions.md)
+### [List & Tuple Comprehension, and Generator Expression](list_tuple_generator_comprehensions.md)
 
 ### [String Internals](string_internals.md)
 
