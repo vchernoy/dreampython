@@ -531,6 +531,9 @@ TStr("hello:hello:hello:hello:hello")
 
         return TStr(tuple(res))
 ```
+
+[code snippet](https://github.com/vchernoy/dreampython/blob/f310f4678e5bbacb72541d19a9104835a268210c/string_internals/tstr.py#LL54C1-L63C1)
+
 Тут у нас проблема, поскольку `__init__` ожидает строку, а не tuple. 
 Исправляем `__init__`:
 
