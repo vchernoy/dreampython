@@ -1,6 +1,6 @@
-## Project: Mortgage Calculator
+# Project: Mortgage Calculator
 
-### Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
+## Mortgage Calculator: namedtuple, custom types, operator overloading (May 16)
 
 Возьмём учебный пример: подсчет процентов и выплат по fixed-rate mortgage. Допустим цена дома $500,000, начальный взнос: 20%. Это можно выразить следующим кодом на Python:
 ```py
@@ -62,7 +62,7 @@ monthly_payment=$2,120.22
 ```
 Опять магия: цены форматируются корректно!
 
-#### Функция `payment()`
+### Функция `payment()`
 
 А вот и недостающая функция подсчёта выплат по ссуде:
 ```py
@@ -83,7 +83,7 @@ principle = $20,000 / (1.05^30 - 1) = $6,020
 В терминах целых годов, ответ будет не совсем верный. Более правильным будет сделать пересчёт по месяцам. Именно поэтому вы вызываем эту функцию как payment($400,000, 12*30, 0.407%).
 Заметим, что функция имеет аннотацию к типам и для balance указан тип Dollar, который мы пока нигде не определили.
 
-#### Тип `Dollar`
+### Тип `Dollar`
 
 Dollar ⏤ это класс, который наследует все поля и свойства другого типа collections.namedtuple. Можно и без наследования обойтись, но namedtuple является очень полезным типом, с которым следует познакомиться.
 
@@ -145,7 +145,7 @@ Code: https://onlinegdb.com/EySDwsUIo
 
 ---
 
-### Backend на FastAPI: mortgage calculator (May 23)
+## Backend на FastAPI: mortgage calculator (May 23)
 
 В папке `webapptest` создадим проект. Там сохраним:
 * файл `main.py` и
@@ -160,7 +160,7 @@ venv/bin/pip install "fastapi[all]" "uvicorn[standard]"
 venv/bin/pip list
 ```
 
-#### `main.py` и запуск WEB-сервиса:
+### `main.py` и запуск WEB-сервиса:
 
 Создаём backend и регистрируем API. Декораторы помним?
 ```py
@@ -199,7 +199,7 @@ http://127.0.0.1:8000/
 ```
 Мы только что запустили минимальный WEB service (backend)!
 
-#### Loan Calculator
+### Loan Calculator
 
 Уже знакомы с именованными кортежами? Объекты LoanPayments будут содержать информацию о выплатах за определённый срок. Например, за один месяц, год, весь период и т.д.:
 ```py
@@ -296,7 +296,7 @@ http://127.0.0.1:8000/amortization_loan/?balance=100000&months_left=360&annual_r
 
 Следующий шаг можно пропустить:
 
-#### Форматирование JSON
+### Форматирование JSON
 
 JSON можно красиво отформатрировать с помощью вызова модуля: python3 -m json.tool. Запускаем в терминале следующую команду:
 ```sh
@@ -340,7 +340,7 @@ Output:
 * за все 30 лет: $190,819;
 * за 10 лет: $63,606.
 
-#### Interactive API docs
+### Interactive API docs
 
 FastAPI также генерирует точку вызова для интерактивного API. Пока бежит ваш сервис, наберите в браузере следующий URL:
 

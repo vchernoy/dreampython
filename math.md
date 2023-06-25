@@ -1,6 +1,6 @@
-## Math
+# Math
 
-### Основы Time/Space Complexity
+## Основы Time/Space Complexity
 
 ПРИМЕР 1
 
@@ -189,16 +189,16 @@ def squares_of5(nums: list[float]) -> list[float]:
 * Space Complexity: $\mathcal{O}(n)$
 * The algorithm runs in linear time and space.
 
-### Немного алгебры
+## Немного алгебры
 
-#### $\mathcal{O}(1)$
+### $\mathcal{O}(1)$
 * $1000 = \mathcal{O}(1)$
 * $1000 \cdot \mathcal{O}(1) = \mathcal{O}(1)$
 * $\mathcal{O}(1) \cdot \mathcal{O}(1) = \mathcal{O}(1)$
 * $1000 / n = \mathcal{O}(1)$
 * $\mathcal{O}(n) / n = \mathcal{O}(1)$
 
-#### $\mathcal{O}(n)$
+### $\mathcal{O}(n)$
 * $\mathcal{O}(n) + \mathcal{O}(n) = \mathcal{O}(n)$
 * $1000 \cdot \mathcal{O}(n) = \mathcal{O}(n)$
 * $\mathcal{O}(1000 \cdot n) = \mathcal{O}(n)$
@@ -207,13 +207,13 @@ def squares_of5(nums: list[float]) -> list[float]:
 * $n \cdot \mathcal{O}(1) = \mathcal{O}(n)$
 * $1000 \cdot n + 1000 \cdot \mathcal{O}(n) + 1000 \cdot n \cdot \mathcal{O}(1) = \mathcal{O}(n)$
 
-#### $\mathcal{O}(n^2)$
+### $\mathcal{O}(n^2)$
 * $100  \cdot  n^2 + 100 \cdot n + 1000 = \mathcal{O}(n^2)$
 * $n \cdot \mathcal{O}(n) + n^2  \cdot \mathcal{O}(1) = \mathcal{O}(n^2)$
 * $\mathcal{O}(n) \cdot \mathcal{O}(n) = \mathcal{O}(n^2)$
 * $1000 \cdot n^2 = \mathcal{O}(n^2)$ 
 
-#### $\mathcal{O}(n^3)$
+### $\mathcal{O}(n^3)$
 * $n^2 \cdot \mathcal{O}(n) = \mathcal{O}(n^3)$
 * $\mathcal{O}(n) \cdot \mathcal{O}(n) \cdot \mathcal{O}(n) = \mathcal{O}(n^3)$
 * $4\cdot n^3 + 1000 \cdot n^2 + 10^30 = \mathcal{O}(n^3)$

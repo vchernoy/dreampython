@@ -1,6 +1,6 @@
-## List, Tuple, and Generator Comprehensions
+# List, Tuple, and Generator Comprehensions
 
-### map/starmap vs. list/generator comprehension & zip (June 2)
+## map/starmap vs. list/generator comprehension & zip (June 2)
 
 Начинаем с импорта:
 ```py
@@ -33,7 +33,7 @@ print(square_values)
 ```
 Вместо `v**2` можно использовать `pow(v, 2)` или `v*v`.
 
-#### Generators
+### Generators
 
 Заменив квадратные скобки `[v**2 for ...]` на круглые (v**2 for ...), получим generator expression.
 Чтобы посчитать квадраты чисел, нужно заставить генератор работать, например, конвертируя его в список:
@@ -52,7 +52,7 @@ print(list(square_values))
 ```
 Далее, будем подразумевать вызов функции print после каждого вычисления square_values.
 
-#### `map(func, iterable)`
+### `map(func, iterable)`
 
 map в каком-то смысле является аналогом generator comprehension.
 
@@ -69,7 +69,7 @@ square_values = map(lambda v: v**2, values)
 square_values = map(partial(pow, exp=2), values)
 ```
 
-#### `map(func, iterable1, iterable2, ...)`
+### `map(func, iterable1, iterable2, ...)`
 
 map может работать сразу с несколькими iterables. В этом случае map применяет функцию к значениям из всех последовательностей, а значит функция должна работать с несколькими аргументами. Вот два примера:
 ```py
@@ -80,7 +80,7 @@ square_values = map(operator.pow, values, repeat(2))
 ```
 Попробуем проявить креативность и накидать ещё однострочных решений. Все они должны произвести тот же самый список квадратов оригинальных чисел.
 
-#### Generator + `zip(iterable1, iterable2, ...)`
+### Generator + `zip(iterable1, iterable2, ...)`
 
 Возвращаемся к generator expression, но добавляем zip.
 
@@ -98,7 +98,7 @@ square_values = (operator.mul(*v) for v in zip(values, values))
 square_values = (operator.pow(*v) for v in zip(values, repeat(2)))
 ```
 
-### `starmap(func, iterable of tuples)` + `zip`
+## `starmap(func, iterable of tuples)` + `zip`
 
 starmap ⏤ это аналог map, но умеет распаковывать кортежи (tuples) автоматически:
 ```py
@@ -107,7 +107,7 @@ square_values = starmap(operator.mul, zip(values, values))
 ```py
 square_values = starmap(operator.pow, zip(values, repeat(2)))
 ```
-#### Что тут происходит?
+### Что тут происходит?
 
 Ну и два самых странных решения:
 
@@ -123,7 +123,7 @@ Code: https://onlinegdb.com/N6qx5p-Da
 
 ---
 
-### `filter` vs. list/generator comprehension (June 3))
+## `filter` vs. list/generator comprehension (June 3))
 
 Начинаем с импорта:
 
@@ -168,7 +168,7 @@ print(odd_values)
 ```
 Интересный момент, команда ... является аналогом pass, но последняя, в данном случае, не работает. Есть идеи почему?
 
-#### Generator
+### Generator
 
 Следующий способ решить задачу: создать generator. Это можно сделать легко: определяем функцию, и вместо append + return, используем yield:
 ```py
@@ -194,7 +194,7 @@ print(list(odd_values))
 Заметили, что yield v взят в скобки? Почему?
 Далее уже не будем повторять `print(list(odd_values))`.
 
-#### Generator Expression
+### Generator Expression
 
 Generator expressions очень похожи на list comprehension:
 ```py
@@ -217,7 +217,7 @@ odd_values = (v for v in values if v & 1)
 Если заменить круглые скобки (v for v ...) на квадратные [v for v ...], получим list comprehension.
 Помним разницу между lazy evaluation и eager evaluation?
 
-#### filter(func, iterable)
+### filter(func, iterable)
 
 `filter` является аналогом generator comprehension:
 * `filter(func, iterable)` примерно равен:
@@ -237,7 +237,7 @@ odd_values = filter(lambda x: x % 2, values)
 odd_values = filter(lambda x: x & 1, values)
 ```
 
-#### filter и функция одного аргумента
+### filter и функция одного аргумента
 
 Иногда функция для фильтра уже доступна, то есть можно сэкономить на `lambda`'s.
 У каждого целого (int) есть методы `__rmod__` и `__and__`. Используем их:
@@ -252,7 +252,7 @@ odd_values = filter(int(1).__and__, values)
 * `lambda x: x % 2`, а второй аналогичен:
 * `lambda x: 1^x`.
 
-#### filter+partial
+### filter+partial
 
 Воспользуемся двоичными операторами, у которых, с помощью partial, зафиксируем первый аргумент:
 ```py
@@ -269,7 +269,7 @@ Code: https://onlinegdb.com/HZDjuLk45
 
 ---
 
-### `map`+`filter` vs. list/generator comprehension
+## `map`+`filter` vs. list/generator comprehension
 
 Комбинируем два предыдущих поста. Теперь наша цель ⏤ найти в списке values все нечётные числа и поместить их квадраты в sq_odd_values. Начнём с простого решения:
 ```py
@@ -308,7 +308,7 @@ sq_odd_values = [v**2 for v in values if v % 2 == 1]
 print(sq_odd_values)
 ```
 
-#### Generators
+### Generators
 
 Помним, что в дух предыдущих постах мы вводили два генератора? Используем их композицию:
 ```py
@@ -336,7 +336,7 @@ def square_odd(values):
 sq_odd_values = square_odd(values)
 ```
 
-#### Generator Expressions
+### Generator Expressions
 
 Вложенные generator expressions и нет (по аналогии со списками):
 ```py
@@ -346,7 +346,7 @@ sq_odd_values = (v**2 for v in (v for v in values if v % 2 == 1))
 sq_odd_values = (v**2 for v in values if v % 2 == 1)
 ```
 
-#### `map`/`filter`
+### `map`/`filter`
 
 По аналогии с предыдущими двумя постами, используем lambda:
 ```py
@@ -362,7 +362,7 @@ Code in https://onlinegdb.com/FLDien5qE
 ---
 
 
-### Пять способов создать slices in Python (May 20)
+## Пять способов создать slices in Python (May 20)
 
 Возьмём для примера список, например из 6 слов (words). 
 Нужно получить подсписок, например: все слова кроме первого. 
@@ -370,7 +370,7 @@ Code in https://onlinegdb.com/FLDien5qE
 Или все слова с индексами между 2 и 4. 
 Этого можно добиться разными способами.
 
-#### 1. words[beg:end:step]
+### 1. words[beg:end:step]
 
 Создаём подсписок через words[beg:end:step]. step может быть отрицательным, тогда получим обратный порядок. Этот способ создаёт совершенно новый список, копируя все элементы. Поэтому изменение words никак не влияет на созданный список.
 ```py
@@ -385,7 +385,7 @@ Output:
 words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
 tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
 ```
-#### 2. list comprehension + range(beg, end, step)
+### 2. list comprehension + range(beg, end, step)
 
 То же самое можно добиться и при помощи list comprehension.
 ```py
@@ -400,7 +400,7 @@ Output:
 words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
 tail=['statement', 'considered', 'harmful', 'by', 'Wirth']
 ```
-#### 3. generator comprehension + range
+### 3. generator comprehension + range
 
 А это уже generator comprehension (используются круглые скобки). Фактически реальный подсписок создаётся только в последней строчке при конвертации генератора в список. В отличие от предыдущих примеров, изменения в words отобразятся и в tail!
 ```py
@@ -416,7 +416,7 @@ words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
 list(tail)=['statement', 'considered', 'harmful', 'by', 'WIRTH']
 ```
 
-#### 4. slice & words[slice(beg, end, step)]
+### 4. slice & words[slice(beg, end, step)]
 
 Несколько похожий пример с использованием стандартной функции slice(). Эта функция очень похожа на range(), но slice не создаёт последовательность значений (не является iterable), а просто описывает индексы подсписка. Получаем shadow slice (как в предыдущем примере), но в момент вызова words[sliced] ⏤ создаётся список.
 ```py
@@ -434,7 +434,7 @@ sliced=slice(1, 6, None)
 words=['GoTo', 'statement', 'considered', 'harmful', 'by', 'WIRTH']
 tail=['statement', 'considered', 'harmful', 'by', 'WIRTH']
 ```
-#### 5. itertools.islice(words, beg, end, step)
+### 5. itertools.islice(words, beg, end, step)
 
 В последнем примере itertools.islice() возвращает итератор. Тоже вариант shadow slice. Изменения в оригинальном списке повлияют и на значения выдаваемые итератором.
 ```py

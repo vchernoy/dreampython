@@ -1,6 +1,6 @@
-## Solving Coding Problems
+# Solving Coding Problems
 
-### Фильтруем список списков (May 25)
+## Фильтруем список списков (May 25)
 
 Допустим дан список списков. Наша цель оставить только уникальные списки. Причём под уникальностью двух списков понимаем, что они состоят из одних и тех же элементов (порядок не важен).
 
@@ -100,7 +100,7 @@ Code: https://onlinegdb.com/o_MRBjNxP
 ---
 
 
-### Ставим рейтинг списку слов (June 5)
+## Ставим рейтинг списку слов (June 5)
 
 Дан список слов, требуется узнать на каком месте будет положение каждого слова после сортировки списка (игнорируем регистр букв).
 
@@ -139,7 +139,7 @@ print(ranked_words)
 
 Вроде несложно. Можно сократить количество строк, используя разные list/dict comprehension. А в качестве упражнения, попробуем вместить весь код в одну строчку (это для тех, кто дотянет до конца!).
 
-#### Applying List & Dict Comprehension vs. Map
+### Applying List & Dict Comprehension vs. Map
 
 Список indexes, а также словарь ranks и список ranked_words можно сконструировать каждый в одну строчку:
 ```py
@@ -184,7 +184,7 @@ ranks = dict(map(reversed, enumerate(sorted(range(len(words)), key=lambda i: wor
 ranked_words = list(zip(words, map(ranks.get, range(len(words)))))
 ```
 
-#### Альтернативное решение: ещё один `sort`
+### Альтернативное решение: ещё один `sort`
 
 Но можно пойти несколько другим путём. Вот альтернативное решение:
 ```py
@@ -215,7 +215,7 @@ Code in https://onlinegdb.com/eMH7atQTP
 ---
 
 
-### Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
+## Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
 
 Problem: Given a nested dictionary, in which each value is either a word or another dictionary (of the same type).
 
@@ -356,9 +356,9 @@ https://onlinegdb.com/ohW2_B63i
 ---
 
 
-### LeetCode/Easy: Пять задач с решением в одну строчку (June 24)
+## LeetCode/Easy: Пять задач с решением в одну строчку (June 24)
 
-#### 242. Valid Anagram
+### 242. Valid Anagram
 Given two strings s and t, return true if t is an anagram of s, and false otherwise.
 
 An Anagram is a word formed by rearranging the letters of a different word, using all the original letters exactly once.
@@ -368,7 +368,7 @@ def is_аnagram(s: str, t: str) -> bool:
 ```
 https://leetcode.com/problems/valid-anagram/
 
-#### 169. Majority Element
+### 169. Majority Element
 Given an array nums of size n, return the majority element.
 
 The majority element is the element that appears more than ⌊n / 2⌋ times.
@@ -378,7 +378,7 @@ def majority_еlement(nums: list[int]) -> int:
 ```
 https://leetcode.com/problems/majority-element/
 
-#### 229. Majority Element II
+### 229. Majority Element II
 Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
 ```py
 def majority_elements(nums: list[int]) -> list[int]:
@@ -386,7 +386,7 @@ def majority_elements(nums: list[int]) -> list[int]:
 ```
 https://leetcode.com/problems/majority-element-ii/
 
-#### 217. Contains Duplicate
+### 217. Contains Duplicate
 Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
 ```py
 def contains_dup(nums: list[int]) -> bool:
@@ -398,7 +398,7 @@ def contains_dup(nums: list[int]) -> bool:
 ```
 https://leetcode.com/problems/contains-duplicate/
 
-#### 350. Intersection of Two Arrays II
+### 350. Intersection of Two Arrays II
 Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
 ```py
 def intersect(nums1: list[int], nums2: list[int]) -> list[int]:
@@ -409,11 +409,11 @@ https://leetcode.com/problems/intersection-of-two-arrays-ii/
 ---
 
 
-### Пять простых задач на структуры данных и рекурсию (Aug 19)
+## Пять простых задач на структуры данных и рекурсию (Aug 19)
 
 Параллельно будем использовать новый оператор match-case и сравним его с коротким if-else.
 
-#### 1. Merge Two Sorted Lists
+### 1. Merge Two Sorted Lists
 
 Given the heads of two sorted linked lists. Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
 
@@ -456,7 +456,7 @@ def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
 * Перепишите функцию с использованием обычного оператора if-elif-else.
 * Решите задачу без рекурсии (используя цикл, будет длиннее).
 
-#### 2. Maximum Depth of Binary Tree
+### 2. Maximum Depth of Binary Tree
 
 Given the root of a binary tree, return its maximum depth, which is the number of nodes along the longest path from the root node down to the farthest leaf node.
 
@@ -493,7 +493,7 @@ def depth(r: TreeNode|None) -> int:
 * Последний блок case замените на case _.
 * Замените короткий if-else оператором if-elif-else.
 
-#### 3. Same Tree
+### 3. Same Tree
 
 Given two binary trees, check if they are the same or not. Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
 
@@ -529,7 +529,7 @@ def same(p: TreeNode|None, q: TreeNode|None) -> bool:
 * В первой функции, объедините второй и третий блоки case.
 * Замените короткий if-else оператором if-elif-else.
 
-#### 4. Symmetric Tree
+### 4. Symmetric Tree
 
 Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
 
@@ -563,7 +563,7 @@ def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
 * Объедините первые три блока case в один.
 * Замените короткий if-else оператором if-elif-else.
 
-#### 5. Path Sum
+### 5. Path Sum
 
 Given a binary tree and an integer target, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals target. A leaf is a node with no children.
 
@@ -599,7 +599,7 @@ def has_path(r: TreeNode|None, target: int) -> bool:
 ---
 
 
-### LeetCode Problem #9: Palindrome Number (May 17)
+## LeetCode Problem #9: Palindrome Number (May 17)
 
 > Given an integer x, return True if x is a palindrome integer.
 >
@@ -690,7 +690,7 @@ Code: https://onlinegdb.com/ghcfGOncm
 ---
 
 
-### LeetCode/Medium #39: Combination Sum (May 25)
+## LeetCode/Medium #39: Combination Sum (May 25)
 
 Дан массив различных целых чисел (candidates) и целевое целое число (target).
 
@@ -815,7 +815,7 @@ def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
 ---
 
 
-### LeetCode/Medium #75: Sort Colors (May 25)
+## LeetCode/Medium #75: Sort Colors (May 25)
 
 > Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
 > 
@@ -897,7 +897,7 @@ Code to play: https://onlinegdb.com/P2hNkRMdH
 ---
 
 
-### Pig It — в одну строчку (Oct 25)
+## Pig It — в одну строчку (Oct 25)
 
 > Problem: Write a function `pig_it` that on the given text, 
 > moves the first letter of each word to the end of it, 
@@ -922,7 +922,7 @@ Code to play: https://onlinegdb.com/P2hNkRMdH
 * В качестве знаков пунктуации допустимы только символы: `','`, `'.'`, `'!'`, `'?'`, `':'`, `';'`.
 * Встречаются только одиночные знаки пунктуации (например, запрещён: `???` или `!?`).
 
-#### Реализуем алгоритм по шагам:
+### Реализуем алгоритм по шагам:
 
 Step 1: Как проверить, что данное слово, `w`, состоит только из знака пунктуации?
 Можно это сделать следующими способами (результат проверки запоминаем в переменной):
@@ -1030,7 +1030,7 @@ def pig_it(text):
 
 Получили желаемое решение. Теперь следует проверить корректность функции и покрыть её тестами (смотрите ниже). Тесты помогут не сломать решение во время оптимизации кода.
 
-#### Refactoring
+### Refactoring
 
 Сократим код, избавляясь от всех переменных, которые используются только в одном месте:
 
@@ -1110,7 +1110,7 @@ pig_it = lambda text: ' '.join(w if w in punctuation_marks else w[1:] + w[0] + s
 Заметим, что запоминая lambda в переменной, фактически, даём ей имя. 
 Большого смысла в этом нет, но такой код тоже можно встретить.
 
-#### Testing
+### Testing
 
 Группу тестов определяем в одной таблице. 
 Для каждого теста указываем входное значение и ожидаемый результат:
@@ -1139,9 +1139,9 @@ test()
 Code: https://onlinegdb.com/PtHfV39vU
 
 
-### LeetCode/Medium: Five Problems: Sort vs. Heap
+## LeetCode/Medium: Five Problems: Sort vs. Heap
 
-#### 215. k-th largest element in an array
+### 215. k-th largest element in an array
 
 https://leetcode.com/problems/kth-largest-element-in-an-array/
 
@@ -1243,7 +1243,7 @@ def find_klargest(nums: list[int], k: int) -> int:
 * Time Complexity: O(k log n)
 * Space Complexity: O(k)
 
-#### 347. Top k frequent elements
+### 347. Top k frequent elements
 
 https://leetcode.com/problems/top-k-frequent-elements/
 
@@ -1315,7 +1315,7 @@ def top_kfrequent(nums: list[int], k: int) -> list[int]:
 * Time Complexity: O(n log k)
 * Space Complexity: O(n)
 
-#### 1985. Find the k-th largest integer in the array
+### 1985. Find the k-th largest integer in the array
 
 https://leetcode.com/problems/find-the-kth-largest-integer-in-the-array/
 
@@ -1392,7 +1392,7 @@ def klargest_num(nums: list[str], k: int) -> str:
 * Time Complexity: O(n log k)
 * Space Complexity: O(k)
 
-#### 973. K closest points to origin
+### 973. K closest points to origin
 
 https://leetcode.com/problems/k-closest-points-to-origin/
 
@@ -1459,7 +1459,7 @@ def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
 * Time Complexity: O(n log k)
 * Space Complexity: O(k)
 
-#### 692. Top k frequent words
+### 692. Top k frequent words
 
 https://leetcode.com/problems/top-k-frequent-words/description/
 

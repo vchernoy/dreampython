@@ -1,6 +1,6 @@
-## Operations `+` and `*` on Numbers, Strings, Lists, and Tuples
+# Operations `+` and `*` on Numbers, Strings, Lists, and Tuples
 
-### Операция `+` в Python (May 5)
+## Операция `+` в Python (May 5)
 
 В Python применять операцию `+` можно не только к числам, но и к строкам, спискам, и даже кортежам. Примеры:
 ```py
@@ -74,7 +74,7 @@ Code to play with: https://onlinegdb.com/9Ej3RmaOu
 ---
 
 
-### Операция * в Python (May 11)
+## Операция * в Python (May 11)
 
 В Python умножать на число можно не только числа, но и строки, списки и кортежи. Умножение чего-либо на 4 означает сложить "это самое" четыре раза. Примеры:
 ```py

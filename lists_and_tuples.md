@@ -1,6 +1,6 @@
-## Lists & Tuples
+# Lists & Tuples
 
-### Unpacking in Python (May 9)
+## Unpacking in Python (May 9)
 
 Допустим где-то определён список (list).
 ```py
@@ -55,7 +55,7 @@ Code: https://onlinegdb.com/NvuGy8Oo8
 ---
 
 
-### Инициализируем многомерные массивы (lists) в Python правильно! (May 12)
+## Инициализируем многомерные массивы (lists) в Python правильно! (May 12)
 
 Заполняем двухмерные массивы (3х2), нулями, True и последовательными числами:
 ```py
@@ -113,9 +113,9 @@ Code: https://onlinegdb.com/bBCb2LO_u
 
 ---
 
-### Operator `star` for lists and tuples:
+## Operator `star` for lists and tuples:
 
-#### List repetition:
+### List repetition:
 ```py
 values = [2, 5, 13]
 repeated_values = values * 2
@@ -125,7 +125,7 @@ Output:
 ```
 [2, 5, 13, 2, 5, 13]
 ```
-#### Partial unpacking:
+### Partial unpacking:
 ```py
 x, y, z = values
 print(x, y, z)
@@ -138,7 +138,7 @@ Output:
 2 5 13
 2 [5, 13]
 ```
-#### Arguments unpacking:
+### Arguments unpacking:
 ```py
 print(values)
 print(*values)
@@ -148,7 +148,7 @@ Output:
 [2, 5, 13]
 2 5 13
 ```
-#### Yet another argument unpacking:
+### Yet another argument unpacking:
 ```py
 def impress(a, b, c):
     print(a, b, c)
@@ -159,7 +159,7 @@ Output:
 ```
 2 5 13
 ```
-#### Functions with arbitrary number of positional argument:
+### Functions with arbitrary number of positional argument:
 ```py
 def impress_any(*args):
     print(args)
@@ -177,9 +177,9 @@ https://onlinegdb.com/-8B_D1JMB
 ---
 
 
-### The Art of Print (May 15)
+## The Art of Print (May 15)
 
-#### Print string and list of its letters:
+### Print string and list of its letters:
 ```py
 s = 'hello world'
 print(s)
@@ -192,7 +192,7 @@ hello world
 ['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']
 h e l l o   w o r l d
 ```
-#### Print list with sep:
+### Print list with sep:
 ```py
 print(*list(s), sep='')
 print(*list(s), sep=',')
@@ -204,7 +204,7 @@ hello world
 h,e,l,l,o, ,w,o,r,l,d
 h e l l o   w o r l d
 ```
-#### Apply str.join to list:
+### Apply str.join to list:
 ```py
 print(''.join(list(s)))
 print(','.join(list(s)))
@@ -216,7 +216,7 @@ hello world
 h,e,l,l,o, ,w,o,r,l,d
 h e l l o   w o r l d
 ```
-#### Apply str.join to str:
+### Apply str.join to str:
 ```py
 print(''.join(s))
 print(','.join(s))
@@ -228,7 +228,7 @@ hello world
 h,e,l,l,o, ,w,o,r,l,d
 h e l l o   w o r l d
 ```
-#### Print f-strings:
+### Print f-strings:
 ```py
 print(f'{s=}')
 print(f'{list(s)=}')
