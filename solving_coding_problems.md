@@ -1137,3 +1137,419 @@ test()
 Функция `test` запускает `pig_it` для каждого теста и сверяет полученный результат с ожидаемым значением.
 
 Code: https://onlinegdb.com/PtHfV39vU
+
+
+### LeetCode/Medium: Five Problems: Sort vs. Heap
+
+#### 215. k-th largest element in an array
+
+https://leetcode.com/problems/kth-largest-element-in-an-array/
+
+Given an integer array nums and an integer k, return the k-th largest element in the array. 
+Note that it is the k-th largest element in the sorted order, not the kth distinct element.
+
+```
+Input: nums = [3,2,1,5,6,4], k = 2
+Output: 5
+```
+
+```py
+import heapq
+from collections import Counter
+```
+В задаче требуется найти k наибольших элемента в списке. Каждому решению даём имя. В последующих задачах будем применять похожие подходы, а имена помогут сориентироваться между разными методами:
+
+**Sorting**
+
+Сортируем список и берём последние k элемента:
+
+```py
+def find_klargest(nums: list[int], k: int) -> int:
+    return sorted(nums)[-k]
+```
+
+* Time Complexity: O(n log n)
+* Space Complexity: O(n)
+
+**Heap + nlargest**
+
+Структура данных Heap (куча) используется в задачах, где требуется PriorityQueue или для частичной сортировки данных. 
+В Python, MinHeap находится в библиотеке `heapq`. 
+
+Там же есть функция `nlargest`, которая может найти `k` самых больших элемента в iterable быстрее, 
+чем стандартная сортировка, при условии, если `k` значительно меньше, чем количество элементом в списке.
+
+```py
+def find_klargest(nums: list[int], k: int) -> int:
+    return heapq.nlargest(k, nums)[-1]
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**CountingSort**
+
+По условию задачи, диапазон значений каждого числа значительно меньше, чем количество чисел в списке. 
+Значит, можно ускорить сортировку: используем метод подсчёта.
+
+```py
+def find_klargest(nums: list[int], k: int) -> int:
+    count = Counter(nums)
+    for num in sorted(count.keys(), reverse=True):
+        if count[num] >= k:
+            return num
+        k -= count[num]
+```
+
+* Time Complexity: O(n)
+* Space Complexity: O(n)
+
+**MaxHeap + heapify**
+
+Можно использовать Heap напрямую. Нам нужен MaxHeap, но в `heapq` есть только MinHeap. 
+У каждого числа в списке, меняем знак на противоположенный -- этот трюк позволяет работать с MinHeap как с MaxHeap. 
+
+Функция `heapify` создаёт MinHeap, то есть частично сортирует данные. 
+Под индексом 0 получим самый маленький элемент, что по сути будет являться самым большим в оригинальном списке (если поменять знак на противоположенный).
+
+```py
+def find_klargest(nums: list[int], k: int) -> int:
+    ordered = [-num for num in nums]
+    heapq.heapify(ordered)
+    for _ in range(k-1):
+        heapq.heappop(ordered)
+    return -ordered[0]
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**k-MinHeap**
+
+На этот раз используем MinHeap, в котором ограничиваем размер до `k`. 
+Добавляем по очереди элементы в кучу, если после добавления, размер кучи превышает `k`, удаляем минимальный элемент. 
+В конце куча будет содержать `k` самых больших числа.
+
+```py
+def find_klargest(nums: list[int], k: int) -> int:
+    ordered = []
+    for num in nums:
+        heapq.heappush(ordered, num)
+        if len(ordered) > k:
+            heapq.heappop(ordered)
+    return ordered[0]
+```
+ 
+* Time Complexity: O(k log n)
+* Space Complexity: O(k)
+
+#### 347. Top k frequent elements
+
+https://leetcode.com/problems/top-k-frequent-elements/
+
+Given an integer array nums and an integer k, return the k most frequent elements. 
+You may return the answer in any order.
+
+```
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+```
+
+Требуется вернуть k наиболее часто встречающихся элемента.
+
+**Sorting**
+
+Методу `sorted` можно передать ключ сортировки. 
+То есть вместо того, чтобы сравнивать `x` и `y`, функция `sorted` сравнит `count[x]` и `count[y]`:
+
+```py
+def top_kfrequent(nums: list[int], k: int) -> list[int]:
+    count = Counter(nums)
+    ordered = sorted(count.keys(), key=count.get)
+    return ordered[-k:]
+```
+
+* Time Complexity: O(n log n)
+* Space Complexity: O(n)
+
+**Heap + nlargest**
+
+```py
+def top_kfrequent(nums: list[int], k: int) -> list[int]:
+    count = Counter(nums)
+    return heapq.nlargest(k, count.keys(), key=count.get)
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**MaxHeap + heapify**
+
+У функции heapify нет параметра `key`. Чтобы заставить сортировать числа по их частоте (повторению), создаём MinHeap из пар `(-c, num)`. 
+В результате heapify выполнит сортировку по `-c`.
+
+```py
+def top_kfrequent(nums: list[int], k: int) -> list[int]:
+    count = Counter(nums)
+    ordered = [(-c, num) for num, c in count.items()]
+    heapq.heapify(ordered)
+    return [heapq.heappop(ordered)[1] for _ in range(k)]
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**k-MinHeap**
+
+```py
+def top_kfrequent(nums: list[int], k: int) -> list[int]:
+    count = Counter(nums)
+    ordered = []
+    for num, c in count.items():
+        heapq.heappush(ordered, (c, num))
+        if len(ordered) > k:
+            heapq.heappop(ordered)
+    return [num for _, num in ordered]
+```
+
+* Time Complexity: O(n log k)
+* Space Complexity: O(n)
+
+#### 1985. Find the k-th largest integer in the array
+
+https://leetcode.com/problems/find-the-kth-largest-integer-in-the-array/
+
+You are given an array of strings nums and an integer `k`. 
+Each string in nums represents an integer without leading zeros.
+
+Return the string that represents the k-th largest integer in nums.
+
+Duplicate numbers should be counted distinctly. 
+For example, if nums is `['1', '2', '2']`, 
+* `'2'` is the first largest integer, 
+* `'2'` is the second-largest integer, and 
+* `'1'` is the third-largest integer.
+
+```
+Input: nums = ['3', '6', '7', '10'], k = 4
+Output: '3'
+```
+
+Explanation: The numbers in nums sorted in non-decreasing order are `['3', '6', '7', '10']`. 
+The 4th largest integer in nums is `'3'`.
+
+Требуется найти k-самое большое число, представленное в виде строки.
+
+**Sorting**
+
+Установим параметр `key=int`, что заставит sorted сортировать строки согласно их числовым представлениям (иначе данные будут отсортированы лексикографически, как в словариках).
+
+```py
+def klargest_num(nums: list[str], k: int) -> str:
+    return sorted(nums, key=int)[-k]
+```
+
+* Time Complexity: O(n log n)
+* Space Complexity: O(n)
+
+**Heap + nlargest**
+
+```py
+def klargest_num(nums: list[str], k: int) -> str:
+    return heapq.nlargest(k, nums, key=int)[-1]
+```
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**MaxHeap + heapify**
+
+Опять создаём кучу из пар `(-int(w), w)`, что фактически создаёт MaxHeap сортирующую строки w согласно их числовым представлениям:
+
+```py
+def klargest_num(nums: list[str], k: int) -> str:
+    ordered = [(-int(w), w) for w in nums]
+    heapq.heapify(ordered)
+    for _ in range(k-1):
+        heapq.heappop(ordered)
+    return ordered[0][1]
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**k-MaxHeap**
+
+```py
+def klargest_num(nums: list[str], k: int) -> str:
+    ordered = []
+    for w in nums:
+        heapq.heappush(ordered, (int(w), w))
+        if len(ordered) > k:
+            heapq.heappop(ordered)
+    return ordered[0][1]
+```
+
+* Time Complexity: O(n log k)
+* Space Complexity: O(k)
+
+#### 973. K closest points to origin
+
+https://leetcode.com/problems/k-closest-points-to-origin/
+
+Given an array of points where `points[i] = [xi, yi]` represents a point on the X-Y plane and an integer `k`, 
+return the `k` closest points to the origin `(0, 0)`.
+
+The distance between two points on the X-Y plane is the Euclidean distance (i.e., `√[(x1 - x2)^2 + (y1 - y2)^2]`).
+
+```
+Input: points = [[1,3],[-2,2]], k = 1
+Output: [[-2,2]]
+```
+
+Требуется найти k точек, ближайших к центру плоскости `О(0,0)`.
+
+**Sorting**
+
+Сортируем точки `(x,y)` по квадрату их дистанции до точки `O`: `х**2 + y**2`:
+
+```py
+def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
+    return sorted(points, key=lambda p: p[0]**2 + p[1]**2)[:k]
+```
+
+* Time Complexity: O(n log n)
+* Space Complexity: O(n)
+
+**Heap + nsmallest**
+
+Для функции nlargest есть аналогичная: nsmallest, которая находит минимальныe элементы:
+
+```py
+def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
+    return heapq.nsmallest(k, points, key=lambda p: p[0]**2 + p[1]**2)
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**MinHeap + heapify**
+
+```py
+def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
+    ordered = [(p[0]**2 + p[1]**2, p) for p in points]
+    heapq.heapify(ordered)
+    return [heapq.heappop(ordered)[1] for _ in range(k)]
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**k-MaxHeap**
+
+```py
+def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
+    ordered = []
+    for p in points:
+        heapq.heappush(ordered, (-p[0]**2 - p[1]**2, p))
+        if len(ordered) > k:
+            heapq.heappop(ordered)
+    return [p[1] for p in ordered]
+```
+
+* Time Complexity: O(n log k)
+* Space Complexity: O(k)
+
+#### 692. Top k frequent words
+
+https://leetcode.com/problems/top-k-frequent-words/description/
+
+Given an array of strings words and an integer `k`, return the `k` most frequent strings.
+
+Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.
+
+```
+Input: words = ['i', 'love', 'leetcode', 'i', 'love', 'coding'], k = 2
+Output: ['i', 'love']
+```
+
+Требуется найти `k` наиболее часто встречающихся слова. 
+Если два слова имеют одинаковое число повторений, предпочесть то, которое идёт в лексикографическом порядке. 
+Результат отсортировать.
+
+**Sorting**
+
+Считаем число повторений каждого слова. 
+В качестве ключа для сортировки слов w используем пару: `(-count[w], w)`. 
+Фактически сортируем по числу повторений (от большего к меньшему), а потом сортируем лексикографически.
+
+```py
+def top_kfrequent_words(words: list[str], k: int) -> list[str]:
+    count = Counter(words)
+    return sorted(count.keys(), key=lambda w: (-count[w], w))[:k]
+```
+
+* Time Complexity: O(n log n)
+* Space Complexity: O(n)
+
+**Heap + nsmallest**
+
+```py
+def top_kfrequent_words(words: list[str], k: int) -> list[str]:
+    count = Counter(words)
+    return heapq.nsmallest(k, count.keys(), key=lambda w: (-count[w], w))
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**MinHeap + Heapify**
+
+```py
+def top_kfrequent_words(words: list[str], k: int) -> list[str]:
+    count = Counter(words)
+    ordered = [(-c, w) for w, c in count.items()]
+    heapq.heapify(ordered)
+    return [heapq.heappop(ordered)[1] for _ in range(k)]
+```
+
+* Time Complexity: O(n + k log n)
+* Space Complexity: O(n)
+
+**k-MaxHeap**
+
+К сожалению, получить MaxHeap из MinHeap, заменив знак на противоположенный не сработает, поскольку у нас тут есть два критерия сортировки. 
+Указать `key` нет никакой возможности. 
+Остаётся вариант с созданием класса-оболочки (wrapper-class), где мы укажем правильный способ сравнения. 
+Для wrapper-класса, используем `dataclass` с полями `w` (word) и `c` (количество повторений `w`):
+
+```py
+import dataclasses
+```
+
+```py
+@dataclasses.dataclass
+class O:
+    w: str
+    c: int
+
+    def __lt__(self, other):
+        return (-self.c, self.w) >= (-other.c, other.w)
+```
+
+```py
+def top_kfrequent_words(words: list[str], k: int) -> list[str]:
+    count = Counter(words)
+    ordered = []
+    for w, c in count.items():
+        heapq.heappush(ordered, O(w,c))
+        if len(ordered) > k:
+            heapq.heappop(ordered)
+    return [o.w for o in sorted(ordered, reverse=True)]
+```
+
+* Time Complexity: O(n log k)
+* Space Complexity: O(n)
+
+**Notes:**
+* Time/Space Complexity несколько упрощены для задач, где работаем со строками.
+* Решать эти задачи можно и другими способами: QuickSelect, а так же, используя sorted-containers (нет в стандартной библиотеке).
