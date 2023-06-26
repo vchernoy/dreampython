@@ -16,6 +16,8 @@
 
 ### [Solving Coding Problems](solving_coding_problems.md)
 
+### [LeetCode Problem 239: Sliding Window Maximum](leetcode_239.md)
+
 ### [Project: Mortgage Calculator](mortgage_calculator.md)
 
 ### [Misc](misc.md)
