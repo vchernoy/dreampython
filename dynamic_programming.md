@@ -404,14 +404,14 @@ def is_interleave(s1: str, s2: str, s3: str) -> bool:
     return f(s1, s2, s3) or f(s2, s1, s3)
 ```
 
-Параметры s1, s2, s3 у функции f перекрывают параметры функции `is_interleave`. Если, для удобства, обозначим за s1', s2', s3' ⏤ оригинальные параметры, то можно сделать следующие утверждения:
+Параметры `s1`, `s2`, `s3` у функции f перекрывают параметры функции `is_interleave`. Если, для удобства, обозначим за `s1'`, `s2'`, `s3'` ⏤ оригинальные параметры, то можно сделать следующие утверждения:
 
-* s1 ⏤ суффикс s1', аналогично для s2, s3.
-* len(s3) == len(s1) + len(s2)
-* s3 == s3'[-len(s1) - len(s2):]
-* f(s1'[:len(s1)], s2'[:len(s2)], s3'[:len(s3)]) == True
+* `s1` ⏤ суффикс `s1'`, аналогично для `s2`, `s3`.
+* `len(s3) == len(s1) + len(s2)`
+* `s3 == s3'[-len(s1) - len(s2):]`
+* `f(s1'[:len(s1)], s2'[:len(s2)], s3'[:len(s3)]) == True`
 
-Другими словами, s3 можно убрать из параметров функции f, и вычислять его при необходимости:
+Другими словами, `s3` можно убрать из параметров функции f, и вычислять его при необходимости:
 
 ```py
 from functools import cache
@@ -464,3 +464,187 @@ def is_interleave(s1: str, s2: str, s3: str) -> bool:
 Очевидно, что `if not s2` и `return` тоже можно объединить в одну команду.
 
 Как мне кажется, эта задача имеет сложность Hard, по крайней мере, эта задача сложнее, чем 115 (Distinct Subsequences).
+
+
+**LeetCode: две задачи уровня Medium на рекурсию в одну строчку (считаем и генерируем двоичные деревья)**
+
+## 96. Unique Binary Search Trees
+
+Given an integer n, return the number of structurally unique BST's (binary search trees) with exactly n nodes of unique values from 1 to n.
+
+https://leetcode.com/problems/unique-binary-search-trees/
+
+Нужно посчитать количество двоичных деревьев с n узлами.
+* Для n: 0 -- ответ: 1 (пустое дерево).
+* Для n: 1 -- ответ: 1 (одно дерево с одним узлом).
+* Для n: 2 -- ответ: 2 (два симметричных дерева).
+* Для n: 3 -- ответ: 5.
+
+Пусть f(n) обозначает количество деревьев с n узлами.
+
+Если левое поддерево содержит l узлов (0 ≤ l ≤ n-1), тогда правое поддерево должно содержать n - l - 1 узлов.
+
+Поскольку в такой конфигурации:
+* количество всевозможных левых поддеревьев: f(l),
+* а количество возможных правых поддеревьев: f(n - l - 1).
+* то количество деревьев размера n будет: f(l) * f(n - l - 1).
+
+Перебираем все возможные l, получаем рекуррентное соотношение:
+* f(n) = sum(f(l) * f(n - l - 1))
+* f(0) = 1
+
+Пишем код, для удобства определяем рекурсивную функцию f внутренней:
+```py
+from functools import cache
+
+def num_trees(n: int) -> int:
+    @cache
+    def f(n: int) -> int:
+        if n == 0:
+            return 1
+        return sum(f(l) * f(n - l - 1) for l in range(n))
+
+    return f(n)
+```
+
+Решение в одну строчку!
+
+Интересный факт, f(n) это числа Каталана, которые можно посчитать так:
+
+* C(n) = 2*(2*n-1)/(n+1) * C(n-1)
+* C(0) = 1
+
+Или на Python:
+```py
+def num_trees(n: int) -> int:
+    def f(n: int) -> int:
+        c = 1
+        for i in range(1, n):
+            c = 2 * (2*i + 1) * c // (i + 2)
+        return c
+
+    return f(n)
+```
+Можно и эту функцию записать в одну строку:
+```py
+from functools import reduce
+
+def num_trees(n: int) -> int:
+    def f(n: int) -> int:
+        return reduce(
+            lambda c, i: 2 * (2*i + 1) * c // (i + 2), 
+            range(1, n), 
+            1
+        )
+
+    return f(n)
+```
+Числа Каталана можно выразить через биномиальные коэффициенты:
+* C(n) = Binom(2*n, n) / (n+1)
+
+Которые можно получить с помощью функции: math.comb. Получаем самое простое и короткое решение:
+
+```py
+from math import comb
+
+def num_trees(n: int) -> int:
+    def f(n: int) -> int:
+        return comb(2*n, n) // (n+1)
+
+    return f(n)
+```
+
+## 95. Unique Binary Search Trees II
+
+https://leetcode.com/problems/unique-binary-search-trees-ii/
+
+Given an integer n, return all the structurally unique BST's (binary search trees), which have exactly n nodes of unique values from 1 to n. Return the answer in any order.
+
+Эта задача является продолжением предыдущей. Теперь наша цель генерировать все двоичные числа размера n.
+
+В условии задачи, BST определены следующим образом:
+
+```py
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+```
+
+Пусть функция `f(beg, end)` умеет генерировать все BSTs значения в узлах которого значения из `[beg..end]`.
+
+Допустим корень дерева содержит значение `val` (`beg ≤ val ≤ end`).
+
+* Тогда все левые деревья left генерируем вызвав `f(beg, val-1)`,
+* а все правые деревья right создаём с помощью `f(val+1, end)`.
+
+Тогда для каждого `val`, `left`, `right` определённых выше, можно создать правильное и уникальное дерево:
+
+* `TreeNode(val=val, left=left, right=right)`
+
+Собираем все варианты в списке trees, которые у будет результатом работы f(beg, end):
+
+```py
+from functools import cache
+
+def generate_trees(n: int) -> list[TreeNode|None]:
+    @cache
+    def f(beg: int, end: int) -> list[TreeNode|None]:
+        if end - beg <= -1:
+            return [None]
+
+        trees = []
+        for val in range(beg, end + 1):
+            for left in f(beg, val-1):
+                for right in f(val+1, end):
+                    trees.append(
+                        TreeNode(val=val, left=left, right=right)
+                    )
+        return trees
+
+    return f(1, n)
+```
+
+Функцию f можно записать в одну строку используя list comprehension:
+
+```py
+from functools import cache
+
+def generate_trees(n: int) -> list[TreeNode|None]:
+    @cache
+    def f(beg: int, end: int) -> list[TreeNode|None]:
+        if end - beg <= -1:
+            return [None]
+
+        return [
+            TreeNode(val, left, right)
+            for val in range(beg, end + 1)
+            for left in f(beg, val-1)
+            for right in f(val+1, end)
+        ]
+    return f(1, n)
+```
+
+Используя itertools.product можно два цикла заменить одним:
+
+```py
+from functools import cache
+from itertools import product
+
+def generate_trees(n: int) -> list[TreeNode|None]:
+    @cache
+    def f(beg: int, end: int) -> list[TreeNode|None]:
+        if end - beg <= -1:
+            return [None]
+
+        return [
+            TreeNode(val, left, right)
+            for val in range(beg, end + 1)
+            for left, right in product(f(beg, val-1), f(val+1, end))
+        ]
+    return f(1, n)
+```
+Очевидно, что размер списка всех деревьев должен быть равен количеству деревьев, то есть две задачи должны иметь консистентные результаты для одинакового значения n:
+
+* `len(generate_trees(n)) == num_trees(n)`
