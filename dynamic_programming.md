@@ -1,5 +1,84 @@
 # Recursion. Dynamic Programming. Memoization
 
+## Когда наконец-то выучил рекурсию в Python
+
+Что делают все эти функции?
+```py
+def N(n):
+    return N(n-1) + 1 if n > 0 else N(n+1) - 1 if n < 0 else 0
+```
+```py
+def X(n):
+    return X(n-1) + 'x' if n > 0 else ''
+```
+```py
+def S(n):
+    return S(n-1) + n if n > 0 else 0
+```
+```py
+def LN(s):
+    return LN(s[1:]) + 1 if s else 0
+```
+```py
+def SM(values):
+    return values[0] + SM(values[1:]) if values else 0
+```
+```py
+def FC(n):
+    return n * FC(n-1) if n > 0 else 1
+```
+```py
+def PR(values):
+    return values[0] * PR(values[1:]) if values else 1
+```
+```py
+def MN(values):
+    return min(values[0], MN(values[1:])) if len(values) > 1 else values[0]
+```
+```py
+def PW(x, n):
+    return x * PW(x, n-1) if n > 0 else 1 / PW(x, -n) if n < 0 else 1
+```
+```py
+def AN(values):
+    return bool(values) and (values[0] or AN(values[1:]))
+```
+```py
+def INC(values):
+    return [values[0]+1, *INC(values[1:])] if values else []
+```
+```py
+def JN(words):
+    return words[0] + ',' + JN(words[1:]) if len(words) > 1 else words[0]
+```
+
+Когда выучил хвостовую рекурсию (tail recursion)
+
+Сравните эти варианты, с аналогичными выше.
+```py
+def SM(values, acc=0):
+    return acc if not values else SM(values[1:], acc+values[0])
+```
+```py
+def FC(n, acc=1):
+    return acc if n <= 1 else FC(n-1, acc=acc*n)
+```
+```py
+def AN(values, acc=False):
+    return acc if acc or not values else AN(values[1:], acc=bool(values[0]))
+```
+```py
+def JN(words, acc=''):
+    return acc if not words else JN(words[1:], acc=(f'{acc},' if acc else '') + words[0])
+```
+
+Хвостовая рекурсия -- это такой вид рекурсии, когда рекурсивный вызов происходит в качестве самой последней команды. Хвостовая рекурсия хороша тем, что её легко можно простым циклом. Некоторые виды не хвостовых рекурсий можно легко переделать в хвостовые.
+
+Есть ещё косвенные рекурсии, это когда функция вызывает другую, а та, вызывает первую (цепочка вызовов может быть длиннее).
+
+Какие Time и Space Complexities у каждой из этих функций?
+
+
 ## LeetCode 77. Combinations (Medium)
 
 Рекурсия, динамическое программирование, memoization, генераторы, бином Ньютона.
