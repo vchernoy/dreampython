@@ -1,4 +1,4 @@
-# QA -- Quality Assurance
+# QA ⏤ Quality Assurance
 
 ## QA Part 1: Intro
 
