@@ -1,14 +1,20 @@
-# LeetCode Problem 239: Sliding Window Maximum (Hard)
+# LeetCode/Hard 239: Sliding Window Maximum
 
-## LeetCode Problem 239: Sliding Window Maximum: Часть 1
+## Sliding Window Maximum: Часть 1
 
-You are given an array of integers nums. There is a sliding window of size k, moving from the very left of the array to the right. You can only see the k numbers in the window. Each time the sliding window moves right by one position.
+https://leetcode.com/problems/sliding-window-maximum/
 
-Return the max sliding window.
-```
-Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
-Output: [3,3,5,5,6,7]
-```
+> You are given an array of integers nums. 
+> There is a sliding window of size k, moving from the very left of the array to the right. 
+> You can only see the k numbers in the window. 
+> Each time the sliding window moves right by one position.
+> 
+> Return the max sliding window.
+> ```
+> Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
+> Output: [3,3,5,5,6,7]
+> ```
+
 * Первое окно состоит из чисел: `[1,3,-1]`, а максимум: 3.
 * Следующее окно: `[3,-1,-3]`, максимум этого окна: тоже 3.
 * Третье окно: `[-1,-3,5]`, максимум: 5. и т.д.
@@ -18,6 +24,7 @@ Output: [3,3,5,5,6,7]
 
 На Python эту задачи легко решить, если не обращать внимание на Performance.
 Простейшее решение, которое будет плохо работать при nums большого размера:
+
 ```py
 def max_sliding_window(nums: list[int], k: int) -> list[int]:
     window: list[int] = []
@@ -62,7 +69,7 @@ def max_sliding_window(nums: list[int], k: int) -> list[int]:
 
 ----
 
-## LeetCode Problem 239: Sliding Window Maximum. Часть 2: ADT
+## Sliding Window Maximum. Часть 2: ADT
 
 ADT, abstract data type (абстрактный тип данных) — это описание структуры данных в терминах операций, которые можно с этими данными делать.
 
@@ -159,7 +166,7 @@ Time Complexity всего цикла (и решения): k∙O(1) + (n-k)∙O(
 
 ---
 
-## LeetCode Problem 239: Sliding Window Maximum. Часть 3: Медленные Решения на Python
+## Sliding Window Maximum. Часть 3: Медленные Решения на Python
 
 Напомним, что операции remove и max класса MaxArray требуют O(m) времени, и только add выполняется за O(1). Можно ускорить max до O(1), если после каждого изменения контейнера сортировать все элементы:
 
@@ -248,7 +255,7 @@ Time Complexity:
 
 ---
 
-## LeetCode Problem 239: Sliding Window Maximum. Часть 4: Танцы с бубном в Python
+## Sliding Window Maximum. Часть 4: Танцы с бубном в Python
 
 Заметим, что, как и в стандартном set нам не важен порядок элементов в контейнере. Но в отличие от set, необходимо сохранить все дубликаты. Фактически речь идёт о Multiset.
 
@@ -360,7 +367,7 @@ Average Case Time Complexity
 
 ---
 
-## LeetCode Problem 239: Sliding Window Maximum. Часть 5: C++ рулит
+## Sliding Window Maximum. Часть 5: C++ рулит
 
 ### C++
 

@@ -22,7 +22,7 @@ store = [
 После фильтрации, получим только "уникальные списки":
 ```py
 unique = [
-    [2, 7]
+    [2, 7],
     [1, 2, 6],
     [1, 1, 7],
     [1, 2, 2, 3],
@@ -32,9 +32,9 @@ unique = [
 
 Потому как по нашим условиям:
 
-* [7, 2] и [2, 7] ⏤ не уникальны (состоят из одинаковых элементов, но в разном порядке).
-* [6, 2, 1], [1, 2, 6], [1, 6, 2] ⏤ не уникальны.
-* [1, 2, 2, 3] и [1, 2, 3, 2] ⏤ не уникальны.
+* `[7, 2]` и `[2, 7]` ⏤ не уникальны (состоят из одинаковых элементов, но в разном порядке).
+* `[6, 2, 1]`, `[1, 2, 6]`, `[1, 6, 2]` ⏤ не уникальны.
+* `[1, 2, 2, 3]` и `[1, 2, 3, 2]` ⏤ не уникальны.
 
 Как оставить только уникальные элементы?
 
@@ -256,8 +256,7 @@ def get_words(d: dict) -> list[str]:
 Оставляем только те, которые уникальны (количество копий == 1):
 ```py
 from collections import Counter
-```
-```py
+
 def find_unique(d: dict) -> set[str]:
     words = get_words(d)
     c = Counter(words)
@@ -271,16 +270,14 @@ def find_unique(d: dict) -> set[str]:
 Тесты:
 ```py
 from collections import defaultdict
-```
-```py
+
 dicts = (
     {10: 'hello', 20: 'hi'},
     {10: 'hello', 20: 'hi', 30: 'hi'},
     {10: 'hello', 20: 'hi', 30: {2: 'hi', 7: 'you'}},
     {10: 'hello', 20: 'hi', 30: defaultdict(str, {2: 'hi', 7: 'you'})},
 )
-```
-```py
+
 for d in dicts:
     print(find_unique(d))
 ```
@@ -319,6 +316,7 @@ def get_words(d: dict) -> list[str]:
 В следующем варианте, вместо создания списка слов, который потенциально может быть очень длинным, используется ленивый поиск слов, через генератор.
 ```py
 from typing import Iterator
+
 def get_words(d: dict) -> Iterator[str]:
     for value in d.values():
         if isinstance(value, dict):
@@ -329,6 +327,8 @@ def get_words(d: dict) -> Iterator[str]:
 ```
 Следующее решение сразу создаёт Counter, в котором подсчитываются копии каждого слова.
 ```py
+from collections import Counter
+
 def get_words(d: dict) -> Counter:
     c = Counter()
 
@@ -355,63 +355,91 @@ https://onlinegdb.com/ohW2_B63i
 
 ## LeetCode/Easy: Пять задач с решением в одну строчку (June 24)
 
-### 242. Valid Anagram
-Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+### LeetCode 242. Valid Anagram
 
-An Anagram is a word formed by rearranging the letters of a different word, using all the original letters exactly once.
+https://leetcode.com/problems/valid-anagram/
+
+> Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+> 
+> An Anagram is a word formed by rearranging the letters of a different word, using all the original letters exactly once.
+
 ```py
 def is_аnagram(s: str, t: str) -> bool:
     return sorted(list(s)) == sorted(list(t))
 ```
-https://leetcode.com/problems/valid-anagram/
 
-### 169. Majority Element
-Given an array nums of size n, return the majority element.
+### LeetCode 169. Majority Element
 
-The majority element is the element that appears more than ⌊n / 2⌋ times.
-```py
-def majority_еlement(nums: list[int]) -> int:
-    return next(v for v,c in Counter(nums).items() if c > len(nums) // 2, None)
-```
 https://leetcode.com/problems/majority-element/
 
-### 229. Majority Element II
-Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
+> Given an array nums of size n, return the majority element.
+> 
+> The majority element is the element that appears more than ⌊n / 2⌋ times.
 ```py
+from collections import Counter
+
+def majority_еlement(nums: list[int]) -> int:
+    return next((v for v,c in Counter(nums).items() if c > len(nums) // 2), None)
+```
+
+### LeetCode 229. Majority Element II
+
+https://leetcode.com/problems/majority-element-ii/
+
+> Given an integer array of size n, find all elements that appear more than ⌊ n / 3 ⌋ times.
+
+```py
+from collections import Counter
+
 def majority_elements(nums: list[int]) -> list[int]:
     return [v for v,c in Counter(nums).items() if c > len(nums) // 3]
 ```
-https://leetcode.com/problems/majority-element-ii/
 
-### 217. Contains Duplicate
-Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
+### LeetCode 217. Contains Duplicate
+
+https://leetcode.com/problems/contains-duplicate/
+
+> Given an integer array nums, return true if any value appears at least twice in the array and return false if every element is distinct.
+
 ```py
+from collections import Counter
+
 def contains_dup(nums: list[int]) -> bool:
     return any(c >= 2 for c in Counter(nums).values())
 ```
 ```py
+from collections import Counter
+
 def contains_dup(nums: list[int]) -> bool:
     return max(Counter(nums).values()) >= 2
 ```
-https://leetcode.com/problems/contains-duplicate/
 
-### 350. Intersection of Two Arrays II
-Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
+### LeetCode 350. Intersection of Two Arrays II
+
+https://leetcode.com/problems/intersection-of-two-arrays-ii/
+
+> Given two integer arrays nums1 and nums2, return an array of their intersection. Each element in the result must appear as many times as it shows in both arrays.
+
 ```py
+from collections import Counter
+
 def intersect(nums1: list[int], nums2: list[int]) -> list[int]:
     return (Counter(nums1) & Counter(nums2)).elements()
 ```
-https://leetcode.com/problems/intersection-of-two-arrays-ii/
 
 ---
 
-## Пять простых задач на структуры данных и рекурсию (Aug 19)
+## LeetCode/Easy: Пять задач на структуры данных и рекурсию (Aug 19)
 
 Параллельно будем использовать новый оператор match-case и сравним его с коротким if-else.
 
-### 1. Merge Two Sorted Lists
+### LeetCode 21. Merge Two Sorted Lists
 
-Given the heads of two sorted linked lists. Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
+https://leetcode.com/problems/merge-two-sorted-lists/
+
+> Given the heads of two sorted linked lists. 
+> Merge the two lists into one sorted list. 
+> The list should be made by splicing together the nodes of the first two lists.
 
 Дано определение списка (linked list):
 ```py
@@ -420,9 +448,9 @@ class ListNode:
         self.val = val
         self.next = next
 ```
-* https://leetcode.com/problems/merge-two-sorted-lists/
 
 Решение:
+
 ```py
 def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
     match p, q:
@@ -452,11 +480,11 @@ def merge(p: ListNode|None, q: ListNode|None) -> ListNode|None:
 * Перепишите функцию с использованием обычного оператора if-elif-else.
 * Решите задачу без рекурсии (используя цикл, будет длиннее).
 
-### 2. Maximum Depth of Binary Tree
+### LeetCode 104. Maximum Depth of Binary Tree
 
-Given the root of a binary tree, return its maximum depth, which is the number of nodes along the longest path from the root node down to the farthest leaf node.
+https://leetcode.com/problems/maximum-depth-of-binary-tree/
 
-* https://leetcode.com/problems/maximum-depth-of-binary-tree/
+> Given the root of a binary tree, return its maximum depth, which is the number of nodes along the longest path from the root node down to the farthest leaf node.
 
 Дано определение списка (linked list):
 ```py
@@ -489,11 +517,12 @@ def depth(r: TreeNode|None) -> int:
 * Последний блок case замените на case _.
 * Замените короткий if-else оператором if-elif-else.
 
-### 3. Same Tree
+### LeetCode 100. Same Tree
 
-Given two binary trees, check if they are the same or not. Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
+https://leetcode.com/problems/same-tree/
 
-* https://leetcode.com/problems/same-tree/
+> Given two binary trees, check if they are the same or not. 
+> Two binary trees are considered the same if they are structurally identical and the nodes have the same value.
 
 Решение:
 ```py
@@ -508,6 +537,7 @@ def same(p: TreeNode|None, q: TreeNode|None) -> bool:
         case p, q:
             return all((p.val == q.val, same(p.left, q.left), same(p.right, q.right)))
 ```
+
 * Два пустых дерева -- идентичны.
 * Если только одно из деревьев пустое, то они не идентичны.
 * Два не пустых дерева идентичны, если значения в их корнях совпадают, а также идентичными являются их левые и правые поддеревья (попарно).
@@ -525,11 +555,11 @@ def same(p: TreeNode|None, q: TreeNode|None) -> bool:
 * В первой функции, объедините второй и третий блоки case.
 * Замените короткий if-else оператором if-elif-else.
 
-### 4. Symmetric Tree
+### LeetCode 101. Symmetric Tree
 
-Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+https://leetcode.com/problems/symmetric-tree/
 
-* https://leetcode.com/problems/symmetric-tree/
+> Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
 
 Решение:
 
@@ -559,11 +589,12 @@ def symmetric(p: TreeNode|None, q: TreeNode|None) -> bool:
 * Объедините первые три блока case в один.
 * Замените короткий if-else оператором if-elif-else.
 
-### 5. Path Sum
+### LeetCode 112. Path Sum
 
-Given a binary tree and an integer target, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals target. A leaf is a node with no children.
+https://leetcode.com/problems/path-sum/
 
-* https://leetcode.com/problems/path-sum/
+> Given a binary tree and an integer target, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals target. 
+> A leaf is a node with no children.
 
 Решение:
 ```py
@@ -589,12 +620,14 @@ def has_path(r: TreeNode|None, target: int) -> bool:
 ```
 
 Задания:
-* Замените последний case на case _.
-* Замените короткий if-else оператором if-elif-else.
+* Замените последний `case` на `case _`.
+* Замените короткий `if-else` оператором `if-elif-else`.
 
 ---
 
-## LeetCode Problem #9: Palindrome Number (May 17)
+## LeetCode/Easy 9: Palindrome Number (May 17)
+
+https://leetcode.com/problems/palindrome-number/
 
 > Given an integer x, return True if x is a palindrome integer.
 >
@@ -602,11 +635,9 @@ def has_path(r: TreeNode|None, target: int) -> bool:
 >
 > For example, 121 is a palindrome while 123 is not.
 
-https://leetcode.com/problems/palindrome-number/
-
 Рассмотрим несколько решений этой задачи.
 
-Вы знали что s[::-1] ⏤ переворачивает строку (а также список и кортеж)? Сначала целое x конвертируем в строку s, а затем сравниваем строку с её перевертышем. Это самое простое решение:
+Вы знали что `s[::-1]` ⏤ переворачивает строку (а также список и кортеж)? Сначала целое x конвертируем в строку s, а затем сравниваем строку с её перевертышем. Это самое простое решение:
 ```py
 def is_palindrome(x: int) -> bool:
     s = str(x)
@@ -684,38 +715,38 @@ Code: https://onlinegdb.com/ghcfGOncm
 
 ---
 
-## LeetCode/Medium #39: Combination Sum (May 25)
-
-Дан массив различных целых чисел (candidates) и целевое целое число (target).
-
-Вернуть все уникальные комбинации кандидатов, такие что сумма кандидатов в комбинации была равна target.
-
-В комбинации кандидат может быть представлен любое количество раз.
-
-Пример 1:
-```
-candidates = [2,3,6,7]
-target = 7
-```
-Полученные комбинации: `[[2,2,3], [7]]`
-* 7 = 7
-* 7 = 2 + 2 + 3
-
-Пример 2:
-```
-candidates = [2,3,5]
-target = 8
-```
-Полученные комбинации: `[[2,2,2,2], [2,3,3], [3,5]]`
-* 8 = 2 + 2 + 2 + 2
-* 8 = 2 + 3 + 3
-* 8 = 3 + 5
+## LeetCode/Medium 39: Combination Sum (May 25)
 
 https://leetcode.com/problems/combination-sum/
 
+> Дан массив различных целых чисел (candidates) и целевое целое число (target).
+>
+> Вернуть все уникальные комбинации кандидатов, такие что сумма кандидатов в комбинации была равна target.
+>
+> В комбинации кандидат может быть представлен любое количество раз.
+>
+> Пример 1:
+>```
+> candidates = [2,3,6,7]
+> target = 7
+>```
+> Полученные комбинации: `[[2,2,3], [7]]`
+> * 7 = 7
+> * 7 = 2 + 2 + 3
+>
+> Пример 2:
+> ```
+> candidates = [2,3,5]
+> target = 8
+> ```
+> Полученные комбинации: `[[2,2,2,2], [2,3,3], [3,5]]`
+> * 8 = 2 + 2 + 2 + 2
+> * 8 = 2 + 3 + 3
+> * 8 = 3 + 5
+
 Рассмотрим несколько решений этой задачи.
 
-Функция combination_sum(candidates, target) будет использовать внутреннюю рекурсивную функцию: comb(k, target).
+Функция combination_sum(candidates, target) будет использовать внутреннюю рекурсивную функцию: `comb(k, target)`.
 
 `comb(k, target)` возвращает такие все комбинации, которые суммируются в target и состоят только из первых k кандидатов.
 
@@ -808,7 +839,9 @@ def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
 
 ---
 
-## LeetCode/Medium #75: Sort Colors (May 25)
+## LeetCode/Medium 75: Sort Colors (May 25)
+
+https://leetcode.com/problems/sort-colors/
 
 > Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
 > 
@@ -838,9 +871,8 @@ def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
 
 * Делим массив так: слева собираем все 0, а справа все 1 и 2.
 * Затем делим правую часть массива на 1 (идут в левую часть), а все 2.
-```py
-from typing import List
 
+```py
 def sort_colors0(nums: list[int]) -> None:
     def partition(beg, end, left):
         i = beg
@@ -865,8 +897,7 @@ def sort_colors0(nums: list[int]) -> None:
 Далее просто заполняем массив: сначала пойдут все 0, потом 1, а затем: 2.
 ```py
 from collections import Counter
-```
-```py
+
 def sort_colors1(nums: list[int]) -> None:
     c = Counter(nums)
     for i in range(len(nums)):
@@ -874,6 +905,8 @@ def sort_colors1(nums: list[int]) -> None:
 ```
 Следующее решение похоже на предыдущее, но потенциально может быть несколько более быстрым:
 ```py
+from collections import Counter
+
 def sort_colors2(nums: list[int]) -> None:
     c = Counter(nums)
     for i in range(c[0]):
@@ -1134,23 +1167,20 @@ Code: https://onlinegdb.com/PtHfV39vU
 
 ## LeetCode/Medium: Five Problems: Sort vs. Heap
 
-### 215. k-th largest element in an array
+### LeetCode 215. k-th largest element in an array
 
 https://leetcode.com/problems/kth-largest-element-in-an-array/
 
-Given an integer array nums and an integer k, return the k-th largest element in the array. 
-Note that it is the k-th largest element in the sorted order, not the kth distinct element.
+> Given an integer array nums and an integer k, return the k-th largest element in the array. 
+> Note that it is the k-th largest element in the sorted order, not the kth distinct element.
+> 
+> ```
+> Input: nums = [3,2,1,5,6,4], k = 2
+> Output: 5
+> ```
 
-```
-Input: nums = [3,2,1,5,6,4], k = 2
-Output: 5
-```
-
-```py
-import heapq
-from collections import Counter
-```
-В задаче требуется найти k наибольших элемента в списке. Каждому решению даём имя. В последующих задачах будем применять похожие подходы, а имена помогут сориентироваться между разными методами:
+В задаче требуется найти k наибольших элемента в списке. Каждому решению даём имя. 
+В последующих задачах будем применять похожие подходы, а имена помогут сориентироваться между разными методами:
 
 **Sorting**
 
@@ -1173,6 +1203,8 @@ def find_klargest(nums: list[int], k: int) -> int:
 чем стандартная сортировка, при условии, если `k` значительно меньше, чем количество элементом в списке.
 
 ```py
+import heapq
+
 def find_klargest(nums: list[int], k: int) -> int:
     return heapq.nlargest(k, nums)[-1]
 ```
@@ -1186,11 +1218,14 @@ def find_klargest(nums: list[int], k: int) -> int:
 Значит, можно ускорить сортировку: используем метод подсчёта.
 
 ```py
+from collections import Counter
+
 def find_klargest(nums: list[int], k: int) -> int:
     count = Counter(nums)
     for num in sorted(count.keys(), reverse=True):
         if count[num] >= k:
             return num
+
         k -= count[num]
 ```
 
@@ -1206,11 +1241,14 @@ def find_klargest(nums: list[int], k: int) -> int:
 Под индексом 0 получим самый маленький элемент, что по сути будет являться самым большим в оригинальном списке (если поменять знак на противоположенный).
 
 ```py
+import heapq
+
 def find_klargest(nums: list[int], k: int) -> int:
     ordered = [-num for num in nums]
     heapq.heapify(ordered)
     for _ in range(k-1):
         heapq.heappop(ordered)
+
     return -ordered[0]
 ```
 
@@ -1224,29 +1262,32 @@ def find_klargest(nums: list[int], k: int) -> int:
 В конце куча будет содержать `k` самых больших числа.
 
 ```py
+import heapq
+
 def find_klargest(nums: list[int], k: int) -> int:
     ordered = []
     for num in nums:
         heapq.heappush(ordered, num)
         if len(ordered) > k:
             heapq.heappop(ordered)
+
     return ordered[0]
 ```
  
 * Time Complexity: O(k log n)
 * Space Complexity: O(k)
 
-### 347. Top k frequent elements
+### LeetCode 347. Top k frequent elements
 
 https://leetcode.com/problems/top-k-frequent-elements/
 
-Given an integer array nums and an integer k, return the k most frequent elements. 
-You may return the answer in any order.
-
-```
-Input: nums = [1,1,1,2,2,3], k = 2
-Output: [1,2]
-```
+> Given an integer array nums and an integer k, return the k most frequent elements. 
+> You may return the answer in any order.
+> 
+> ```
+> Input: nums = [1,1,1,2,2,3], k = 2
+> Output: [1,2]
+> ```
 
 Требуется вернуть k наиболее часто встречающихся элемента.
 
@@ -1256,6 +1297,8 @@ Output: [1,2]
 То есть вместо того, чтобы сравнивать `x` и `y`, функция `sorted` сравнит `count[x]` и `count[y]`:
 
 ```py
+from collections import Counter
+
 def top_kfrequent(nums: list[int], k: int) -> list[int]:
     count = Counter(nums)
     ordered = sorted(count.keys(), key=count.get)
@@ -1268,6 +1311,9 @@ def top_kfrequent(nums: list[int], k: int) -> list[int]:
 **Heap + nlargest**
 
 ```py
+import heapq
+from collections import Counter
+
 def top_kfrequent(nums: list[int], k: int) -> list[int]:
     count = Counter(nums)
     return heapq.nlargest(k, count.keys(), key=count.get)
@@ -1282,6 +1328,9 @@ def top_kfrequent(nums: list[int], k: int) -> list[int]:
 В результате heapify выполнит сортировку по `-c`.
 
 ```py
+import heapq
+from collections import Counter
+
 def top_kfrequent(nums: list[int], k: int) -> list[int]:
     count = Counter(nums)
     ordered = [(-c, num) for num, c in count.items()]
@@ -1295,6 +1344,9 @@ def top_kfrequent(nums: list[int], k: int) -> list[int]:
 **k-MinHeap**
 
 ```py
+import heapq
+from collections import Counter
+
 def top_kfrequent(nums: list[int], k: int) -> list[int]:
     count = Counter(nums)
     ordered = []
@@ -1302,34 +1354,35 @@ def top_kfrequent(nums: list[int], k: int) -> list[int]:
         heapq.heappush(ordered, (c, num))
         if len(ordered) > k:
             heapq.heappop(ordered)
+
     return [num for _, num in ordered]
 ```
 
 * Time Complexity: O(n log k)
 * Space Complexity: O(n)
 
-### 1985. Find the k-th largest integer in the array
+### LeetCode 1985. Find the k-th largest integer in the array
 
 https://leetcode.com/problems/find-the-kth-largest-integer-in-the-array/
 
-You are given an array of strings nums and an integer `k`. 
-Each string in nums represents an integer without leading zeros.
-
-Return the string that represents the k-th largest integer in nums.
-
-Duplicate numbers should be counted distinctly. 
-For example, if nums is `['1', '2', '2']`, 
-* `'2'` is the first largest integer, 
-* `'2'` is the second-largest integer, and 
-* `'1'` is the third-largest integer.
-
-```
-Input: nums = ['3', '6', '7', '10'], k = 4
-Output: '3'
-```
-
-Explanation: The numbers in nums sorted in non-decreasing order are `['3', '6', '7', '10']`. 
-The 4th largest integer in nums is `'3'`.
+> You are given an array of strings nums and an integer `k`. 
+> Each string in nums represents an integer without leading zeros.
+> 
+> Return the string that represents the k-th largest integer in nums.
+> 
+> Duplicate numbers should be counted distinctly. 
+> For example, if nums is `['1', '2', '2']`, 
+> * `'2'` is the first largest integer, 
+> * `'2'` is the second-largest integer, and 
+> * `'1'` is the third-largest integer.
+> 
+> ```
+> Input: nums = ['3', '6', '7', '10'], k = 4
+> Output: '3'
+> ```
+> 
+> Explanation: The numbers in nums sorted in non-decreasing order are `['3', '6', '7', '10']`. 
+> The 4th largest integer in nums is `'3'`.
 
 Требуется найти k-самое большое число, представленное в виде строки.
 
@@ -1348,6 +1401,8 @@ def klargest_num(nums: list[str], k: int) -> str:
 **Heap + nlargest**
 
 ```py
+import heapq
+
 def klargest_num(nums: list[str], k: int) -> str:
     return heapq.nlargest(k, nums, key=int)[-1]
 ```
@@ -1359,11 +1414,14 @@ def klargest_num(nums: list[str], k: int) -> str:
 Опять создаём кучу из пар `(-int(w), w)`, что фактически создаёт MaxHeap сортирующую строки w согласно их числовым представлениям:
 
 ```py
+import heapq
+
 def klargest_num(nums: list[str], k: int) -> str:
     ordered = [(-int(w), w) for w in nums]
     heapq.heapify(ordered)
     for _ in range(k-1):
         heapq.heappop(ordered)
+
     return ordered[0][1]
 ```
 
@@ -1373,31 +1431,34 @@ def klargest_num(nums: list[str], k: int) -> str:
 **k-MaxHeap**
 
 ```py
+import heapq
+
 def klargest_num(nums: list[str], k: int) -> str:
     ordered = []
     for w in nums:
         heapq.heappush(ordered, (int(w), w))
         if len(ordered) > k:
             heapq.heappop(ordered)
+
     return ordered[0][1]
 ```
 
 * Time Complexity: O(n log k)
 * Space Complexity: O(k)
 
-### 973. K closest points to origin
+### LeetCode 973. K closest points to origin
 
 https://leetcode.com/problems/k-closest-points-to-origin/
 
-Given an array of points where `points[i] = [xi, yi]` represents a point on the X-Y plane and an integer `k`, 
-return the `k` closest points to the origin `(0, 0)`.
-
-The distance between two points on the X-Y plane is the Euclidean distance (i.e., `√[(x1 - x2)^2 + (y1 - y2)^2]`).
-
-```
-Input: points = [[1,3],[-2,2]], k = 1
-Output: [[-2,2]]
-```
+> Given an array of points where `points[i] = [xi, yi]` represents a point on the X-Y plane and an integer `k`, 
+> return the `k` closest points to the origin `(0, 0)`.
+> 
+> The distance between two points on the X-Y plane is the Euclidean distance (i.e., `√[(x1 - x2)^2 + (y1 - y2)^2]`).
+> 
+> ```
+> Input: points = [[1,3],[-2,2]], k = 1
+> Output: [[-2,2]]
+> ```
 
 Требуется найти k точек, ближайших к центру плоскости `О(0,0)`.
 
@@ -1418,6 +1479,8 @@ def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
 Для функции nlargest есть аналогичная: nsmallest, которая находит минимальныe элементы:
 
 ```py
+import heapq
+
 def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
     return heapq.nsmallest(k, points, key=lambda p: p[0]**2 + p[1]**2)
 ```
@@ -1428,6 +1491,8 @@ def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
 **MinHeap + heapify**
 
 ```py
+import heapq
+
 def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
     ordered = [(p[0]**2 + p[1]**2, p) for p in points]
     heapq.heapify(ordered)
@@ -1440,30 +1505,33 @@ def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
 **k-MaxHeap**
 
 ```py
+import heapq
+
 def kclosest(points: list[list[int]], k: int) -> list[list[int]]:
     ordered = []
     for p in points:
         heapq.heappush(ordered, (-p[0]**2 - p[1]**2, p))
         if len(ordered) > k:
             heapq.heappop(ordered)
+
     return [p[1] for p in ordered]
 ```
 
 * Time Complexity: O(n log k)
 * Space Complexity: O(k)
 
-### 692. Top k frequent words
+### LeetCode 692. Top k frequent words
 
 https://leetcode.com/problems/top-k-frequent-words/description/
 
-Given an array of strings words and an integer `k`, return the `k` most frequent strings.
-
-Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.
-
-```
-Input: words = ['i', 'love', 'leetcode', 'i', 'love', 'coding'], k = 2
-Output: ['i', 'love']
-```
+> Given an array of strings words and an integer `k`, return the `k` most frequent strings.
+>
+> Return the answer sorted by the frequency from highest to lowest. Sort the words with the same frequency by their lexicographical order.
+> 
+> ```
+> Input: words = ['i', 'love', 'leetcode', 'i', 'love', 'coding'], k = 2
+> Output: ['i', 'love']
+> ```
 
 Требуется найти `k` наиболее часто встречающихся слова. 
 Если два слова имеют одинаковое число повторений, предпочесть то, которое идёт в лексикографическом порядке. 
@@ -1476,6 +1544,8 @@ Output: ['i', 'love']
 Фактически сортируем по числу повторений (от большего к меньшему), а потом сортируем лексикографически.
 
 ```py
+from collections import Counter
+
 def top_kfrequent_words(words: list[str], k: int) -> list[str]:
     count = Counter(words)
     return sorted(count.keys(), key=lambda w: (-count[w], w))[:k]
@@ -1487,6 +1557,9 @@ def top_kfrequent_words(words: list[str], k: int) -> list[str]:
 **Heap + nsmallest**
 
 ```py
+import heapq
+from collections import Counter
+
 def top_kfrequent_words(words: list[str], k: int) -> list[str]:
     count = Counter(words)
     return heapq.nsmallest(k, count.keys(), key=lambda w: (-count[w], w))
@@ -1498,6 +1571,9 @@ def top_kfrequent_words(words: list[str], k: int) -> list[str]:
 **MinHeap + Heapify**
 
 ```py
+import heapq
+from collections import Counter
+
 def top_kfrequent_words(words: list[str], k: int) -> list[str]:
     count = Counter(words)
     ordered = [(-c, w) for w, c in count.items()]
@@ -1517,9 +1593,7 @@ def top_kfrequent_words(words: list[str], k: int) -> list[str]:
 
 ```py
 import dataclasses
-```
 
-```py
 @dataclasses.dataclass
 class O:
     w: str
@@ -1530,6 +1604,9 @@ class O:
 ```
 
 ```py
+import heapq
+from collections import Counter
+
 def top_kfrequent_words(words: list[str], k: int) -> list[str]:
     count = Counter(words)
     ordered = []
@@ -1537,6 +1614,7 @@ def top_kfrequent_words(words: list[str], k: int) -> list[str]:
         heapq.heappush(ordered, O(w,c))
         if len(ordered) > k:
             heapq.heappop(ordered)
+
     return [o.w for o in sorted(ordered, reverse=True)]
 ```
 

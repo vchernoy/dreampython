@@ -80,22 +80,23 @@ def JN(words, acc=''):
 
 ---
 
-## LeetCode 77. Combinations (Medium)
+## LeetCode/Medium 77. Combinations
 
 Рекурсия, динамическое программирование, memoization, генераторы, бином Ньютона.
 
 https://leetcode.com/problems/combinations/description/
 
-Given two integers n and k, return all possible combinations of k numbers chosen from the range `[1, n]`.
+> Given two integers n and k, return all possible combinations of k numbers chosen from the range `[1, n]`.
+> 
+> You may return the answer in any order.
+> ```
+> Input: n = 4, k = 2
+> Output: [[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]]
+> 
+> Input: n = 4, k = 3
+> Output: [[1,2,3], [1,2,4], [1,3,4], [2,3,4]]
+> ```
 
-You may return the answer in any order.
-```
-Input: n = 4, k = 2
-Output: [[1,2], [1,3], [1,4], [2,3], [2,4], [3,4]]
-
-Input: n = 4, k = 3
-Output: [[1,2,3], [1,2,4], [1,3,4], [2,3,4]]
-```
 Количество комбинаций легко считается через Binomial Coefficient: n! / (k! * (n-k)!).
 
 Как увидеть и использовать рекурсию?
@@ -234,15 +235,16 @@ def combine(n: int, k: int) -> list[tuple[int]]:
 
 ---
 
-## LeetCode 115. Distinct Subsequences (Hard)
+## LeetCode/Hard 115. Distinct Subsequences
 
 https://leetcode.com/problems/distinct-subsequences/
 
-Given two strings s and t, return the number of distinct subsequences of s which equals t.
-```
-Input: s = "rabbbit", t = "rabbit"
-Output: 3
-```
+> Given two strings s and t, return the number of distinct subsequences of s which equals t.
+> ```
+> Input: s = "rabbbit", t = "rabbit"
+> Output: 3
+> ```
+
 Три способа из `rabbbit` получить `rabbit`:
 
 * **rabb**b**it**
@@ -380,24 +382,24 @@ def num_distinct(s: str, t: str) -> int:
 
 ---
 
-## LeetCode 97. Interleaving String (Medium)
+## LeetCode/Medium 97. Interleaving String
 
 https://leetcode.com/problems/interleaving-string/
 
-Given strings s1, s2, and s3, find whether s3 is formed by an interleaving of s1 and s2.
-
-Input:
-
-* s1 = "aabcc",
-* s2 = "dbbca",
-* s3 = "aadbbcbcac"
-
-Output: True
-
-Разделим s1 и s2 на три и две части соответственно:
-
-* s1 = "aa" + "bc" + "c",
-* s2 = "dbbc" + "a".
+> Given strings s1, s2, and s3, find whether s3 is formed by an interleaving of s1 and s2.
+> 
+> Input:
+> 
+> * s1 = "aabcc",
+> * s2 = "dbbca",
+> * s3 = "aadbbcbcac"
+>
+> Output: True
+> 
+> Разделим s1 и s2 на три и две части соответственно:
+>
+> * s1 = "aa" + "bc" + "c",
+> * s2 = "dbbc" + "a".
 
 Тогда можно получить s3 так:
 
@@ -553,11 +555,11 @@ def is_interleave(s1: str, s2: str, s3: str) -> bool:
 
 ---
 
-## 96. Unique Binary Search Trees
-
-Given an integer n, return the number of structurally unique BST's (binary search trees) with exactly n nodes of unique values from 1 to n.
+## LeetCode/Medium 96. Unique Binary Search Trees
 
 https://leetcode.com/problems/unique-binary-search-trees/
+
+> Given an integer n, return the number of structurally unique BST's (binary search trees) with exactly n nodes of unique values from 1 to n.
 
 Нужно посчитать количество двоичных деревьев с n узлами.
 * Для n: 0 -- ответ: 1 (пустое дерево).
@@ -640,11 +642,12 @@ def num_trees(n: int) -> int:
 ```
 ---
 
-## 95. Unique Binary Search Trees II
+## LeetCode/Medium 95. Unique Binary Search Trees II
 
 https://leetcode.com/problems/unique-binary-search-trees-ii/
 
-Given an integer n, return all the structurally unique BST's (binary search trees), which have exactly n nodes of unique values from 1 to n. Return the answer in any order.
+> Given an integer n, return all the structurally unique BST's (binary search trees), which have exactly n nodes of unique values from 1 to n. 
+> Return the answer in any order.
 
 Эта задача является продолжением предыдущей. Теперь наша цель генерировать все двоичные числа размера n.
 
