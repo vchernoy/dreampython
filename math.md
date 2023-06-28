@@ -189,6 +189,8 @@ def squares_of5(nums: list[float]) -> list[float]:
 * Space Complexity: $\mathcal{O}(n)$
 * The algorithm runs in linear time and space.
 
+---
+
 ## Немного алгебры
 
 ### $\mathcal{O}(1)$

@@ -445,7 +445,6 @@ Code: https://onlinegdb.com/wq9VInL3Z
 
 ---
 
-
 ## Callables (Aug 18)
 
 В Python объект может быть Callable, то есть, его можно вызвать как обычную функцию.

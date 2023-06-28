@@ -98,6 +98,8 @@ square_values = (operator.mul(*v) for v in zip(values, values))
 square_values = (operator.pow(*v) for v in zip(values, repeat(2)))
 ```
 
+---
+
 ## `starmap(func, iterable of tuples)` + `zip`
 
 starmap ⏤ это аналог map, но умеет распаковывать кортежи (tuples) автоматически:
@@ -360,7 +362,6 @@ sq_odd_values = map(partial(pow, exp=2), filter(partial(operator.and_, 1), value
 Code in https://onlinegdb.com/FLDien5qE
 
 ---
-
 
 ## Пять способов создать slices in Python (May 20)
 

@@ -54,7 +54,6 @@ Code: https://onlinegdb.com/NvuGy8Oo8
 
 ---
 
-
 ## Инициализируем многомерные массивы (lists) в Python правильно! (May 12)
 
 Заполняем двухмерные массивы (3х2), нулями, True и последовательными числами:
@@ -175,7 +174,6 @@ Output:
 https://onlinegdb.com/-8B_D1JMB
 
 ---
-
 
 ## The Art of Print (May 15)
 

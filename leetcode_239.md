@@ -60,6 +60,7 @@ def max_sliding_window(nums: list[int], k: int) -> list[int]:
 * узнаем, какие из языков программирования будут наиболее эффективны для этой задачи,
 * а, какие языки программирования будут неэффективны, как Python.
 
+----
 
 ## LeetCode Problem 239: Sliding Window Maximum. Часть 2: ADT
 
@@ -156,6 +157,7 @@ Time Complexity всего цикла (и решения): k∙O(1) + (n-k)∙O(
 
 Если сможем реализовать контейнер (с операциями ADT MaxWindow), с более быстрыми операциями, то сможем улучшить Time Complexity и для решения задачи в целом.
 
+---
 
 ## LeetCode Problem 239: Sliding Window Maximum. Часть 3: Медленные Решения на Python
 
@@ -244,7 +246,7 @@ Time Complexity:
 
 Продолжим бороться с Python в следующем посту.
 
-
+---
 
 ## LeetCode Problem 239: Sliding Window Maximum. Часть 4: Танцы с бубном в Python
 
@@ -356,7 +358,7 @@ Average Case Time Complexity
 
 В следующих частях посмотрим как на этой задаче покажут себя языки-динозавры типа C++.
 
-
+---
 
 ## LeetCode Problem 239: Sliding Window Maximum. Часть 5: C++ рулит
 

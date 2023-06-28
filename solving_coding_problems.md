@@ -99,7 +99,6 @@ Code: https://onlinegdb.com/o_MRBjNxP
 
 ---
 
-
 ## Ставим рейтинг списку слов (June 5)
 
 Дан список слов, требуется узнать на каком месте будет положение каждого слова после сортировки списка (игнорируем регистр букв).
@@ -213,7 +212,6 @@ ranked_words = [(words[i], r) for i, r in sorted(zip(sorted(range(len(words)), k
 Code in https://onlinegdb.com/eMH7atQTP
 
 ---
-
 
 ## Nested Dictionary, Recursion, Set Comprehension, Generators (Aug 29)
 
@@ -355,7 +353,6 @@ https://onlinegdb.com/ohW2_B63i
 
 ---
 
-
 ## LeetCode/Easy: Пять задач с решением в одну строчку (June 24)
 
 ### 242. Valid Anagram
@@ -407,7 +404,6 @@ def intersect(nums1: list[int], nums2: list[int]) -> list[int]:
 https://leetcode.com/problems/intersection-of-two-arrays-ii/
 
 ---
-
 
 ## Пять простых задач на структуры данных и рекурсию (Aug 19)
 
@@ -598,7 +594,6 @@ def has_path(r: TreeNode|None, target: int) -> bool:
 
 ---
 
-
 ## LeetCode Problem #9: Palindrome Number (May 17)
 
 > Given an integer x, return True if x is a palindrome integer.
@@ -688,7 +683,6 @@ def is_palindrome(x: int) -> bool:
 Code: https://onlinegdb.com/ghcfGOncm
 
 ---
-
 
 ## LeetCode/Medium #39: Combination Sum (May 25)
 
@@ -814,7 +808,6 @@ def combination_sum(candidates: list[int], target: int) -> list[list[int]]:
 
 ---
 
-
 ## LeetCode/Medium #75: Sort Colors (May 25)
 
 > Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
@@ -895,7 +888,6 @@ def sort_colors2(nums: list[int]) -> None:
 Code to play: https://onlinegdb.com/P2hNkRMdH
 
 ---
-
 
 ## Pig It — в одну строчку (Oct 25)
 
@@ -1138,6 +1130,7 @@ test()
 
 Code: https://onlinegdb.com/PtHfV39vU
 
+---
 
 ## LeetCode/Medium: Five Problems: Sort vs. Heap
 

@@ -78,6 +78,7 @@ def JN(words, acc=''):
 
 Какие Time и Space Complexities у каждой из этих функций?
 
+---
 
 ## LeetCode 77. Combinations (Medium)
 
@@ -231,6 +232,7 @@ def combine(n: int, k: int) -> list[tuple[int]]:
     return list(combinations(range(1, n+1), k))
 ```
 
+---
 
 ## LeetCode 115. Distinct Subsequences (Hard)
 
@@ -375,6 +377,8 @@ def num_distinct(s: str, t: str) -> int:
 ```
 
 Мне кажется это не уровня Hard проблема, а скорее твердый Medium. Может следующий раз покажу похожую проблему уровня Medium, которая явно тяжелее, чем эта задача (и точно потянет на Hard).
+
+---
 
 ## LeetCode 97. Interleaving String (Medium)
 
@@ -547,6 +551,8 @@ def is_interleave(s1: str, s2: str, s3: str) -> bool:
 
 **LeetCode: две задачи уровня Medium на рекурсию в одну строчку (считаем и генерируем двоичные деревья)**
 
+---
+
 ## 96. Unique Binary Search Trees
 
 Given an integer n, return the number of structurally unique BST's (binary search trees) with exactly n nodes of unique values from 1 to n.
@@ -632,6 +638,7 @@ def num_trees(n: int) -> int:
 
     return f(n)
 ```
+---
 
 ## 95. Unique Binary Search Trees II
 
