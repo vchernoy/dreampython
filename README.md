@@ -1,3 +1,8 @@
+---
+layout: default
+title: Home
+---
+
 # Dream on Python
 
 ### [String Formatting](docs/strings_and_string_formatting.md)
