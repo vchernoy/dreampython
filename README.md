@@ -1,33 +1,35 @@
 # Dream on Python
 
-### [String Formatting](docs/strings_and_string_formatting.md)
+## Table of Contents
 
-### [Operators + and * on Numbers, Strings, Lists, and Tuples](docs/operations_plus_product_on_numbers_strings_lists_tuples.md)
+- [String Formatting](docs/strings_and_string_formatting.md)
 
-### [Lists & Tuples](docs/lists_and_tuples.md)
+- [Operators + and * on Numbers, Strings, Lists, and Tuples](docs/operations_plus_product_on_numbers_strings_lists_tuples.md)
 
-### [Generators, Iterables, Callables](docs/generators_iterables_callables.md)
+- [Lists & Tuples](docs/lists_and_tuples.md)
 
-### [Decorators](docs/decorators.md)
+- [Generators, Iterables, Callables](docs/generators_iterables_callables.md)
 
-### [List & Tuple Comprehension. Generator Expression](docs/list_tuple_generator_comprehensions.md)
+- [Decorators](docs/decorators.md)
 
-### [String Internals](docs/string_internals.md)
+- [List & Tuple Comprehension. Generator Expression](docs/list_tuple_generator_comprehensions.md)
 
-### [Coding Problems](docs/solving_coding_problems.md)
+- [String Internals](docs/string_internals.md)
 
-### [Sliding Window Maximum](docs/leetcode_239.md)
+- [Coding Problems](docs/solving_coding_problems.md)
 
-### [Dynamic Programming. Memoization](docs/dynamic_programming.md)
+- [Sliding Window Maximum](docs/leetcode_239.md)
 
-### [Mortgage Calculator](docs/mortgage_calculator.md)
+- [Dynamic Programming. Memoization](docs/dynamic_programming.md)
 
-### [Programming Languages Overview](docs/programming_languages_overview.md)
+- [Mortgage Calculator](docs/mortgage_calculator.md)
 
-### [Bootcamps & Job Search](docs/bootcamps_job_search.md)
+- [Programming Languages Overview](docs/programming_languages_overview.md)
 
-### [What's QA?](docs/qa.md)
+- [Bootcamps & Job Search](docs/bootcamps_job_search.md)
 
-### [Math](docs/math.md)
+- [What's QA?](docs/qa.md)
 
-### [Misc](docs/misc.md)
+- [Math](docs/math.md)
+
+- [Misc](docs/misc.md)
