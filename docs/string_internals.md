@@ -20,7 +20,7 @@
 
 ### Strings in Java ('95), Golang ('09), Python ('91)
 
-Языки программирования нового поколения, такие как Java (1995), Golang (2009) и Python (1991), вводят отдельный тип "строка" (String в Java, string в Golang, str в Python). 
+Языки программирования нового поколения, такие как Java (1995), Golang (2009) и Python (1991), вводят отдельный тип "строка" (String в Java, string в Golang, str в Python).
 В новых ЯП строки обычно делают неизменяемыми (immutable/unmodifiable), что делает работу с ними более удобным (почему?).
 
 Так сделано в Python, Golang и Java (и много где ещё).
@@ -40,6 +40,7 @@
 Назовём наш строковый тип: TStr, префикс "T" — от слова "tuple", то есть делаем строки на основе tuples.
 
 Начнём с определения класса TStr, введением конструктора (`__init__`) и метода (`__len__`):
+
 ```py
 class TStr:
     def __init__(self, chars: str = '') -> None:
@@ -48,9 +49,11 @@ class TStr:
     def __len__(self) -> int:
         return len(self.chars)
 ```
+
 Объекты класса TStr содержат атрибут chars (символы) — который содержит в tuple отдельные символы.
 
 Метод `__len__` считает длину строки, что равно длине кортежа (`self.chars`). Определение метода `__len__` позволяет использовать объекты TStr в функции len, например теперь такой код будет корректно работать:
+
 ```py
 s = TStr('Hello World!')
 print(len(s))
@@ -58,50 +61,63 @@ print(len(s))
 s = TStr()
 print(len(s))
 ```
+
 Output:
-```
+
+```text
 12
 0
 ```
+
 К сожалению, попытка вывести на экран объекты TStr при помощи print провалится:
+
 ```py
 s = TStr('Hello')
 print(s)
 print(s.chars)
 ```
+
 Output:
-```
+
+```text
 <__main__.TStr object at 0x7fb5f424abe0>
 ('H', 'e', 'l', 'l', 'o')
 ```
+
 Первый print неявно пытается преобразовать TStr в тип str. Это можно починить определением метода `__str__`:
+
 ```py
     def __str__(self) -> str:
         return ''.join(self.chars)
 ```
+
 Метод `__str__` сливает все символы кортежа (`self.chars`) в нормальную строку (типа str). Теперь получим:
-```
+
+```text
 Hello
 ('H', 'e', 'l', 'l', 'o')
 ```
+
 Разумеется, в гипотетическом Python, без типа str, метод `__str__` был бы не таким, так что это ещё одно необходимое допущение, которое мы делаем для удобства.
 
-Напомним, что встроенные строки (str) позволяют производить множество операций, например: 
-слияние, повторение, выделение отдельных символов или подстрок по индексам. 
-* Строки можно сравнивать и использовать в качестве ключей в словарях. 
-* Строки имеют много методов, например startswith, endswith, find, replace и т.д. 
+Напомним, что встроенные строки (str) позволяют производить множество операций, например:
+слияние, повторение, выделение отдельных символов или подстрок по индексам.
+
+* Строки можно сравнивать и использовать в качестве ключей в словарях.
+* Строки имеют много методов, например startswith, endswith, find, replace и т.д.
 
 Всё это можно реализовать в TStr и это будет работать как в стандартном str.
 
 Продолжение следует.
 
-Code: https://onlinegdb.com/PEyCCALh0
+Code: [OnlineGDB](https://onlinegdb.com/PEyCCALh0)
 
 ---
 
 ## Что такое строки? ⏤ Part 2 (Oct 19)
 
 В части 1 мы начали реализовывать класс TStr (строки) на основе tuples (кортежей символов). Вот что у нас уже получилось:
+
 ```py
 class TStr:
     def __init__(self, chars: str = '') -> None:
@@ -113,14 +129,18 @@ class TStr:
     def __str__(self) -> str:
         return ''.join(self.chars)
 ```
-Следующий метод `__repr__` создаёт строковое представление объекта. 
-Отметим, что метод `__str__` вызывается функцией str, a `__repr__` вызывается `repr`. 
+
+Следующий метод `__repr__` создаёт строковое представление объекта.
+Отметим, что метод `__str__` вызывается функцией str, a `__repr__` вызывается `repr`.
 Это ещё один случай, когда нам без стандартных строк не обойтись:
+
 ```py
     def __repr__(self) -> str:
         return f'{type(self).__name__}("{self}")'
 ```
+
 Теперь следующий кусок кода будет правильно работать (попробуйте без `__repr__`):
+
 ```py
 hello = TStr('Hello')
 world = TStr('World!')
@@ -128,14 +148,17 @@ space = TStr(' ')
 
 print([hello, space, world])
 ```
+
 Output:
-```
+
+```py
 [TStr("Hello"), TStr(" "), TStr("World!")]
 ```
 
 ### TStr concatenation & repetition
 
 Следующие методы необходимы для слияния строк (concatenation) и повторения (repetition).
+
 ```py
     def __add__(self, s) -> 'TStr':
         return TStr(self.chars + s.chars)
@@ -146,25 +169,31 @@ Output:
     def __rmul__(self, n: int) -> 'TStr':
         return TStr(n * self.chars)
 ```
+
 Отметим, что эти операции основаны на кортежах, то есть используют (делегируют) соответствующие операции над tuple: concatenation и repetition.
 
 Пример, где эти методы используются:
+
 ```py
 print(hello + space + world)
 print(world * 3)
 print(3 * world)
 ```
+
 Output:
-```
+
+```text
 Hello World!
 World!World!World!
 World!World!World!
 ```
+
 Метод `__add__` вызывается там, где над объектами TStr применяется оператор + (concatenation), а `__mul__` и `__rmul__`, там где над TStr и int применяется оператор * (repetition).
 
 ### TStr comparison
 
 Хотим сравнивать объекты TStr, как это позволяют обычные строки? Хотим сортировать списки из TStr? Значит необходимо добавить следующие методы:
+
 ```py
     def __eq__(self, x: object) -> bool:
         return self.chars == x.chars
@@ -175,39 +204,49 @@ World!World!World!
     def __le__(self, x: 'TStr') -> bool:
         return self == x or self < x
 ```
+
 * `__eq__` вызывается операцией `==`,
 * `__lt__` вызывается операцией `<`,
 * `__le__` вызывается операцией `<=`.
 
 Теперь применим сортировку:
+
 ```py
 words = [world, hello]
 words.sort()
 print(words)
 ```
+
 Output:
-```
+
+```py
 [TStr("Hello"), TStr("World!")]
 ```
 
 ### Hashable TStr in `set` & `dict`
 
 Чтобы иметь возможность использовать TStr в set и dict (в качестве ключа), необходимо TStr сделать "hashable", то есть добавить:
+
 ```py
     def __hash__(self) -> int:
         return hash(self.chars)
 ```
-Метод `__hash__` вызывается функцией `hash`, которую мы применяем в `__hash__`, 
+
+Метод `__hash__` вызывается функцией `hash`, которую мы применяем в `__hash__`,
 но уже над значениями типа tuple (`self.chars`) — опять делегируем функциональность к tuple.
 Теперь можно создать множество из TStr, как это позволяет стандартный str:
+
 ```py
 print(set(words))
 ```
+
 Output:
-```
+
+```py
 {TStr("Hello"), TStr("World!")}
 ```
-Попробуйте использовать TStr как ключи в `dict` — должно работать. 
+
+Попробуйте использовать TStr как ключи в `dict` — должно работать.
 А потом уберите `__hash__`, что будет?
 
 ### `TStr[i]`, `TStr[beg:end:step]`, iteration over `TStr`
@@ -226,54 +265,68 @@ print([hello[0], hello[-1], hello[1:3], hello[:-1], hello[:], hello[::-1]])
 ```
 
 Output:
-```
+
+```py
 [TStr("H"), TStr("o"), TStr("el"), TStr("Hell"), TStr("Hello"), TStr("olleH")]
 ```
+
 Замечательно работают отрицательные индексы и даже взятие подстроки (slices). Работает также шаг и получение перевертыша. Магия! Опять делегировали функционал к tuple! Насколько всё-таки близки строки и tuples.
 
 Следующий код тоже работает благодаря `__getitem__`:
+
 ```py
 print(list(hello))
 print(list(reversed(hello)))
 ```
+
 Output:
-```
+
+```py
 [TStr("H"), TStr("e"), TStr("l"), TStr("l"), TStr("o")]
 [TStr("o"), TStr("l"), TStr("l"), TStr("e"), TStr("H")]
 ```
 
-### Пробег по символам (TStr стал перечислимым типом):
+### Пробег по символам (TStr стал перечислимым типом)
+
 ```py
 for ch in hello:
     print(repr(ch))
 ```
+
 Output:
-```
+
+```py
 TStr("H")
 TStr("e")
 TStr("l")
 TStr("l")
 TStr("o")
 ```
+
 Можно пробежаться по символам и их соединить:
+
 ```py
 import functools
 res = functools.reduce(lambda x,y: x+y, hello, TStr())
 print(repr(res))
 ```
+
 Output:
-```
+
+```py
 TStr("Hello")
 ```
+
 Продолжение следует...
 
-Code: https://onlinegdb.com/2ohZlESkI_
+Code: [OnlineGDB](https://onlinegdb.com/2ohZlESkI_)
 
 ---
 
 ## Что такое строки? ⏤ Part 3 (Oct 20)
 
 В частях 1 и 2 мы реализовывали часть класса TStr:
+
 ```py
 class TStr:
     def __init__(self, chars: str = '') -> None:
@@ -315,9 +368,9 @@ class TStr:
 
 ### String slicing in Python vs. Java
 
-Благодаря методу `__getitem__`, из строк можно вытаскивать отдельные символы (`s[i]`) или подстроки (`s[beg:end:step]`). 
-В Python можно использовать slicing как для строк, так и для списков и кортежей. 
-Несмотря на то, что строки и slicing присутствуют как в Python, так и в Java и Golang, функциональность slicing реализована по-разному. 
+Благодаря методу `__getitem__`, из строк можно вытаскивать отдельные символы (`s[i]`) или подстроки (`s[beg:end:step]`).
+В Python можно использовать slicing как для строк, так и для списков и кортежей.
+Несмотря на то, что строки и slicing присутствуют как в Python, так и в Java и Golang, функциональность slicing реализована по-разному.
 Вернее сделаны разные оптимизации.
 
 Например, в Java, при создании подстроки, символы не копируются в новую строку. Вместо этого, созданная подстрока просто указывает на тот же массив символов, который используется в оригинальной строке.
@@ -330,14 +383,15 @@ class TStr:
 
 ### `s.find(x)` vs. `x in s`
 
-Если реализовать метод `s.find(x)` (возвращает индекс подстроки `x` в `s`, или -1 если подстрока `x` не найдена в `s`), 
-то можно бесплатно получить и операцию `x in s` 
+Если реализовать метод `s.find(x)` (возвращает индекс подстроки `x` в `s`, или -1 если подстрока `x` не найдена в `s`),
+то можно бесплатно получить и операцию `x in s`
 (которая делегирует проверку в метод `__contains__`):
 
 ```py
     def find(self, x: 'TStr') -> int:
         return next((i for i in range(len(self)-len(x)+1) if self[i:i+len(x)] == x), -1)
 ```
+
 ```py
     def __contains__(self, x: 'TStr') -> bool:
         return self.find(x) >= 0
@@ -361,15 +415,17 @@ for w in hello, space, world, space+hello:
 for w in hello, space, world, space+hello:
     print(w in hello_world)
 ```
+
 Output:
-```
+
+```text
 0
 5
 6
 -1
 ```
 
-```
+```text
 True
 True
 True
@@ -378,6 +434,7 @@ startswith & endswith
 ```
 
 Добавим методы:
+
 ```py
     def startswith(self, prefix: 'TStr') -> bool:
         return self[:len(prefix)] == prefix
@@ -385,30 +442,36 @@ startswith & endswith
     def endswith(self, suffix: 'TStr') -> bool:
         return self[-len(suffix):] == suffix
 ```
+
 И проверим:
+
 ```py
 for w in hello, space, world, hello+space:
     print(hello_world.startswith(w))
 ```
+
 ```py
 for w in world, hello, space, space+world:
     print(hello_world.endswith(w))
 ```
+
 Output:
-```
-True
-False
-False
-True
-```
-```
+
+```text
 True
 False
 False
 True
 ```
 
-### s.replace(old, new)
+```text
+True
+False
+False
+True
+```
+
+### `s.replace(old, new)`
 
 Метод `replace` реализован через рекурсию, получаем очень простой код:
 
@@ -426,18 +489,17 @@ print(hello_world.replace(TStr('l'), TStr('L')*3))
 
 Output:
 
-```
+```text
 HeLLLLLLo WorLLLd!
 ```
 
-Code: https://onlinegdb.com/0CqoCkOm-
+Code: [OnlineGDB](https://onlinegdb.com/0CqoCkOm-)
 
 ---
 
 ## Что такое строки? ⏤ Part 4 (Oct 23)
 
-В предыдущих частях, была реализована часть класса TStr (строки на основе tuples). 
-Вот что получилось:
+В предыдущих частях, была реализована часть класса TStr (строки на основе tuples). Вот что получилось:
 
 ```py
 class TStr:
@@ -494,8 +556,7 @@ class TStr:
         return self[:k] + new + self[k+len(old):].replace(old, new) if k >= 0 else self
 ```
 
-Теперь рассмотрим как реализовать метод `join`. 
-Хотим чтобы заработал следующий код:
+Теперь рассмотрим как реализовать метод `join`. Хотим чтобы заработал следующий код:
 
 ```py
 space = TStr(' ')
@@ -510,14 +571,14 @@ print(repr(TStr(':').join([TStr('hello')]*5)))
 
 Output:
 
-```
+```text
 TStr("hello my dear friend")
 TStr("hello")
 TStr("")
 TStr("hello:hello:hello:hello:hello")
 ```
 
-Метод `join` аккумулирует все символы в списке `res` (имеет тип: `list[str]`), 
+Метод `join` аккумулирует все символы в списке `res` (имеет тип: `list[str]`),
 который в конце конвертируется в tuple и передаётся в конструктор TStr:
 
 ```py
@@ -534,8 +595,7 @@ TStr("hello:hello:hello:hello:hello")
 
 [code snippet](https://github.com/vchernoy/dreampython/blob/f310f4678e5bbacb72541d19a9104835a268210c/string_internals/tstr.py#LL54C1-L63C1)
 
-Тут у нас проблема, поскольку `__init__` ожидает строку, а не tuple. 
-Исправляем `__init__`:
+Тут у нас проблема, поскольку `__init__` ожидает строку, а не tuple. Исправляем `__init__`:
 
 ```py
     def __init__(self, chars: str | tuple[str] = ()) -> None:
@@ -543,14 +603,15 @@ TStr("hello:hello:hello:hello:hello")
 ```
 
 Поясним, во время исполнения вызова метода: `space.join(words)`, в цикле `for`,
+
 * `self` — это `space`,
 * `sequence` — это `words`, а
 * `word` — это элементы `words` (`sequence`).
- 
-Если предположить, что список слов может быть огромен, 
-то метод `join` выделит огромный список символов (размером больше, чем сумма всех символов во всех словах). 
-Далее из списка будет создан кортеж, который будет частью результата (TStr). 
-Фактически зря использовали память под список, ведь нам нужен кортеж. 
+
+Если предположить, что список слов может быть огромен,
+то метод `join` выделит огромный список символов (размером больше, чем сумма всех символов во всех словах).
+Далее из списка будет создан кортеж, который будет частью результата (TStr).
+Фактически зря использовали память под список, ведь нам нужен кортеж.
 Можно ли улучшить?
 
 Следующая версия использует генератор (функция `yield_chars`):
@@ -575,7 +636,9 @@ import itertools
             )
         ))
 ```
+
 Можно и в одну, но очень длинную, строку:
+
 ```py
     def join(self, sequence: Iterable['TStr']) -> 'TStr':
         return TStr(tuple(
@@ -588,6 +651,7 @@ import itertools
             )
         ))
 ```
+
 Остальные методы (из str) можно дописать (в TStr) без особых проблем, какие-то из них будут более сложными, а какие-то более простыми.
 
 Чем еще отличаются строки в разных ЯП, кроме возможности модифицировать и оптимизаций?
@@ -596,4 +660,4 @@ import itertools
 
 Вопрос как правильно кодировать буквы разных алфавитов (кириллица, китайский, иврит) — является наиболее важной и трудной задачей. Подходы к кодировкам разнятся у разных ЯП, есть даже разница в подходах между Python 2 и Python 3. Совершенно верно, строки в Python 2 не совместимы со строками в Python 3.
 
-Code: https://onlinegdb.com/o_vdN5LO7
+Code: [OnlineGDB](https://onlinegdb.com/o_vdN5LO7)
