@@ -11,10 +11,28 @@
   font-weight: bold;
 }
 
+/* Override theme styles that might cause header overlap */
+body > header {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+}
+
 .skip-link:focus {
   top: 0;
   outline: 2px solid #fff;
   outline-offset: -2px;
+}
+
+/* Override theme styles that might cause header overlap */
+body > header {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
 }
 
 /* Smooth scrolling */
@@ -37,6 +55,24 @@ main {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  position: relative;
+  scroll-margin-top: 1rem;
+}
+
+/* Ensure content starts below header */
+body > main {
+  margin-top: 0;
+  padding-top: 2rem;
+}
+
+/* Override theme styles that might cause overlap */
+body {
+  position: relative;
+}
+
+/* Fix for anchor links with skip link */
+#main-content {
+  scroll-margin-top: 1rem;
 }
 
 /* Header styling */
@@ -45,6 +81,9 @@ header {
   padding: 2rem 1rem;
   border-bottom: 1px solid #dee2e6;
   margin-bottom: 2rem;
+  position: relative;
+  width: 100%;
+  z-index: 10;
 }
 
 header h1 {
@@ -97,10 +136,16 @@ pre code {
 @media (max-width: 768px) {
   main {
     padding: 1rem 0.5rem;
+    padding-top: 1.5rem;
+  }
+  
+  body > main {
+    padding-top: 1.5rem;
   }
   
   header {
     padding: 1.5rem 0.5rem;
+    margin-bottom: 1rem;
   }
   
   header h1 {
