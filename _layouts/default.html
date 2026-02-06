@@ -21,7 +21,10 @@
   <!-- Preconnect to CDN for better performance -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   
-  <!-- Custom stylesheet (optional, theme provides base styles) -->
+  <!-- Custom stylesheet -->
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  
+  <!-- Additional custom stylesheets (optional) -->
   {% if site.custom_css %}
     {% for css in site.custom_css %}
       <link rel="stylesheet" href="{{ css | relative_url }}">

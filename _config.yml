@@ -3,3 +3,7 @@ description: Posts About Python & Programming
 theme: jekyll-theme-leap-day
 plugins:
   - jekyll-katex
+
+# Custom CSS (additional stylesheets can be added here)
+# custom_css:
+#   - /assets/css/additional.css
